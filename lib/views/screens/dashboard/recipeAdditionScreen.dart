@@ -11,6 +11,13 @@ class RecipeAdditionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
+    // --- RESPONSIVE FONT SIZES ---
+    final double headerFontSize = isDesktop ? 20 : 18;
+    final double labelFontSize = isDesktop ? 20 : 14;
+    final double inputFontSize = isDesktop ? 16 : 14;
+    final double tableHeaderFontSize = isDesktop ? 20 : 13;
+    final double tableCellFontSize = isDesktop ? 16 : 12;
+
     return SafeArea(
       child: MainLayout(
         title: "Recipe Configuration",
@@ -27,10 +34,13 @@ class RecipeAdditionScreen extends StatelessWidget {
                   // --- SECTION 1: ENGINE DETAILS + IMPORT ---
                   _buildSectionHeader(
                     "Engine Details",
+                    fontSize: headerFontSize,
                     trailing: OutlinedButton.icon(
                       onPressed: () => controller.importRecipes(),
-                      icon: const Icon(Icons.file_upload_outlined, size: 18),
-                      label: const Text("Import JSON"),
+                      icon: Icon(Icons.file_upload_outlined,
+                          size: isDesktop ? 20 : 18),
+                      label: Text("Import JSON",
+                          style: TextStyle(fontSize: labelFontSize)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF0055BB),
                         side: const BorderSide(color: Color(0xFF0055BB)),
@@ -40,8 +50,12 @@ class RecipeAdditionScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   _buildResponsiveGrid(isDesktop, [
                     _buildInputField("Engine Model Number", "e.g. 6BT-5.9",
+                        labelSize: labelFontSize,
+                        textSize: inputFontSize,
                         controller: controller.modelController.value),
                     _buildInputField("Engine Type", "e.g. Diesel",
+                        labelSize: labelFontSize,
+                        textSize: inputFontSize,
                         controller: controller.typeController.value),
                   ]),
 
@@ -50,18 +64,25 @@ class RecipeAdditionScreen extends StatelessWidget {
                   // --- SECTION 2: ADDED SENSOR LIST ---
                   _buildSectionHeader(
                     "Added Sensor List",
+                    fontSize: headerFontSize,
                     trailing: Obx(() => !controller.isAddingSensor.value
                         ? ElevatedButton.icon(
-                            onPressed: () => controller.isAddingSensor.value = true,
-                            icon: const Icon(Icons.add, size: 18),
-                            label: const Text("Add New Sensor"),
+                            onPressed: () =>
+                                controller.isAddingSensor.value = true,
+                            icon: Icon(Icons.add, size: isDesktop ? 20 : 18),
+                            label: Text("Add New Sensor",
+                                style: TextStyle(fontSize: labelFontSize)),
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF0055BB),
                                 foregroundColor: Colors.white),
                           )
                         : TextButton(
-                            onPressed: () => controller.isAddingSensor.value = false,
-                            child: const Text("Cancel"),
+                            onPressed: () =>
+                                controller.isAddingSensor.value = false,
+                            child: Text("Cancel",
+                                style: TextStyle(
+                                    fontSize: labelFontSize,
+                                    color: Colors.red)),
                           )),
                   ),
                   const SizedBox(height: 10),
@@ -80,23 +101,55 @@ class RecipeAdditionScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: DataTable(
-                            headingRowColor: WidgetStateProperty.all(Colors.grey[100]),
-                            columns: const [
-                              DataColumn(label: Text('Name')),
-                              DataColumn(label: Text('Type')),
-                              DataColumn(label: Text('Register')),
-                              DataColumn(label: Text('Range')),
-                              DataColumn(label: Text('Action')),
+                            headingRowColor:
+                                WidgetStateProperty.all(Colors.grey[100]),
+                            columns: [
+                              DataColumn(
+                                  label: Text('Name',
+                                      style: TextStyle(
+                                          fontSize: tableHeaderFontSize,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Type',
+                                      style: TextStyle(
+                                          fontSize: tableHeaderFontSize,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Register',
+                                      style: TextStyle(
+                                          fontSize: tableHeaderFontSize,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Range',
+                                      style: TextStyle(
+                                          fontSize: tableHeaderFontSize,
+                                          fontWeight: FontWeight.bold))),
+                              DataColumn(
+                                  label: Text('Action',
+                                      style: TextStyle(
+                                          fontSize: tableHeaderFontSize,
+                                          fontWeight: FontWeight.bold))),
                             ],
                             rows: controller.addedSensors.map((sensor) {
                               return DataRow(cells: [
-                                DataCell(Text(sensor.name)),
-                                DataCell(Text(sensor.type)),
-                                DataCell(Text(sensor.register)),
-                                DataCell(Text("${sensor.min} / ${sensor.max}")),
+                                DataCell(Text(sensor.name,
+                                    style: TextStyle(
+                                        fontSize: tableCellFontSize))),
+                                DataCell(Text(sensor.type,
+                                    style: TextStyle(
+                                        fontSize: tableCellFontSize))),
+                                DataCell(Text(sensor.register,
+                                    style: TextStyle(
+                                        fontSize: tableCellFontSize))),
+                                DataCell(Text("${sensor.min} / ${sensor.max}",
+                                    style: TextStyle(
+                                        fontSize: tableCellFontSize))),
                                 DataCell(IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                  onPressed: () => controller.addedSensors.remove(sensor),
+                                  icon: Icon(Icons.delete_outline,
+                                      color: Colors.red,
+                                      size: isDesktop ? 22 : 20),
+                                  onPressed: () =>
+                                      controller.addedSensors.remove(sensor),
                                 )),
                               ]);
                             }).toList(),
@@ -111,28 +164,46 @@ class RecipeAdditionScreen extends StatelessWidget {
                                 key: const ValueKey("ConfigForm"),
                                 children: [
                                   const SizedBox(height: 20),
-                                  _buildSectionHeader("Configure New Sensor"),
+                                  _buildSectionHeader("Configure New Sensor",
+                                      fontSize: headerFontSize),
                                   const SizedBox(height: 20),
                                   _buildResponsiveGrid(isDesktop, [
-                                    _buildInputField("Sensor Name", "e.g. Oil Pressure",
-                                        controller: controller.sensorName.value),
-                                    _buildInputField("Sensor Type", "e.g. Analog",
-                                        controller: controller.sensorType.value),
+                                    _buildInputField(
+                                        "Sensor Name", "e.g. Oil Pressure",
+                                        labelSize: labelFontSize,
+                                        textSize: inputFontSize,
+                                        controller:
+                                            controller.sensorName.value),
+                                    _buildInputField(
+                                        "Sensor Type", "e.g. Analog",
+                                        labelSize: labelFontSize,
+                                        textSize: inputFontSize,
+                                        controller:
+                                            controller.sensorType.value),
                                   ]),
                                   const SizedBox(height: 20),
                                   _buildResponsiveGrid(isDesktop, [
                                     _buildInputField("Register Number", "0x00",
                                         isNumeric: true,
-                                        controller: controller.registerNumber.value),
-                                    _buildMinMaxField(isDesktop),
+                                        labelSize: labelFontSize,
+                                        textSize: inputFontSize,
+                                        controller:
+                                            controller.registerNumber.value),
+                                    _buildMinMaxField(isDesktop, labelFontSize,
+                                        inputFontSize),
                                   ]),
                                   const SizedBox(height: 20),
                                   _buildResponsiveGrid(isDesktop, [
                                     _buildInputField("Multiplier", "1.0",
                                         isNumeric: true,
-                                        controller: controller.multiplier.value),
+                                        labelSize: labelFontSize,
+                                        textSize: inputFontSize,
+                                        controller:
+                                            controller.multiplier.value),
                                     _buildInputField("Offset", "0",
                                         isNumeric: true,
+                                        labelSize: labelFontSize,
+                                        textSize: inputFontSize,
                                         controller: controller.offset.value),
                                   ]),
                                   const SizedBox(height: 30),
@@ -144,7 +215,9 @@ class RecipeAdditionScreen extends StatelessWidget {
                                         controller.isAddingSensor.value = false;
                                       },
                                       icon: const Icon(Icons.check),
-                                      label: const Text("Save Sensor to Table"),
+                                      label: Text("Save Sensor to Table",
+                                          style: TextStyle(
+                                              fontSize: labelFontSize)),
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.green[700],
                                           foregroundColor: Colors.white,
@@ -169,27 +242,31 @@ class RecipeAdditionScreen extends StatelessWidget {
                       OutlinedButton(
                         onPressed: () => Get.back(),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isDesktop ? 50 : 40, vertical: 20),
                           side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: const Text("Cancel",
-                            style: TextStyle(color: Colors.black, fontSize: 16)),
+                        child: Text("Cancel",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: isDesktop ? 18 : 16)),
                       ),
                       const SizedBox(width: 20),
                       ElevatedButton(
                         onPressed: () => controller.addRecipe(),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4A76C0),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 20),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isDesktop ? 60 : 50, vertical: 20),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: const Text("Add Recipe",
-                            style: TextStyle(color: Colors.white, fontSize: 16)),
+                        child: Text("Add Recipe",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isDesktop ? 18 : 16)),
                       ),
                     ],
                   ),
@@ -202,8 +279,9 @@ class RecipeAdditionScreen extends StatelessWidget {
     );
   }
 
-  // Modified helper to accept trailing widget
-  Widget _buildSectionHeader(String title, {Widget? trailing}) {
+  // Modified helper to accept fontSize
+  Widget _buildSectionHeader(String title,
+      {required double fontSize, Widget? trailing}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -211,10 +289,10 @@ class RecipeAdditionScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title,
-                style: const TextStyle(
-                    fontSize: 18,
+                style: TextStyle(
+                    fontSize: fontSize,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0055BB))),
+                    color: const Color(0xFF0055BB))),
             if (trailing != null) trailing,
           ],
         ),
@@ -239,13 +317,16 @@ class RecipeAdditionScreen extends StatelessWidget {
   }
 
   Widget _buildInputField(String label, String hint,
-      {bool isNumeric = false, TextEditingController? controller}) {
+      {required double labelSize,
+      required double textSize,
+      bool isNumeric = false,
+      TextEditingController? controller}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 14,
+            style: TextStyle(
+                fontSize: labelSize,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87)),
         const SizedBox(height: 8),
@@ -257,10 +338,11 @@ class RecipeAdditionScreen extends StatelessWidget {
           ),
           child: TextField(
             controller: controller,
+            style: TextStyle(fontSize: textSize),
             keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+              hintStyle: TextStyle(fontSize: textSize, color: Colors.grey),
               border: InputBorder.none,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -271,27 +353,32 @@ class RecipeAdditionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMinMaxField(bool isDesktop) {
+  Widget _buildMinMaxField(bool isDesktop, double labelSize, double textSize) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Range (Min / Max)",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text("Range (Min / Max)",
+            style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(child: _buildInputFieldNoLabel("Min", controller.min.value)),
+            Expanded(
+                child: _buildInputFieldNoLabel(
+                    "Min", textSize, controller.min.value)),
             const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: Text("/")),
-            Expanded(child: _buildInputFieldNoLabel("Max", controller.max.value)),
+            Expanded(
+                child: _buildInputFieldNoLabel(
+                    "Max", textSize, controller.max.value)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildInputFieldNoLabel(String hint, TextEditingController? controller) {
+  Widget _buildInputFieldNoLabel(
+      String hint, double textSize, TextEditingController? controller) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[50],
@@ -300,9 +387,11 @@ class RecipeAdditionScreen extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
+        style: TextStyle(fontSize: textSize),
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           hintText: hint,
+          hintStyle: TextStyle(fontSize: textSize),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -104,6 +104,7 @@
 //   Widget buildDivider() => Divider(color: Colors.grey.shade300, height: 1, indent: 20, endIndent: 20);
 // }
 
+import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:autopeepal/routes/routes_string.dart';
@@ -111,7 +112,7 @@ import 'package:autopeepal/AppPreferences/app_areferences.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({Key? key}) : super(key: key);
-
+final DashboardController controller = Get.find();
   // We use an RxBool so we can toggle it without a full StatefulWidget rebuild
   final RxBool isExpanded = true.obs;
 
@@ -149,13 +150,38 @@ class CustomDrawer extends StatelessWidget {
                     _buildSidebarDivider(), // Line after Test Recipe
 
                     _buildSidebarTile(
-                        Icons.settings_outlined, "Settings", Routes.loginScreen,
+                        Icons.settings_outlined, "Settings", Routes.settingsScreen,
                         isLogout: true),
                     _buildSidebarDivider(),
                     // No divider here if it's the last item, or add one if preferred
                   ],
                 ),
               ),
+               Obx(() => SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Column(
+                    children: [
+                      Text(
+                        controller.appName.value,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Version ${controller.version.value} (${controller.buildNumber.value})",
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ))
             ],
           ),
         ));
