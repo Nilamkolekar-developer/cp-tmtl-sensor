@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:autopeepal/api/app_envirments.dart';
 import 'package:autopeepal/common_widgets/app_error_widget.dart';
+import 'package:autopeepal/logic/bindings/initial_bindings.dart';
 
 import 'package:autopeepal/routes/routes.dart';
 import 'package:autopeepal/routes/routes_string.dart';
@@ -144,6 +145,7 @@ class MyApp extends StatelessWidget {
     var config = App.instance;
 
     return GetMaterialApp(
+      initialBinding: InitialBinding(),
       debugShowCheckedModeBanner: false,
       title: config.appName,
       initialRoute: Routes.splashScreen,

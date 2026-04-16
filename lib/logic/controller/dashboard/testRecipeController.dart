@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:autopeepal/models/receipe_model.dart';
 import 'package:autopeepal/models/sensor_model.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +24,7 @@ class TestRecipeController extends GetxController {
         sensors: []),
   ].obs;
 
+
   // 2. Define Text Controllers for the Addition Screen
   final modelController = TextEditingController().obs;
   final typeController = TextEditingController().obs;
@@ -37,6 +39,29 @@ class TestRecipeController extends GetxController {
   RxList addedSensors = <SensorModel>[].obs;
   RxBool isAddingSensor = false.obs;
   // 2. Logic to save current field values to the list
+  bool isFieldEmpty(TextEditingController controller) => controller.text.trim().isEmpty;
+
+  // void saveSensorToList() {
+  //   // Check all sensor-related fields
+  //   if (isFieldEmpty(sensorName.value) ||
+  //       isFieldEmpty(sensorType.value) ||
+  //       isFieldEmpty(registerNumber.value) ||
+  //       isFieldEmpty(min.value) ||
+  //       isFieldEmpty(max.value) ||
+  //       isFieldEmpty(multiplier.value) ||
+  //       isFieldEmpty(offset.value)) {
+      
+  //     Get.snackbar(
+  //       "Required Fields", 
+  //       "Please fill in all sensor configuration details.",
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.redAccent,
+  //       colorText: Colors.white,
+  //     );
+  //     return; // Stop execution
+  //   }
+  // }
+  
   void saveSensorToList() {
     if (sensorName.value.text.isEmpty) return;
 
