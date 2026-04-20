@@ -744,46 +744,186 @@ class RecipeAdditionScreen extends StatelessWidget {
                             child: Text("No sensors added yet.",
                                 style: TextStyle(color: Colors.grey)),
                           )
-                        : Container(
+                         : Container(
                             width: double.infinity,
                             margin: const EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(
+                                color: const Color.fromRGBO(238, 238, 238, 1),
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: DataTable(
+                              columnSpacing: 24,
+                              // 🔥 SET TO 0 to remove the default dark horizontal line
+                              dividerThickness: 0,
+                              horizontalMargin: 12,
+                              showBottomBorder:
+                                  false, // Set to false to use the custom border instead
+
+                              // --- CUSTOM FAINT GRID ---
+                              border: TableBorder(
+                                // Faint horizontal lines
+                                horizontalInside: BorderSide(
+                                  color: Colors.grey
+                                      .withOpacity(0.15), // Very transparent
+                                  width: 0.5,
+                                ),
+                                // Faint vertical lines
+                                verticalInside: BorderSide(
+                                  color: Colors.grey
+                                      .withOpacity(0.5), // Very transparent
+                                  width: 0.5,
+                                ),
+                                // Faint bottom border for the last row
+                                bottom: BorderSide(
+                                  color: Colors.grey.withOpacity(0.15),
+                                  width: 0.5,
+                                ),
+                              ),
+
                               headingRowColor:
                                   WidgetStateProperty.all(Colors.grey[100]),
+                              headingRowHeight: 45,
+                              dataRowMinHeight: 40,
+                              dataRowMaxHeight: 60,
+
                               columns: [
-                                DataColumn(label: Text('Name', style: TextStyle(fontSize: tableHeaderFontSize, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Type', style: TextStyle(fontSize: tableHeaderFontSize, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Register', style: TextStyle(fontSize: tableHeaderFontSize, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Range', style: TextStyle(fontSize: tableHeaderFontSize, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Action', style: TextStyle(fontSize: tableHeaderFontSize, fontWeight: FontWeight.bold))),
+                                _buildDataColumn(
+                                    'Sensor Name', tableHeaderFontSize),
+                                _buildDataColumn(
+                                    'Sensor Type', tableHeaderFontSize),
+                                _buildDataColumn(
+                                    'Register ', tableHeaderFontSize),
+                                _buildDataColumn(
+                                    'Range', tableHeaderFontSize),
+                                _buildDataColumn('Action', tableHeaderFontSize),
+                                
                               ],
                               rows: controller.addedSensors.map((sensor) {
-                                return DataRow(cells: [
-                                  DataCell(Text(sensor.sensorName ?? '', style: TextStyle(fontSize: tableCellFontSize))),
-                                  DataCell(Text(sensor.sensorType ?? '', style: TextStyle(fontSize: tableCellFontSize))),
-                                  DataCell(Text(sensor.registerNumber.toString(), style: TextStyle(fontSize: tableCellFontSize))),
-                                  DataCell(Text("${sensor.min} / ${sensor.max}", style: TextStyle(fontSize: tableCellFontSize))),
-                                  DataCell(Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit_outlined, color: Colors.blue, size: isDesktop ? 22 : 20),
-                                        onPressed: () => controller.editSensor(sensor),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete_outline, color: Colors.red, size: isDesktop ? 22 : 20),
-                                        onPressed: () => controller.addedSensors.remove(sensor),
-                                      ),
-                                    ],
+                                  return DataRow(cells: [
+                                  DataCell(Center(
+                                    child: Text(sensor.sensorName ?? '',
+                                        style: TextStyle(
+                                            fontSize: tableCellFontSize)),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text(sensor.sensorType ?? '',
+                                        style: TextStyle(
+                                            fontSize: tableCellFontSize)),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text(
+                                        sensor.registerNumber.toString(),
+                                        style: TextStyle(
+                                            fontSize: tableCellFontSize)),
+                                  )),
+                                  DataCell(Center(
+                                    child: Text("${sensor.min} / ${sensor.max}",
+                                        style: TextStyle(
+                                            fontSize: tableCellFontSize)),
+                                  )),
+                                  DataCell(Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.edit_outlined,
+                                              color: Colors.blue,
+                                              size: isDesktop ? 22 : 20),
+                                          onPressed: () =>
+                                              controller.editSensor(sensor),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.delete_outline,
+                                              color: Colors.red,
+                                              size: isDesktop ? 22 : 20),
+                                          onPressed: () => controller.addedSensors
+                                              .remove(sensor),
+                                        ),
+                                      ],
+                                    ),
                                   )),
                                 ]);
                               }).toList(),
                             ),
-                          )),
+                          )
+                        // : Container(
+                        //     width: double.infinity,
+                        //     margin: const EdgeInsets.only(bottom: 20),
+                        //     decoration: BoxDecoration(
+                        //       border: Border.all(color: Colors.grey.shade300),
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //     child: DataTable(
+                        //       headingRowColor:
+                        //           WidgetStateProperty.all(Colors.grey[100]),
+                        //       columns: [
+                        //         DataColumn(
+                        //             label: Text('Name',
+                        //                 style: TextStyle(
+                        //                     fontSize: tableHeaderFontSize,
+                        //                     fontWeight: FontWeight.bold))),
+                        //         DataColumn(
+                        //             label: Text('Type',
+                        //                 style: TextStyle(
+                        //                     fontSize: tableHeaderFontSize,
+                        //                     fontWeight: FontWeight.bold))),
+                        //         DataColumn(
+                        //             label: Text('Register',
+                        //                 style: TextStyle(
+                        //                     fontSize: tableHeaderFontSize,
+                        //                     fontWeight: FontWeight.bold))),
+                        //         DataColumn(
+                        //             label: Text('Range',
+                        //                 style: TextStyle(
+                        //                     fontSize: tableHeaderFontSize,
+                        //                     fontWeight: FontWeight.bold))),
+                        //         DataColumn(
+                        //             label: Text('Action',
+                        //                 style: TextStyle(
+                        //                     fontSize: tableHeaderFontSize,
+                        //                     fontWeight: FontWeight.bold))),
+                        //       ],
+                        //       rows: controller.addedSensors.map((sensor) {
+                        //         return DataRow(cells: [
+                        //           DataCell(Text(sensor.sensorName ?? '',
+                        //               style: TextStyle(
+                        //                   fontSize: tableCellFontSize))),
+                        //           DataCell(Text(sensor.sensorType ?? '',
+                        //               style: TextStyle(
+                        //                   fontSize: tableCellFontSize))),
+                        //           DataCell(Text(
+                        //               sensor.registerNumber.toString(),
+                        //               style: TextStyle(
+                        //                   fontSize: tableCellFontSize))),
+                        //           DataCell(Text("${sensor.min} / ${sensor.max}",
+                        //               style: TextStyle(
+                        //                   fontSize: tableCellFontSize))),
+                        //           DataCell(Row(
+                        //             mainAxisSize: MainAxisSize.min,
+                        //             children: [
+                        //               IconButton(
+                        //                 icon: Icon(Icons.edit_outlined,
+                        //                     color: Colors.blue,
+                        //                     size: isDesktop ? 22 : 20),
+                        //                 onPressed: () =>
+                        //                     controller.editSensor(sensor),
+                        //               ),
+                        //               IconButton(
+                        //                 icon: Icon(Icons.delete_outline,
+                        //                     color: Colors.red,
+                        //                     size: isDesktop ? 22 : 20),
+                        //                 onPressed: () => controller.addedSensors
+                        //                     .remove(sensor),
+                        //               ),
+                        //             ],
+                        //           )),
+                        //         ]);
+                        //       }).toList(),
+                        //     ),
+                        //   )
+                          ),
 
                     // --- SECTION 3: SENSOR CONFIGURATION FORM ---
                     Obx(() => AnimatedSwitcher(
@@ -795,26 +935,35 @@ class RecipeAdditionScreen extends StatelessWidget {
                                     key: const ValueKey("ConfigForm"),
                                     children: [
                                       const SizedBox(height: 20),
-                                      _buildSectionHeader("Configure New Sensor", fontSize: headerFontSize),
+                                      _buildSectionHeader(
+                                          "Configure New Sensor",
+                                          fontSize: headerFontSize),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
-                                        _buildInputField("Sensor Name", "e.g. Oil Pressure",
+                                        _buildInputField(
+                                            "Sensor Name", "e.g. Oil Pressure",
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller: controller.sensorName.value),
-                                        _buildInputField("Sensor Type", "e.g. Analog",
+                                            controller:
+                                                controller.sensorName.value),
+                                        _buildInputField(
+                                            "Sensor Type", "e.g. Analog",
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller: controller.sensorType.value),
+                                            controller:
+                                                controller.sensorType.value),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
-                                        _buildInputField("Register Address", "0x00",
+                                        _buildInputField(
+                                            "Register Address", "0x00",
                                             isNumeric: true,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller: controller.registerNumber.value),
-                                        _buildMinMaxField(isDesktop, labelFontSize, inputFontSize),
+                                            controller: controller
+                                                .registerNumber.value),
+                                        _buildMinMaxField(isDesktop,
+                                            labelFontSize, inputFontSize),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
@@ -822,12 +971,14 @@ class RecipeAdditionScreen extends StatelessWidget {
                                             isNumeric: true,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller: controller.multiplier.value),
+                                            controller:
+                                                controller.multiplier.value),
                                         _buildInputField("Offset", "0",
                                             isNumeric: true,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller: controller.offset.value),
+                                            controller:
+                                                controller.offset.value),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
@@ -836,10 +987,14 @@ class RecipeAdditionScreen extends StatelessWidget {
                                             textSize: inputFontSize,
                                             controller: controller.unit.value),
                                         Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text("Sensor Test / Operation",
-                                                style: TextStyle(fontSize: labelFontSize, fontWeight: FontWeight.w600)),
+                                                style: TextStyle(
+                                                    fontSize: labelFontSize,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
                                             const SizedBox(height: 8),
                                             Row(
                                               children: [
@@ -847,39 +1002,89 @@ class RecipeAdditionScreen extends StatelessWidget {
                                                   child: _buildInputFieldNoLabel(
                                                       "Result",
                                                       inputFontSize,
-                                                      controller.testResult.value,
+                                                      controller
+                                                          .testResult.value,
                                                       "Test Result",
-                                                      AutovalidateMode.onUserInteraction),
+                                                      AutovalidateMode
+                                                          .onUserInteraction),
                                                 ),
                                                 const SizedBox(width: 10),
                                                 // --- READ BUTTON ---
                                                 ElevatedButton(
                                                   onPressed: () {
-                                                    int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
-                                                    controller.testResult.value.text = "Reading...";
-                                                    controller.sendGeneratorDataRequest1(reg);
+                                                    int reg = int.tryParse(
+                                                            controller
+                                                                .registerNumber
+                                                                .value
+                                                                .text) ??
+                                                        0;
+                                                    controller.testResult.value
+                                                        .text = "Reading...";
+                                                    controller
+                                                        .sendGeneratorDataRequest1(
+                                                            reg);
                                                   },
                                                   style: ElevatedButton.styleFrom(
-                                                      backgroundColor: const Color(0xFF0055BB),
-                                                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                                                  child: const Text("Read", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                      backgroundColor:
+                                                          const Color(
+                                                              0xFF0055BB),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 18,
+                                                          horizontal: 15),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10))),
+                                                  child: const Text("Read",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 // --- WRITE BUTTON ---
                                                 ElevatedButton(
                                                   onPressed: () {
-                                                    int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
-                                                    int val = int.tryParse(controller.testResult.value.text) ?? 0;
-                                                    controller.testResult.value.text = "Writing...";
+                                                    int reg = int.tryParse(
+                                                            controller
+                                                                .registerNumber
+                                                                .value
+                                                                .text) ??
+                                                        0;
+                                                    int val = int.tryParse(
+                                                            controller
+                                                                .testResult
+                                                                .value
+                                                                .text) ??
+                                                        0;
+                                                    controller.testResult.value
+                                                        .text = "Writing...";
                                                     // Make sure to add this method in your controller
-                                                     controller.writeGeneratorDataRequest(reg, val);
+                                                    controller
+                                                        .writeGeneratorDataRequest(
+                                                            reg, val);
                                                   },
                                                   style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors.orange.shade800,
-                                                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 15),
-                                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                                                  child: const Text("Write", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                      backgroundColor: Colors
+                                                          .orange.shade800,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 18,
+                                                          horizontal: 15),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10))),
+                                                  child: const Text("Write",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 ),
                                               ],
                                             ),
@@ -887,23 +1092,31 @@ class RecipeAdditionScreen extends StatelessWidget {
                                         ),
                                       ]),
                                       const SizedBox(height: 30),
-                                      
+
                                       // --- SAVE BUTTON ---
                                       Align(
                                         alignment: Alignment.centerRight,
                                         child: ElevatedButton.icon(
                                           onPressed: () {
-                                            if (_sensorFormKey.currentState!.validate()) {
+                                            if (_sensorFormKey.currentState!
+                                                .validate()) {
                                               controller.saveSensorToList();
-                                              controller.isAddingSensor.value = false;
+                                              controller.isAddingSensor.value =
+                                                  false;
                                             }
                                           },
                                           icon: const Icon(Icons.check),
-                                          label: Text("Save Sensor to Table", style: TextStyle(fontSize: labelFontSize)),
+                                          label: Text("Save Sensor to Table",
+                                              style: TextStyle(
+                                                  fontSize: labelFontSize)),
                                           style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.green[700],
+                                              backgroundColor:
+                                                  Colors.green[700],
                                               foregroundColor: Colors.white,
-                                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 24,
+                                                      vertical: 12)),
                                         ),
                                       ),
                                       const Divider(height: 60),
@@ -917,16 +1130,23 @@ class RecipeAdditionScreen extends StatelessWidget {
 
                     // --- FINAL ACTION BUTTONS ---
                     Row(
-                      mainAxisAlignment: isDesktop ? MainAxisAlignment.end : MainAxisAlignment.center,
+                      mainAxisAlignment: isDesktop
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.center,
                       children: [
                         OutlinedButton(
                           onPressed: () => Get.back(),
                           style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(horizontal: isDesktop ? 50 : 40, vertical: 20),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 50 : 40, vertical: 20),
                             side: const BorderSide(color: Colors.grey),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
-                          child: Text("Cancel", style: TextStyle(color: Colors.black, fontSize: isDesktop ? 18 : 16)),
+                          child: Text("Cancel",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: isDesktop ? 18 : 16)),
                         ),
                         const SizedBox(width: 20),
                         ElevatedButton(
@@ -937,10 +1157,15 @@ class RecipeAdditionScreen extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4A76C0),
-                            padding: EdgeInsets.symmetric(horizontal: isDesktop ? 60 : 50, vertical: 20),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: isDesktop ? 60 : 50, vertical: 20),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
-                          child: Text("Add Recipe", style: TextStyle(color: Colors.white, fontSize: isDesktop ? 18 : 16)),
+                          child: Text("Add Recipe",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isDesktop ? 18 : 16)),
                         ),
                       ],
                     ),
@@ -956,14 +1181,19 @@ class RecipeAdditionScreen extends StatelessWidget {
 
   // --- HELPERS (STAY THE SAME) ---
 
-  Widget _buildSectionHeader(String title, {required double fontSize, Widget? trailing}) {
+  Widget _buildSectionHeader(String title,
+      {required double fontSize, Widget? trailing}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xFF0055BB))),
+            Text(title,
+                style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0055BB))),
             if (trailing != null) trailing,
           ],
         ),
@@ -976,36 +1206,76 @@ class RecipeAdditionScreen extends StatelessWidget {
     return Wrap(
       spacing: 30,
       runSpacing: 20,
-      children: children.map((w) => SizedBox(
-                width: isDesktop ? (MediaQuery.of(Get.context!).size.width / 2) - 60 : double.infinity,
+      children: children
+          .map((w) => SizedBox(
+                width: isDesktop
+                    ? (MediaQuery.of(Get.context!).size.width / 2) - 60
+                    : double.infinity,
                 child: w,
-              )).toList(),
+              ))
+          .toList(),
     );
   }
+  DataColumn _buildDataColumn(String label, double fontSize) {
+    return DataColumn(
+    label: Expanded(
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  );
+  }
 
-  Widget _buildInputField(String label, String hint, {required double labelSize, required double textSize, bool isNumeric = false, bool readOnly = false, TextEditingController? controller, AutovalidateMode autovalidatemode = AutovalidateMode.onUserInteraction}) {
+  Widget _buildInputField(String label, String hint,
+      {required double labelSize,
+      required double textSize,
+      bool isNumeric = false,
+      bool readOnly = false,
+      TextEditingController? controller,
+      AutovalidateMode autovalidatemode = AutovalidateMode.onUserInteraction}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(label,
+            style: TextStyle(
+                fontSize: labelSize,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87)),
         const SizedBox(height: 8),
         TextFormField(
           readOnly: readOnly,
           cursorColor: Colors.black,
           autovalidateMode: autovalidatemode,
           controller: controller,
-          style: TextStyle(color: readOnly ? Colors.blueGrey : Colors.black, fontWeight: readOnly ? FontWeight.bold : FontWeight.normal),
-          keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
-          validator: (value) => (value == null || value.trim().isEmpty) ? "$label is required" : null,
+          style: TextStyle(
+              color: readOnly ? Colors.blueGrey : Colors.black,
+              fontWeight: readOnly ? FontWeight.bold : FontWeight.normal),
+          keyboardType: isNumeric
+              ? const TextInputType.numberWithOptions(decimal: true)
+              : TextInputType.text,
+          validator: (value) => (value == null || value.trim().isEmpty)
+              ? "$label is required"
+              : null,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(fontSize: textSize, color: Colors.grey),
             filled: true,
             fillColor: readOnly ? Colors.grey[200] : Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.black26)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: readOnly ? Colors.black26 : Colors.blue, width: 2)),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.black26)),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                    color: readOnly ? Colors.black26 : Colors.blue, width: 2)),
           ),
         ),
       ],
@@ -1016,35 +1286,63 @@ class RecipeAdditionScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Range (Min / Max)", style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600)),
+        Text("Range (Min / Max)",
+            style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _buildInputFieldNoLabel("Min", textSize, controller.min.value, "Min", AutovalidateMode.onUserInteraction)),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15), child: Text("/")),
-            Expanded(child: _buildInputFieldNoLabel("Max", textSize, controller.max.value, "Max", AutovalidateMode.onUserInteraction)),
+            Expanded(
+                child: _buildInputFieldNoLabel(
+                    "Min",
+                    textSize,
+                    controller.min.value,
+                    "Min",
+                    AutovalidateMode.onUserInteraction)),
+            const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                child: Text("/")),
+            Expanded(
+                child: _buildInputFieldNoLabel(
+                    "Max",
+                    textSize,
+                    controller.max.value,
+                    "Max",
+                    AutovalidateMode.onUserInteraction)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildInputFieldNoLabel(String hint, double textSize, TextEditingController? controller, String fieldName, AutovalidateMode autovalidatemode) {
+  Widget _buildInputFieldNoLabel(
+      String hint,
+      double textSize,
+      TextEditingController? controller,
+      String fieldName,
+      AutovalidateMode autovalidatemode) {
     return TextFormField(
       autovalidateMode: autovalidatemode,
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      validator: (value) => (value == null || value.trim().isEmpty) ? "$fieldName required" : null,
+      validator: (value) => (value == null || value.trim().isEmpty)
+          ? "$fieldName required"
+          : null,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.black26)),
-        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.blue, width: 2)),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.red, width: 1)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.black26)),
+        focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2)),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red, width: 1)),
       ),
     );
   }
