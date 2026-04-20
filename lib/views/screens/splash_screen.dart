@@ -1,5 +1,4 @@
 import 'package:autopeepal/logic/controller/splashController.dart';
-import 'package:autopeepal/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,7 +10,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryColor,
+      backgroundColor: Color(0xFF003377),
       body: Center(
         child: Image.asset(
           'assets/new/autopeepal.png', // your image path

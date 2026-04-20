@@ -16,7 +16,8 @@ class TextStyles {
       color: Colors.black,
       fontFamily: "OpenSans-SemiBold",
       fontWeight: FontWeight.bold,
-      fontSize: FontSizes.s14);
+      fontSize: FontSizes.s14,
+      );
 
   static TextStyle get textfieldTextStyle1 => TextStyle(
     
@@ -218,7 +219,7 @@ class TextStyles {
       fontFamily: "Inter-Medium");
 
   static TextStyle get textFieldHintStyle => TextStyle(
-      fontSize: FontSizes.s14,
+      fontSize: FontSizes.s15,
       color: AppColors.textFieldLableColor,
       inherit: false,
       fontFamily: "Inter-Regular");

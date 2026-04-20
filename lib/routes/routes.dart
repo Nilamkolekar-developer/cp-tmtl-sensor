@@ -4,6 +4,7 @@ import 'package:autopeepal/views/screens/auth/login.dart';
 import 'package:autopeepal/views/screens/dashboard/dashboard.dart';
 import 'package:autopeepal/views/screens/dashboard/recipeAdditionScreen.dart';
 import 'package:autopeepal/views/screens/dashboard/recipeAdditionScreenReadOnly.dart';
+import 'package:autopeepal/views/screens/dashboard/sensorAnalysis.dart';
 import 'package:autopeepal/views/screens/dashboard/settings.dart';
 import 'package:autopeepal/views/screens/dashboard/testRecipeScreen.dart';
 import 'package:autopeepal/views/screens/dashboard/testingScreen.dart';
@@ -49,7 +50,11 @@ class AppRoutes {
     ),
      GetPage(
       name: Routes.recipeAdditionReadOnlyScreen,
-      page: () => RecipeAdditionReadOnlyScreen(),
+      page: () => RecipeAdditionReadOnly(),
+    ),
+     GetPage(
+      name: Routes.sensorAnalysis,
+      page: () => SensorAnalysisScreen(),
     ),
     // GetPage(
     //   name: Routes.registerScreen,
