@@ -44,20 +44,20 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["appName"]="Dev CP_TMTL_Sensor_Zig"
+            manifestPlaceholders["appName"]="Dev CP TMTL Sensor Zig"
         }
 
         create("stage") {
             dimension = "environment"
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
-            manifestPlaceholders["appName"]="Stage CP_TMTL_Sensor_Zig"
+            manifestPlaceholders["appName"]="Stage CP TMTL Sensor Zig"
         }
 
         create("prod") {
             dimension = "environment"
             // No suffix for production
-             manifestPlaceholders["appName"]="CP_TMTL_Sensor_Zig"
+             manifestPlaceholders["appName"]="CP TMTL Sensor Zig"
         }
     }
 

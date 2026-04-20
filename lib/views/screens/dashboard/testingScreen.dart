@@ -286,9 +286,12 @@
 //     );
 //   }
 
-<<<<<<< HEAD
+
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
-=======
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 // import 'package:autopeepal/logic/controller/dashboard/testingController.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -556,11 +559,8 @@ import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.
 //     );
 //   }
 // }
-import 'package:autopeepal/logic/controller/dashboard/testingController.dart';
->>>>>>> ac6a0938d8b7d5df553380c71a651200540d794f
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
+
+
 
 class TestingScreen extends StatelessWidget {
   TestingScreen({super.key});

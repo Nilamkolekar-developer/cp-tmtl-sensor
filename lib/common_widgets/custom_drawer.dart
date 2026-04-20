@@ -446,7 +446,7 @@ class CustomDrawer extends StatelessWidget {
                     CrossAxisAlignment.start, // Aligns logo/name to the left
                 children: [
                   Image.asset(
-                    'assets/new/CP_TMTL_Sensor_Zig(1).png',
+                    'assets/new/autopeepal(1).png',
                     height: 40, // Adjust as needed
                     fit: BoxFit.contain,
                   ),
@@ -527,7 +527,7 @@ class CustomDrawer extends StatelessWidget {
                 ? Column(
                     children: [
                       Text(
-                          "Sponsered By: ${controller.appName.value.toUpperCase()}",
+                          "Sponsored By: ${controller.appName.value.replaceAll('_', ' ')}",
                           style: const TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 4),

@@ -13,7 +13,7 @@
 <uses-feature android:name="android.hardware.usb.host" />
 
     <application
-        android:label="CP_TMTL_Sensor_Zig"
+        android:label="CP TMTL Sensor Zig"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">

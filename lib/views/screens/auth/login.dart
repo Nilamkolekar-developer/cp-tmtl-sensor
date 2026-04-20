@@ -473,7 +473,7 @@ class LoginScreen extends GetView<LoginController> {
                   children: [
                     // LOGO ABOVE NAME
                     Image.asset(
-                      'assets/new/CP_TMTL_Sensor_Zig(1).png',
+                      'assets/new/autopeepal(1).png',
                       height: 120,
                       // Note: Removing 'color: Colors.white' allows the actual logo colors to show. 
                       // Add it back if you want a solid white silhouette.
@@ -485,9 +485,9 @@ class LoginScreen extends GetView<LoginController> {
                     ),
                     const SizedBox(height: 24),
                     const Text(
-                      "CP_TMTL_Sensor_Zig",
+                      "CP TMTL Sensor Zig",
                       style: TextStyle(
-                        fontSize: 48,
+                        fontSize: 40,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                       ),
