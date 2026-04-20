@@ -33,4 +33,6 @@ class Routes {
   static const recipeAdditionScreen = '/recipeAdditionScreen';
   static const recipeAdditionReadOnlyScreen = '/recipeAdditionReadOnlyScreen';
   static const settingsScreen = '/settingsScreen';
+   static const sensorAnalysis = '/sensorAnalysis';
+    
 }

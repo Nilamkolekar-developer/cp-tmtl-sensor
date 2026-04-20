@@ -1037,12 +1037,6 @@ class LoginController extends GetxController {
   void togglePasswordVisibility() {
     hidePassword.value = !hidePassword.value;
   }
-  @override
-  void onClose() {
-    usernameController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
 
   void login() async {
     String user = "abc@autopeepal.com";
