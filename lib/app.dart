@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'package:autopeepal/api/app_envirments.dart';
-import 'package:autopeepal/common_widgets/app_error_widget.dart';
-import 'package:autopeepal/logic/bindings/initial_bindings.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/app_error_widget.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/bindings/initial_bindings.dart';
 
-import 'package:autopeepal/routes/routes.dart';
-import 'package:autopeepal/routes/routes_string.dart';
-import 'package:autopeepal/services/error_handler/error_handler_service.dart';
-import 'package:autopeepal/themes/app_theme.dart';
-import 'package:autopeepal/utils/app_logs.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/error_handler/error_handler_service.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_theme.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,11 +16,11 @@ import 'package:get_storage/get_storage.dart';
 
 class App {
   static App instance = App();
-  static const MethodChannel platform = MethodChannel('autopeepal/native');
+  static const MethodChannel platform = MethodChannel('CP_TMTL_Sensor_Zig/native');
 
   /// [_appName] app display Named
   ///
-  final String _appName = 'autopeepal App';
+  final String _appName = 'CP_TMTL_Sensor_Zig';
   static String jwtToken = '';
   static String connectedVia = '';
   static int oemId = 0;

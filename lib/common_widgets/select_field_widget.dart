@@ -1,6 +1,6 @@
-import 'package:autopeepal/common_widgets/input_decoration_widget.dart';
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/input_decoration_widget.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
 import 'package:flutter/material.dart';
 
 

@@ -1,6 +1,6 @@
 {
-    "name": "autopeepal",
-    "short_name": "autopeepal",
+    "name": "CP_TMTL_Sensor_Zig",
+    "short_name": "CP_TMTL_Sensor_Zig",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

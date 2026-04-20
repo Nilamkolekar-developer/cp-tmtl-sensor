@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
 
 class AppSnackBar {
   static showSnackBarMassage(

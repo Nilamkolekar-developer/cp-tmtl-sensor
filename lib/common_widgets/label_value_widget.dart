@@ -1,7 +1,7 @@
-import 'package:autopeepal/themes/app_textstyles.dart';
-import 'package:autopeepal/utils/extension/app_extensions.dart';
-import 'package:autopeepal/utils/sizes.dart';
-import 'package:autopeepal/utils/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/extension/app_extensions.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 
 class LabelValueWidget extends StatelessWidget {

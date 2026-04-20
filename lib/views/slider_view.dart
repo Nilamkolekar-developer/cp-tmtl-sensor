@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:autopeepal/api/app_api.dart';
-import 'package:autopeepal/services/app_setting_services.dart';
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/utils/extension/app_extensions.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_api.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/app_setting_services.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/extension/app_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';

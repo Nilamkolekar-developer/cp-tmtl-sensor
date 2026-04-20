@@ -1,9 +1,9 @@
 // // import 'dart:io';
-// // import 'package:autopeepal/AppPreferences/app_areferences.dart';
-// // import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
-// // import 'package:autopeepal/logic/controller/dataSyncController.dart';
-// // import 'package:autopeepal/routes/routes_string.dart';
-// // import 'package:autopeepal/themes/app_colors.dart';
+// // import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+// // import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
+// // import 'package:CP_TMTL_Sensor_Zig/logic/controller/dataSyncController.dart';
+// // import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+// // import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
 // // import 'package:flutter/material.dart';
 // // import 'package:get/get.dart';
 // // import 'package:path_provider/path_provider.dart';
@@ -104,11 +104,11 @@
 // //   Widget buildDivider() => Divider(color: Colors.grey.shade300, height: 1, indent: 20, endIndent: 20);
 // // }
 
-// import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
+// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
-// import 'package:autopeepal/routes/routes_string.dart';
-// import 'package:autopeepal/AppPreferences/app_areferences.dart';
+// import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+// import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
 
 // class CustomDrawer extends StatelessWidget {
 //   CustomDrawer({Key? key}) : super(key: key);
@@ -284,11 +284,11 @@
 //     }
 //   }
 // }
-import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/routes/routes_string.dart';
-import 'package:autopeepal/AppPreferences/app_areferences.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({Key? key}) : super(key: key);
@@ -446,7 +446,7 @@ class CustomDrawer extends StatelessWidget {
                     CrossAxisAlignment.start, // Aligns logo/name to the left
                 children: [
                   Image.asset(
-                    'assets/new/autopeepal(1).png',
+                    'assets/new/CP_TMTL_Sensor_Zig(1).png',
                     height: 40, // Adjust as needed
                     fit: BoxFit.contain,
                   ),

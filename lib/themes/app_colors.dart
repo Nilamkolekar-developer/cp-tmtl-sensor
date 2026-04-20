@@ -3,9 +3,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:autopeepal/api/app_envirments.dart';
-import 'package:autopeepal/app.dart';
-import 'package:autopeepal/utils/app_enums.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/app.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/app_enums.dart';
 
 class AppColors {
   static const Color subtitleColor = Color(0xFF667085);

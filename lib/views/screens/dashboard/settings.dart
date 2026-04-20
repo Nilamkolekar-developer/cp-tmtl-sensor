@@ -1,6 +1,6 @@
-import 'package:autopeepal/logic/controller/dashboard/settingsController.dart'; // Ensure PLCController is here
-import 'package:autopeepal/themes/app_textstyles.dart';
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart'; // Ensure PLCController is here
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

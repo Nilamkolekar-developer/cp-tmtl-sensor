@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:autopeepal/common_widgets/popup.dart';
-import 'package:autopeepal/logic/controller/dashboard/AddrecipeController.dart';
-import 'package:autopeepal/logic/controller/dashboard/sensorAnalysisController.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/sensorAnalysisController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -1,22 +1,22 @@
 // import 'dart:convert';
 // import 'dart:io';
-// import 'package:autopeepal/AppPreferences/app_areferences.dart';
-// import 'package:autopeepal/app.dart';
-// import 'package:autopeepal/common_widgets/commonLoader.dart';
-// import 'package:autopeepal/common_widgets/popup.dart';
-// import 'package:autopeepal/models/actuatorTest_model.dart';
-// import 'package:autopeepal/models/all_models.dart';
-// import 'package:autopeepal/models/doipConfigFile_model.dart';
-// import 'package:autopeepal/models/flashRecord_model.dart';
-// import 'package:autopeepal/models/freezeFrame_model.dart';
-// import 'package:autopeepal/models/gd_model.dart';
-// import 'package:autopeepal/models/iorTest_model.dart';
-// import 'package:autopeepal/models/listNumber_model.dart';
-// import 'package:autopeepal/models/user_model.dart';
-// import 'package:autopeepal/routes/routes_string.dart';
-// import 'package:autopeepal/services/api_services.dart';
-// import 'package:autopeepal/utils/get_device_unique_id.dart';
-// import 'package:autopeepal/utils/save_local_data.dart';
+// import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+// import 'package:CP_TMTL_Sensor_Zig/app.dart';
+// import 'package:CP_TMTL_Sensor_Zig/common_widgets/commonLoader.dart';
+// import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/actuatorTest_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/all_models.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/doipConfigFile_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/flashRecord_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/freezeFrame_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/gd_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/iorTest_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/listNumber_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/user_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+// import 'package:CP_TMTL_Sensor_Zig/services/api_services.dart';
+// import 'package:CP_TMTL_Sensor_Zig/utils/get_device_unique_id.dart';
+// import 'package:CP_TMTL_Sensor_Zig/utils/save_local_data.dart';
 // import 'package:connectivity_plus/connectivity_plus.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -1029,7 +1029,7 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   // 1. Controllers for TextFields
-  final usernameController = TextEditingController(text: "abc@autopeepal.com");
+  final usernameController = TextEditingController(text: "abc@CP_TMTL_Sensor_Zig.com");
   final passwordController = TextEditingController(text: "1234");
 
   final hidePassword = true.obs;
@@ -1039,7 +1039,7 @@ class LoginController extends GetxController {
   }
 
   void login() async {
-    String user = "abc@autopeepal.com";
+    String user = "abc@CP_TMTL_Sensor_Zig.com";
     String pass = "1234";
 
     if (user.isEmpty || pass.isEmpty) {

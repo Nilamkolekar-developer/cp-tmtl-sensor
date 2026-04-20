@@ -1,5 +1,5 @@
-// import 'package:autopeepal/themes/app_colors.dart';
-// import 'package:autopeepal/utils/sizes.dart';
+// import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+// import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
 // import 'package:flutter/material.dart';
 
 // class TextFieldDecoration {
@@ -64,8 +64,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/utils/sizes.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
 
 class TextFieldDecoration {
   static InputDecoration textfieldDecorationChangePassword(

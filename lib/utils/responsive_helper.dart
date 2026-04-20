@@ -1,4 +1,4 @@
-import 'package:autopeepal/utils/constants/breakpoints.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/constants/breakpoints.dart';
 import 'package:flutter/material.dart';
 
 import 'constants/device_type.dart';

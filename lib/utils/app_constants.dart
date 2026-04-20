@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:autopeepal/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
 
 // final List<String> defaultList = [Strings.select];
 

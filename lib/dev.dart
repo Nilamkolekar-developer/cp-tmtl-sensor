@@ -1,5 +1,5 @@
-import 'package:autopeepal/api/app_envirments.dart';
-import 'package:autopeepal/app.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/app.dart';
 
 void main() async {
   App.instance.initAndRunApp(

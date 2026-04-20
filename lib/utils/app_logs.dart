@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:logger/logger.dart';
-import 'package:autopeepal/app.dart';
+import 'package:CP_TMTL_Sensor_Zig/app.dart';
 
 class AppLogTag {
   static const String INFO = 'ℹ️️NFO️';

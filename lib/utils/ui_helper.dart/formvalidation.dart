@@ -1,4 +1,4 @@
-import 'package:autopeepal/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
 
 String? requiredValidation(val) {
   if (val == null || val.isEmpty) {

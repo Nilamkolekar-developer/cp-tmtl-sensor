@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:autopeepal/common_widgets/popup.dart';
-import 'package:autopeepal/logic/controller/dashboard/settingsController.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

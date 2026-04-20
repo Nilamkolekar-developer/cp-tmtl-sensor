@@ -1,4 +1,4 @@
-import 'package:autopeepal/utils/ui_helper.dart/app_tost.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper.dart/app_tost.dart';
 import 'package:flutter/services.dart';
 
 class Methods {

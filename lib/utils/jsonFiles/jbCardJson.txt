@@ -20,7 +20,7 @@
     "km_covered": 15,
     "complaints": "test",
     "created_by": {
-      "email": "dipak.yogi@autopeepal.com",
+      "email": "dipak.yogi@CP_TMTL_Sensor_Zig.com",
       "workshop": null,
       "role": null
     },
@@ -47,7 +47,7 @@
         },
         "device": 4782,
         "user": {
-          "email": "dipak.yogi@autopeepal.com",
+          "email": "dipak.yogi@CP_TMTL_Sensor_Zig.com",
           "workshop": null,
           "role": null
         },

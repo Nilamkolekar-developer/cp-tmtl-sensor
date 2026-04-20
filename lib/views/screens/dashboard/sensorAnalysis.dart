@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
-import 'package:autopeepal/logic/controller/dashboard/sensorAnalysisController.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/sensorAnalysisController.dart';
 
 class SensorAnalysisScreen extends StatelessWidget {
   SensorAnalysisScreen({super.key});

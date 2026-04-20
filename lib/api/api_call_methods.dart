@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
-import 'package:autopeepal/api/api_status_code.dart';
-import 'package:autopeepal/api/app_envirments.dart';
-import 'package:autopeepal/api/response_model.dart';
-import 'package:autopeepal/services/local_storage_services/local_storages_string.dart';
-import 'package:autopeepal/services/local_storage_services/localstorage_services.dart';
-import 'package:autopeepal/utils/keys/api_keys.dart';
-import 'package:autopeepal/utils/strings.dart';
-import 'package:autopeepal/utils/ui_helper.dart/app_snack_bar.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/api_status_code.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/response_model.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/local_storages_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/localstorage_services.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/keys/api_keys.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper.dart/app_snack_bar.dart';
 
 class ApiService extends GetConnect {
 

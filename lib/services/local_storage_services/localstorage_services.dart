@@ -1,7 +1,7 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:autopeepal/services/local_storage_services/local_storage_model.dart';
-import 'package:autopeepal/services/local_storage_services/local_storages_string.dart';
-import 'package:autopeepal/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/local_storage_model.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/local_storages_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
 
 class LocalServices {
 

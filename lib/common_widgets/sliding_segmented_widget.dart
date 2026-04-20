@@ -1,5 +1,5 @@
-import 'package:autopeepal/themes/app_textstyles.dart';
-import 'package:autopeepal/utils/sizes.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
 import 'package:flutter/material.dart';
 
 

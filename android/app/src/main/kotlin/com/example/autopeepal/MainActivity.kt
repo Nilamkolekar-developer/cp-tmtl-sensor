@@ -1,4 +1,4 @@
-package com.example.autopeepal
+package com.example.CP_TMTL_Sensor_Zig
 
 import android.content.Context
 import android.net.wifi.WifiManager

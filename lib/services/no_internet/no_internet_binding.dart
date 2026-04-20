@@ -1,4 +1,4 @@
-import 'package:autopeepal/services/no_internet/no_internet_controller.dart';
+import 'package:CP_TMTL_Sensor_Zig/services/no_internet/no_internet_controller.dart';
 import 'package:get/get.dart';
 
 class ControllerBinding extends Bindings {

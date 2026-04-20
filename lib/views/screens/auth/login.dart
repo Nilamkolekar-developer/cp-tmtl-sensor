@@ -1,5 +1,5 @@
-import 'package:autopeepal/logic/controller/auth/loginController.dart';
-import 'package:autopeepal/routes/routes_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/auth/loginController.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +24,7 @@ import 'package:get/get.dart';
 //                       Padding(
 //                         padding: const EdgeInsets.only(top: 170),
 //                         child: Image.asset(
-//                           'assets/new/autopeepal(1).png',
+//                           'assets/new/CP_TMTL_Sensor_Zig(1).png',
 //                           height: 55,
 //                         ),
 //                       ),
@@ -185,7 +185,7 @@ import 'package:get/get.dart';
 //                   ),
 //                   C5(),
 //                   Image.asset(
-//                     'assets/new/autopeepal(1).png',
+//                     'assets/new/CP_TMTL_Sensor_Zig(1).png',
 //                     height: 28,
 //                   ),
 //                   C10(),
@@ -229,7 +229,7 @@ import 'package:get/get.dart';
 //                       children: [
 //                         // --- WELCOME TEXT (Outside the Card) ---
 //                         Text(
-//                           "Welcome to AutoPeepal",
+//                           "Welcome to CP_TMTL_Sensor_Zig",
 //                           textAlign: TextAlign.center,
 //                           style: TextStyle(
 //                             fontSize: isDesktop ? 36 : 24,
@@ -274,7 +274,7 @@ import 'package:get/get.dart';
 //                               children: [
 //                                 // --- LOGO ---
 //                                 Image.asset(
-//                                   'assets/new/autopeepal(1).png',
+//                                   'assets/new/CP_TMTL_Sensor_Zig(1).png',
 //                                   height: isDesktop ? 75 : 60,
 //                                 ),
 //                                 const SizedBox(height: 10),
@@ -378,7 +378,7 @@ import 'package:get/get.dart';
 //                                     style: TextStyle(
 //                                         color: Colors.grey, fontSize: 11)),
 //                                 const SizedBox(height: 5),
-//                                 Image.asset('assets/new/autopeepal(1).png',
+//                                 Image.asset('assets/new/CP_TMTL_Sensor_Zig(1).png',
 //                                     height: 20),
 //                               ],
 //                             ),
@@ -473,7 +473,7 @@ class LoginScreen extends GetView<LoginController> {
                   children: [
                     // LOGO ABOVE NAME
                     Image.asset(
-                      'assets/new/autopeepal(1).png',
+                      'assets/new/CP_TMTL_Sensor_Zig(1).png',
                       height: 120,
                       // Note: Removing 'color: Colors.white' allows the actual logo colors to show. 
                       // Add it back if you want a solid white silhouette.
@@ -485,7 +485,7 @@ class LoginScreen extends GetView<LoginController> {
                     ),
                     const SizedBox(height: 24),
                     const Text(
-                      "AutoPeepal",
+                      "CP_TMTL_Sensor_Zig",
                       style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.w800,
@@ -524,7 +524,7 @@ class LoginScreen extends GetView<LoginController> {
                         if (!isDesktop) ...[
                           Center(
                             child: Image.asset(
-                              'assets/new/autopeepal(1).png',
+                              'assets/new/CP_TMTL_Sensor_Zig(1).png',
                               height: 60,
                               errorBuilder: (context, error, stackTrace) =>
                                   const Icon(Icons.settings_suggest, size: 50, color: primaryBlue),

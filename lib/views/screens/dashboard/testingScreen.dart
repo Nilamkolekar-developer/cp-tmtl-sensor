@@ -1,7 +1,7 @@
-// import 'package:autopeepal/logic/controller/dashboard/testingController.dart';
+// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
-// import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+// import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 
 // class TestingScreen extends StatelessWidget {
 //   TestingScreen({super.key});
@@ -286,10 +286,10 @@
 //     );
 //   }
 
-import 'package:autopeepal/logic/controller/dashboard/testingController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 
 class TestingScreen extends StatelessWidget {
   TestingScreen({super.key});

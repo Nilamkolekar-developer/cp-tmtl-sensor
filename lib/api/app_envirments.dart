@@ -1,4 +1,4 @@
-import 'package:autopeepal/app.dart';
+import 'package:CP_TMTL_Sensor_Zig/app.dart';
 
 class AtomURLType {
   static const String LOCAL = "LOCAL";

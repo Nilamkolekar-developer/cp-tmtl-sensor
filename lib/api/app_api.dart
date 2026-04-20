@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:autopeepal/AppPreferences/app_areferences.dart';
-import 'package:autopeepal/api/dev/methods.dart';
-import 'package:autopeepal/api/app_envirments.dart';
-import 'package:autopeepal/api/dev/dev_service.dart';
-import 'package:autopeepal/utils/app_logs.dart';
-import 'package:autopeepal/utils/extension/extension/map_extensions.dart';
-import 'package:autopeepal/utils/keys/api_keys.dart';
-import 'package:autopeepal/utils/strings.dart';
-import 'package:autopeepal/utils/ui_helper.dart/app_tost.dart';
+import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/dev/methods.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/dev/dev_service.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/extension/extension/map_extensions.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/keys/api_keys.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper.dart/app_tost.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 

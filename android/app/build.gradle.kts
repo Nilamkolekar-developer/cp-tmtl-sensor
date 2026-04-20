@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.autopeepal"
+    namespace = "com.example.CP_TMTL_Sensor_Zig"
     compileSdk = 36
 
     compileOptions {
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.autopeepal"
+        applicationId = "com.example.CP_TMTL_Sensor_Zig"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = 1
@@ -44,20 +44,20 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["appName"]="Dev autopeepal"
+            manifestPlaceholders["appName"]="Dev CP_TMTL_Sensor_Zig"
         }
 
         create("stage") {
             dimension = "environment"
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
-            manifestPlaceholders["appName"]="Stage autopeepal"
+            manifestPlaceholders["appName"]="Stage CP_TMTL_Sensor_Zig"
         }
 
         create("prod") {
             dimension = "environment"
             // No suffix for production
-             manifestPlaceholders["appName"]="autopeepal"
+             manifestPlaceholders["appName"]="CP_TMTL_Sensor_Zig"
         }
     }
 

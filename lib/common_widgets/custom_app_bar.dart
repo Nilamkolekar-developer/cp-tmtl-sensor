@@ -1,9 +1,9 @@
-import 'package:autopeepal/common_widgets/background_widget.dart';
-import 'package:autopeepal/common_widgets/text_field.dart';
-import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
-import 'package:autopeepal/themes/app_textstyles.dart';
-import 'package:autopeepal/utils/sizes.dart';
-import 'package:autopeepal/utils/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/background_widget.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/text_field.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';

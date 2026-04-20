@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
 
 class LoadMoreListView extends StatelessWidget {
   final List<Widget> children;

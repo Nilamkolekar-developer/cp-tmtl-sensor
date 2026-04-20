@@ -1,5 +1,5 @@
-import 'package:autopeepal/logic/controller/dashboard/recipeAdditionReadOnlyController.dart';
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/recipeAdditionReadOnlyController.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

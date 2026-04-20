@@ -3,8 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:autopeepal/common_widgets/label_value_widget.dart';
-import 'package:autopeepal/themes/app_textstyles.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/label_value_widget.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
 
 Widget imagePickerField({
   required String label,

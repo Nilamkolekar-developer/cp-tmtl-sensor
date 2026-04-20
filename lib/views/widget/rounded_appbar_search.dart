@@ -1,6 +1,6 @@
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/utils/sizes.dart';
-import 'package:autopeepal/utils/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';

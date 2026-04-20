@@ -1,11 +1,11 @@
 // import 'dart:convert';
 
-// import 'package:autopeepal/common_widgets/popup.dart' show CustomPopup;
-// import 'package:autopeepal/models/oem_model.dart';
-// import 'package:autopeepal/models/signIn_model.dart';
-// import 'package:autopeepal/models/workshopGroup_model.dart';
-// import 'package:autopeepal/routes/routes_string.dart';
-// import 'package:autopeepal/services/api_services.dart';
+// import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart' show CustomPopup;
+// import 'package:CP_TMTL_Sensor_Zig/models/oem_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/signIn_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/models/workshopGroup_model.dart';
+// import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+// import 'package:CP_TMTL_Sensor_Zig/services/api_services.dart';
 // import 'package:get/get.dart';
 
 // class RegistrationController extends GetxController {

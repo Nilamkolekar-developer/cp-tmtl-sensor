@@ -1,9 +1,9 @@
-// import 'package:autopeepal/common_widgets/ui_helper_widgets.dart';
-// import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+// import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
+// import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:fl_chart/fl_chart.dart';
-// import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
+// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
 
 // class DashboardScreen extends StatelessWidget {
 //   DashboardScreen({super.key});
@@ -313,11 +313,11 @@
 //     );
 //   }
 // }
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:autopeepal/logic/controller/dashboard/dasboardController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
 
 class DashboardScreen extends StatelessWidget {
   DashboardScreen({super.key});

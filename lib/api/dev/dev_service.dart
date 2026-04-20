@@ -1,6 +1,6 @@
-import 'package:autopeepal/app.dart';
-import 'package:autopeepal/utils/app_logs.dart';
-import 'package:autopeepal/utils/strings.dart';
+import 'package:CP_TMTL_Sensor_Zig/app.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';

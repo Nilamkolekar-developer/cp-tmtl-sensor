@@ -1,5 +1,5 @@
-import 'package:autopeepal/common_widgets/ui_helper_widgets.dart';
-import 'package:autopeepal/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class NoInternetView extends StatelessWidget {

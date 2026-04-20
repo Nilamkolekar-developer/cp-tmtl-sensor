@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:autopeepal/common_widgets/popup.dart';
-import 'package:autopeepal/logic/controller/dashboard/settingsController.dart';
-import 'package:autopeepal/logic/controller/dashboard/testRecipeController.dart';
-import 'package:autopeepal/models/receipe_model.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
+import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

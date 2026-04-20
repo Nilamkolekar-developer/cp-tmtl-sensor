@@ -1,16 +1,16 @@
-import 'package:autopeepal/dev/dev_screen.dart';
-import 'package:autopeepal/logic/bindings/login_bindings.dart';
-import 'package:autopeepal/views/screens/auth/login.dart';
-import 'package:autopeepal/views/screens/dashboard/dashboard.dart';
-import 'package:autopeepal/views/screens/dashboard/recipeAdditionScreen.dart';
-import 'package:autopeepal/views/screens/dashboard/recipeAdditionScreenReadOnly.dart';
-import 'package:autopeepal/views/screens/dashboard/sensorAnalysis.dart';
-import 'package:autopeepal/views/screens/dashboard/settings.dart';
-import 'package:autopeepal/views/screens/dashboard/testRecipeScreen.dart';
-import 'package:autopeepal/views/screens/dashboard/testingScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/dev/dev_screen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/bindings/login_bindings.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/auth/login.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/dashboard.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/recipeAdditionScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/recipeAdditionScreenReadOnly.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/sensorAnalysis.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/settings.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/testRecipeScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/testingScreen.dart';
 import 'package:get/get.dart';
-import 'package:autopeepal/routes/routes_string.dart';
-import 'package:autopeepal/views/screens/splash_screen.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/splash_screen.dart';
 
 class AppRoutes {
   static final routes = [

@@ -1,6 +1,6 @@
-import 'package:autopeepal/logic/controller/dashboard/testRecipeController.dart';
-import 'package:autopeepal/routes/routes_string.dart';
-import 'package:autopeepal/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,9 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:autopeepal/api/app_api.dart';
-import 'package:autopeepal/common_widgets/ui_helper_widgets.dart';
-import 'package:autopeepal/themes/app_colors.dart';
-import 'package:autopeepal/utils/extension/extension/map_extensions.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_api.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/extension/extension/map_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io' show Platform;

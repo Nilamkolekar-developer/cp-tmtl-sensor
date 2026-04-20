@@ -1,8 +1,8 @@
 // ignore_for_file: unnecessary_null_comparison, duplicate_ignore
 
 import 'dart:convert';
-import 'package:autopeepal/api/dev/methods.dart';
-import 'package:autopeepal/utils/app_logs.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/dev/methods.dart';
+import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
 import 'package:flutter/material.dart';
 
 const bool defaultBool = false;

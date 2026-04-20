@@ -1,4 +1,4 @@
-import 'package:autopeepal/common_widgets/ui_helper_widgets.dart';
+import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
