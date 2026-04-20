@@ -20,7 +20,7 @@ class App {
 
   /// [_appName] app display Named
   ///
-  final String _appName = 'CP_TMTL_Sensor_Zig';
+  final String _appName = 'CP TMTL Sensor Zig';
   static String jwtToken = '';
   static String connectedVia = '';
   static int oemId = 0;
