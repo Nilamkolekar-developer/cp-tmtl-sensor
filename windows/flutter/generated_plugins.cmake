@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bonsoir_windows
+  camera_windows
   connectivity_plus
   flutter_libserialport
   geolocator_windows

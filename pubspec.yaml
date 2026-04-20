@@ -80,6 +80,12 @@ dependencies:
   libserialport: ^0.3.0
   fluttertoast: ^8.2.10
   fl_chart: ^1.2.0
+  camera: ^0.11.0
+  zxing_lib: ^1.0.2
+  camera_windows: ^0.2.1+9
+  google_mlkit_barcode_scanning: ^0.12.0
+  image: ^4.2.0
+
 
   
 

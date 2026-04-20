@@ -116,7 +116,7 @@ class AddRecipeController extends GetxController {
       testResult: result, // Saving the calculated result
     ));
     hasTested.value = false;
-    _clearSensorFields();
+    //_clearSensorFields();
   }
 
   void _clearSensorFields() {
@@ -147,34 +147,77 @@ class AddRecipeController extends GetxController {
     addedSensors.remove(sensor);
   }
 
+  // void addRecipe() {
+  //   if (modelController.value.text.isNotEmpty) {
+  //     var testController = Get.find<TestRecipeController>();
+
+  //     String currentSr = isEditMode.value
+  //         ? (Get.arguments as Recipe).sr ?? ""
+  //         : (testController.recipeList.length + 1).toString();
+
+  //     Recipe finalRecipe = Recipe(
+  //       sr: currentSr,
+  //       model: modelController.value.text.trim(),
+  //       type: typeController.value.text.trim(),
+  //       sensors: addedSensors.toList(),
+  //     );
+
+  //     if (isEditMode.value) {
+  //       int index =
+  //           testController.recipeList.indexWhere((r) => r.sr == currentSr);
+  //       if (index != -1) testController.recipeList[index] = finalRecipe;
+  //     } else {
+  //       testController.recipeList.add(finalRecipe);
+  //     }
+
+  //     testController.recipeList.refresh();
+  //     _resetForm();
+  //     Get.back();
+  //   }
+  // }
   void addRecipe() {
-    if (modelController.value.text.isNotEmpty) {
-      var testController = Get.find<TestRecipeController>();
+  print("DEBUG: addRecipe called. Input: ${modelController.value.text}");
 
-      String currentSr = isEditMode.value
-          ? (Get.arguments as Recipe).sr ?? ""
-          : (testController.recipeList.length + 1).toString();
-
-      Recipe finalRecipe = Recipe(
-        sr: currentSr,
-        model: modelController.value.text.trim(),
-        type: typeController.value.text.trim(),
-        sensors: addedSensors.toList(),
-      );
-
-      if (isEditMode.value) {
-        int index =
-            testController.recipeList.indexWhere((r) => r.sr == currentSr);
-        if (index != -1) testController.recipeList[index] = finalRecipe;
-      } else {
-        testController.recipeList.add(finalRecipe);
-      }
-
-      testController.recipeList.refresh();
-      _resetForm();
-      Get.back();
-    }
+  if (modelController.value.text.trim().isEmpty) {
+    print("DEBUG: Validation failed - Model name is empty");
+    Get.snackbar("Error", "Model name is required");
+    return;
   }
+
+  try {
+    var testController = Get.find<TestRecipeController>();
+    print("DEBUG: Controller found. Current list length: ${testController.recipeList.length}");
+
+    String currentSr = isEditMode.value
+        ? (Get.arguments as Recipe).sr ?? ""
+        : (testController.recipeList.length + 1).toString();
+
+    Recipe finalRecipe = Recipe(
+      sr: currentSr,
+      model: modelController.value.text.trim(),
+      type: typeController.value.text.trim(),
+      sensors: List.from(addedSensors), // Create a fresh list instance
+    );
+
+    if (isEditMode.value) {
+      int index = testController.recipeList.indexWhere((r) => r.sr == currentSr);
+      if (index != -1) {
+        testController.recipeList[index] = finalRecipe;
+        print("DEBUG: Edited recipe at index $index");
+      }
+    } else {
+      testController.recipeList.add(finalRecipe);
+      print("DEBUG: Added new recipe. New length: ${testController.recipeList.length}");
+    }
+
+    testController.recipeList.refresh();
+    _resetForm();
+    Get.back();
+    
+  } catch (e) {
+    print("DEBUG: Error adding recipe: $e");
+  }
+}
 
   RxBool hasTested = false.obs;
 

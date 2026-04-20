@@ -7,6 +7,7 @@
 #include "generated_plugin_registrant.h"
 
 #include <bonsoir_windows/bonsoir_windows_plugin_c_api.h>
+#include <camera_windows/camera_windows.h>
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
 #include <flutter_libserialport/flutter_libserialport_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
@@ -16,6 +17,8 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   BonsoirWindowsPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("BonsoirWindowsPluginCApi"));
+  CameraWindowsRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("CameraWindows"));
   ConnectivityPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   FlutterLibserialportPluginRegisterWithRegistrar(
