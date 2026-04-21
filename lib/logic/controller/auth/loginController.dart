@@ -1029,7 +1029,7 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   // 1. Controllers for TextFields
-  final usernameController = TextEditingController(text: "abc@CP_TMTL_Sensor_Zig.com");
+  final usernameController = TextEditingController(text: "abc@autopeepal.com");
   final passwordController = TextEditingController(text: "1234");
 
   final hidePassword = true.obs;
@@ -1039,7 +1039,7 @@ class LoginController extends GetxController {
   }
 
   void login() async {
-    String user = "abc@CP_TMTL_Sensor_Zig.com";
+    String user = "abc@autopeepal.com";
     String pass = "1234";
 
     if (user.isEmpty || pass.isEmpty) {

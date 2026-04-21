@@ -1,651 +1,5 @@
-// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
-// import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// class RecipeAdditionScreen extends StatelessWidget {
-//   RecipeAdditionScreen({super.key});
-//   final AddRecipeController controller = Get.put(AddRecipeController());
-
-//   // 1. Add Form Keys for validation
-//   final _engineFormKey = GlobalKey<FormState>();
-//   final _sensorFormKey = GlobalKey<FormState>();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isDesktop = MediaQuery.of(context).size.width > 800;
-
-//     final double headerFontSize = isDesktop ? 20 : 18;
-//     final double labelFontSize = isDesktop ? 20 : 14;
-//     final double inputFontSize = isDesktop ? 16 : 14;
-//     final double tableHeaderFontSize = isDesktop ? 20 : 13;
-//     final double tableCellFontSize = isDesktop ? 16 : 12;
-
-//     return SafeArea(
-//       child: MainLayout(
-//         title: "Recipe Configuration",
-//         showDrawer: false,
-//         child: Align(
-//           alignment: Alignment.topCenter,
-//           child: SingleChildScrollView(
-//             padding: EdgeInsets.symmetric(
-//                 horizontal: isDesktop ? 40 : 16, vertical: 30),
-//             child: SizedBox(
-//               width: double.infinity,
-//               // 2. Wrap the main content in a Form for Engine Details
-//               child: Form(
-//                 key: _engineFormKey,
-//                 child: Column(
-//                   children: [
-//                     _buildSectionHeader(
-//                       "Engine Details",
-//                       fontSize: headerFontSize,
-//                       trailing: OutlinedButton.icon(
-//                         onPressed: () => controller.importRecipes(),
-//                         icon: Icon(Icons.file_upload_outlined,
-//                             size: isDesktop ? 20 : 18),
-//                         label: Text("Import JSON",
-//                             style: TextStyle(fontSize: labelFontSize)),
-//                         style: OutlinedButton.styleFrom(
-//                           foregroundColor: const Color(0xFF0055BB),
-//                           side: const BorderSide(color: Color(0xFF0055BB)),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(height: 20),
-//                     _buildResponsiveGrid(isDesktop, [
-//                       _buildInputField("Engine Model Number", "e.g. 6BT-5.9",
-//                           labelSize: labelFontSize,
-//                           textSize: inputFontSize,
-//                           controller: controller.modelController.value),
-//                       _buildInputField("Engine Type", "e.g. Diesel",
-//                           labelSize: labelFontSize,
-//                           textSize: inputFontSize,
-//                           controller: controller.typeController.value),
-//                     ]),
-
-//                     const SizedBox(height: 40),
-
-//                     _buildSectionHeader(
-//                       "Added Sensor List",
-//                       fontSize: headerFontSize,
-//                       trailing: Obx(() => !controller.isAddingSensor.value
-//                           ? ElevatedButton.icon(
-//                               onPressed: () =>
-//                                   controller.isAddingSensor.value = true,
-//                               icon: Icon(Icons.add, size: isDesktop ? 20 : 18),
-//                               label: Text("Add New Sensor",
-//                                   style: TextStyle(fontSize: labelFontSize)),
-//                               style: ElevatedButton.styleFrom(
-//                                   backgroundColor: const Color(0xFF0055BB),
-//                                   foregroundColor: Colors.white),
-//                             )
-//                           : TextButton(
-//                               onPressed: () =>
-//                                   controller.isAddingSensor.value = false,
-//                               child: Text("Cancel",
-//                                   style: TextStyle(
-//                                       fontSize: labelFontSize,
-//                                       color: Colors.red)),
-//                             )),
-//                     ),
-//                     const SizedBox(height: 10),
-
-//                     Obx(() => controller.addedSensors.isEmpty
-//                         ? const Padding(
-//                             padding: EdgeInsets.all(20.0),
-//                             child: Text("No sensors added yet.",
-//                                 style: TextStyle(color: Colors.grey)),
-//                           )
-//                         : Container(
-//                             width: double.infinity,
-//                             margin: const EdgeInsets.only(bottom: 20),
-//                             decoration: BoxDecoration(
-//                               border: Border.all(color: Colors.grey.shade300),
-//                               borderRadius: BorderRadius.circular(8),
-//                             ),
-//                             child: DataTable(
-//                               headingRowColor:
-//                                   WidgetStateProperty.all(Colors.grey[100]),
-//                               columns: [
-//                                 DataColumn(
-//                                     label: Text('Name',
-//                                         style: TextStyle(
-//                                             fontSize: tableHeaderFontSize,
-//                                             fontWeight: FontWeight.bold))),
-//                                 DataColumn(
-//                                     label: Text('Type',
-//                                         style: TextStyle(
-//                                             fontSize: tableHeaderFontSize,
-//                                             fontWeight: FontWeight.bold))),
-//                                 DataColumn(
-//                                     label: Text('Register',
-//                                         style: TextStyle(
-//                                             fontSize: tableHeaderFontSize,
-//                                             fontWeight: FontWeight.bold))),
-//                                 DataColumn(
-//                                     label: Text('Range',
-//                                         style: TextStyle(
-//                                             fontSize: tableHeaderFontSize,
-//                                             fontWeight: FontWeight.bold))),
-//                                 DataColumn(
-//                                     label: Text('Action',
-//                                         style: TextStyle(
-//                                             fontSize: tableHeaderFontSize,
-//                                             fontWeight: FontWeight.bold))),
-//                               ],
-//                               rows: controller.addedSensors.map((sensor) {
-//                                 return DataRow(cells: [
-//                                   DataCell(Text(sensor.sensorName ?? '',
-//                                       style: TextStyle(
-//                                           fontSize: tableCellFontSize))),
-//                                   DataCell(Text(sensor.sensorType ?? '',
-//                                       style: TextStyle(
-//                                           fontSize: tableCellFontSize))),
-//                                   DataCell(Text(
-//                                       sensor.registerNumber.toString(),
-//                                       style: TextStyle(
-//                                           fontSize: tableCellFontSize))),
-//                                   DataCell(Text("${sensor.min} / ${sensor.max}",
-//                                       style: TextStyle(
-//                                           fontSize: tableCellFontSize))),
-//                                   DataCell(
-//                                     Row(
-//                                       mainAxisSize: MainAxisSize
-//                                           .min, // Keep buttons tight
-//                                       children: [
-//                                         IconButton(
-//                                           icon: Icon(Icons.edit_outlined,
-//                                               color: Colors.blue,
-//                                               size: isDesktop ? 22 : 20),
-//                                           onPressed: () => controller.editSensor(
-//                                               sensor), // Pulls data back to form
-//                                         ),
-//                                         IconButton(
-//                                           icon: Icon(Icons.delete_outline,
-//                                               color: Colors.red,
-//                                               size: isDesktop ? 22 : 20),
-//                                           onPressed: () => controller
-//                                               .addedSensors
-//                                               .remove(sensor),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ]);
-//                               }).toList(),
-//                             ),
-//                           )),
-
-//                     // --- SENSOR CONFIGURATION (Form) ---
-//                     Obx(() => AnimatedSwitcher(
-//                           duration: const Duration(milliseconds: 300),
-//                           child: controller.isAddingSensor.value
-//                               ? Form(
-//                                   key:
-//                                       _sensorFormKey, // 3. Separate key for Sensor Form
-//                                   child: Column(
-//                                     key: const ValueKey("ConfigForm"),
-//                                     children: [
-//                                       const SizedBox(height: 20),
-//                                       _buildSectionHeader(
-//                                           "Configure New Sensor",
-//                                           fontSize: headerFontSize),
-//                                       const SizedBox(height: 20),
-//                                       _buildResponsiveGrid(isDesktop, [
-//                                         _buildInputField(
-//                                             "Sensor Name", "e.g. Oil Pressure",
-//                                             labelSize: labelFontSize,
-//                                             textSize: inputFontSize,
-//                                             controller:
-//                                                 controller.sensorName.value),
-//                                         _buildInputField(
-//                                             "Sensor Type", "e.g. Analog",
-//                                             labelSize: labelFontSize,
-//                                             textSize: inputFontSize,
-//                                             controller:
-//                                                 controller.sensorType.value),
-//                                       ]),
-//                                       const SizedBox(height: 20),
-//                                       _buildResponsiveGrid(isDesktop, [
-//                                         _buildInputField(
-//                                             "Register Address", "0x00",
-//                                             isNumeric: true,
-//                                             labelSize: labelFontSize,
-//                                             textSize: inputFontSize,
-//                                             controller: controller
-//                                                 .registerNumber.value),
-//                                         _buildMinMaxField(isDesktop,
-//                                             labelFontSize, inputFontSize),
-//                                       ]),
-//                                       const SizedBox(height: 20),
-//                                       _buildResponsiveGrid(isDesktop, [
-//                                         _buildInputField("Multiplier", "1.0",
-//                                             isNumeric: true,
-//                                             labelSize: labelFontSize,
-//                                             textSize: inputFontSize,
-//                                             controller:
-//                                                 controller.multiplier.value),
-//                                         _buildInputField("Offset", "0",
-//                                             isNumeric: true,
-//                                             labelSize: labelFontSize,
-//                                             textSize: inputFontSize,
-//                                             controller:
-//                                                 controller.offset.value),
-//                                       ]),
-//                                       const SizedBox(height: 20),
-//                                       // _buildResponsiveGrid(isDesktop, [
-//                                       //   _buildInputField(
-//                                       //     "Unit",
-//                                       //     "Ohms",
-//                                       //     labelSize: labelFontSize,
-//                                       //     textSize: inputFontSize,
-//                                       //     controller: controller.unit.value,
-//                                       //   ),
-//                                       //   // In RecipeAdditionScreen
-//                                       //   _buildInputField(
-//                                       //     "Test Result",
-//                                       //     "Calculated automatically",
-//                                       //     labelSize: labelFontSize,
-//                                       //     textSize: inputFontSize,
-//                                       //     controller:
-//                                       //         controller.testResult.value,
-//                                       //         readOnly: true
-//                                       //     // Add this property to your helper method
-//                                       //   ),
-//                                       // ]
-//                                       //),
-//                                       // Inside _buildResponsiveGrid for the sensor fields
-//                                       _buildResponsiveGrid(isDesktop, [
-//                                         _buildInputField(
-//                                           "Unit",
-//                                           "e.g. Ohms",
-//                                           labelSize: labelFontSize,
-//                                           textSize: inputFontSize,
-//                                           controller: controller.unit.value,
-//                                         ),
-//                                         Column(
-//                                           crossAxisAlignment:
-//                                               CrossAxisAlignment.start,
-//                                           children: [
-//                                             Text("Test Result",
-//                                                 style: TextStyle(
-//                                                     fontSize: labelFontSize,
-//                                                     fontWeight:
-//                                                         FontWeight.w600)),
-//                                             const SizedBox(height: 8),
-//                                             Row(
-//                                               children: [
-//                                                 Expanded(
-//                                                   child: _buildInputFieldNoLabel(
-//                                                       "Result",
-//                                                       inputFontSize,
-//                                                       controller
-//                                                           .testResult.value,
-//                                                       "Test Result",
-//                                                       AutovalidateMode
-//                                                           .onUserInteraction),
-//                                                 ),
-//                                                 const SizedBox(width: 10),
-//                                                 // --- THE HIT BUTTON ---
-//                                                 ElevatedButton(
-//                                                   onPressed: () {
-//                                                     int reg = int.tryParse(
-//                                                             controller
-//                                                                 .registerNumber
-//                                                                 .value
-//                                                                 .text) ??
-//                                                         0;
-
-//                                                     // Clear the field so the technician knows a new poll started
-//                                                     controller.testResult.value
-//                                                         .text = "Polling...";
-
-//                                                     // 🔥 Trigger the real Modbus request
-//                                                     controller
-//                                                         .sendGeneratorDataRequest(
-//                                                             reg);
-
-//                                                     print(
-//                                                         "User clicked HIT for register: $reg");
-//                                                   },
-//                                                   style: ElevatedButton.styleFrom(
-//                                                       backgroundColor:
-//                                                           Colors.orange,
-//                                                       padding: const EdgeInsets
-//                                                           .symmetric(
-//                                                           vertical: 18,
-//                                                           horizontal: 15),
-//                                                       shape:
-//                                                           RoundedRectangleBorder(
-//                                                               borderRadius:
-//                                                                   BorderRadius
-//                                                                       .circular(
-//                                                                           10))),
-//                                                   child: const Text("Test",
-//                                                       style: TextStyle(
-//                                                           color: Colors.white,
-//                                                           fontWeight:
-//                                                               FontWeight.bold)),
-//                                                 ),
-//                                               ],
-//                                             ),
-//                                           ],
-//                                         ),
-//                                       ]),
-//                                       const SizedBox(height: 30),
-//                                       // Align(
-//                                       //   alignment: Alignment.centerRight,
-//                                       //   child: ElevatedButton.icon(
-//                                       //     onPressed: () {
-//                                       //       // 4. Validate Sensor Form before saving
-//                                       //       if (_sensorFormKey.currentState!
-//                                       //           .validate()) {
-//                                       //         controller.saveSensorToList();
-//                                       //         controller.isAddingSensor.value =
-//                                       //             false;
-//                                       //       }
-//                                       //     },
-//                                       //     icon: const Icon(Icons.check),
-//                                       //     label: Text("Save Sensor to Table",
-//                                       //         style: TextStyle(
-//                                       //             fontSize: labelFontSize)),
-//                                       //     style: ElevatedButton.styleFrom(
-//                                       //         backgroundColor:
-//                                       //             Colors.green[700],
-//                                       //         foregroundColor: Colors.white,
-//                                       //         padding:
-//                                       //             const EdgeInsets.symmetric(
-//                                       //                 horizontal: 24,
-//                                       //                 vertical: 12)),
-//                                       //   ),
-//                                       // ),
-//                                       Obx(
-//                                         () => controller.hasTested.value
-//                                             ? Align(
-//                                                 alignment:
-//                                                     Alignment.centerRight,
-//                                                 child: ElevatedButton.icon(
-//                                                   onPressed: () {
-//                                                     if (_sensorFormKey
-//                                                         .currentState!
-//                                                         .validate()) {
-//                                                       controller
-//                                                           .saveSensorToList();
-//                                                       controller.isAddingSensor
-//                                                           .value = false;
-//                                                     }
-//                                                   },
-//                                                   icon: const Icon(Icons.check),
-//                                                   label: Text(
-//                                                       "Save Sensor to Table",
-//                                                       style: TextStyle(
-//                                                           fontSize:
-//                                                               labelFontSize)),
-//                                                   style: ElevatedButton.styleFrom(
-//                                                       backgroundColor:
-//                                                           Colors.green[700],
-//                                                       foregroundColor:
-//                                                           Colors.white,
-//                                                       padding: const EdgeInsets
-//                                                           .symmetric(
-//                                                           horizontal: 24,
-//                                                           vertical: 12)),
-//                                                 ),
-//                                               )
-//                                             : const SizedBox
-//                                                 .shrink(), // Hides the button completely
-//                                       ),
-//                                       const Divider(height: 60),
-//                                     ],
-//                                   ),
-//                                 )
-//                               : const SizedBox.shrink(),
-//                         )),
-
-//                     const SizedBox(height: 60),
-
-//                     // FINAL ACTION BUTTONS
-//                     Row(
-//                       mainAxisAlignment: isDesktop
-//                           ? MainAxisAlignment.end
-//                           : MainAxisAlignment.center,
-//                       children: [
-//                         OutlinedButton(
-//                           onPressed: () => Get.back(),
-//                           style: OutlinedButton.styleFrom(
-//                             padding: EdgeInsets.symmetric(
-//                                 horizontal: isDesktop ? 50 : 40, vertical: 20),
-//                             side: const BorderSide(color: Colors.grey),
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(8)),
-//                           ),
-//                           child: Text("Cancel",
-//                               style: TextStyle(
-//                                   color: Colors.black,
-//                                   fontSize: isDesktop ? 18 : 16)),
-//                         ),
-//                         const SizedBox(width: 20),
-//                         ElevatedButton(
-//                           onPressed: () {
-//                             // 5. Final validation check
-//                             if (_engineFormKey.currentState!.validate()) {
-//                               controller.addRecipe();
-//                             }
-//                           },
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: const Color(0xFF4A76C0),
-//                             padding: EdgeInsets.symmetric(
-//                                 horizontal: isDesktop ? 60 : 50, vertical: 20),
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(8)),
-//                           ),
-//                           child: Text("Add Recipe",
-//                               style: TextStyle(
-//                                   color: Colors.white,
-//                                   fontSize: isDesktop ? 18 : 16)),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   // --- Helper methods remain mostly same, logic for validation is inside TextFormField ---
-
-//   Widget _buildSectionHeader(String title,
-//       {required double fontSize, Widget? trailing}) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(title,
-//                 style: TextStyle(
-//                     fontSize: fontSize,
-//                     fontWeight: FontWeight.bold,
-//                     color: const Color(0xFF0055BB))),
-//             if (trailing != null) trailing,
-//           ],
-//         ),
-//         const Divider(thickness: 1),
-//       ],
-//     );
-//   }
-
-//   Widget _buildResponsiveGrid(bool isDesktop, List<Widget> children) {
-//     return Wrap(
-//       spacing: 30,
-//       runSpacing: 20,
-//       children: children
-//           .map((w) => SizedBox(
-//                 width: isDesktop
-//                     ? (MediaQuery.of(Get.context!).size.width / 2) - 60
-//                     : double.infinity,
-//                 child: w,
-//               ))
-//           .toList(),
-//     );
-//   }
-
-//   Widget _buildInputField(
-//     String label,
-//     String hint, {
-//     required double labelSize,
-//     required double textSize,
-//     bool isNumeric = false,
-//     bool readOnly = false, // Added this parameter
-//     TextEditingController? controller,
-//     AutovalidateMode autovalidatemode = AutovalidateMode.onUserInteraction,
-//   }) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           label,
-//           style: TextStyle(
-//             fontSize: labelSize,
-//             fontWeight: FontWeight.w600,
-//             color: Colors.black87,
-//           ),
-//         ),
-//         const SizedBox(height: 8),
-//         TextFormField(
-//           readOnly: readOnly, // Set the readOnly property here
-//           cursorColor: Colors.black,
-//           autovalidateMode: autovalidatemode,
-//           controller: controller,
-//           // Optional: Change background color if readOnly to indicate it's disabled
-//           style: TextStyle(
-//             color: readOnly ? Colors.blueGrey : Colors.black,
-//             fontWeight: readOnly ? FontWeight.bold : FontWeight.normal,
-//           ),
-//           keyboardType: isNumeric
-//               ? const TextInputType.numberWithOptions(decimal: true)
-//               : TextInputType.text,
-//           validator: (value) {
-//             if (value == null || value.trim().isEmpty) {
-//               return "$label is required";
-//             }
-//             return null;
-//           },
-//           decoration: InputDecoration(
-//             hintText: hint,
-//             hintStyle: TextStyle(fontSize: textSize, color: Colors.grey),
-//             filled: true,
-//             fillColor: readOnly
-//                 ? Colors.grey[200]
-//                 : Colors.grey[50], // Grey out if readOnly
-//             contentPadding: const EdgeInsets.symmetric(
-//               horizontal: 16,
-//               vertical: 12,
-//             ),
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10),
-//             ),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10),
-//               borderSide: const BorderSide(color: Colors.black26),
-//             ),
-//             focusedBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10),
-//               borderSide: BorderSide(
-//                 color: readOnly ? Colors.black26 : Colors.blue,
-//                 width: 2,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildMinMaxField(bool isDesktop, double labelSize, double textSize) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text("Range (Min / Max)",
-//             style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600)),
-//         const SizedBox(height: 8),
-//         Row(
-//           crossAxisAlignment:
-//               CrossAxisAlignment.start, // Align for error messages
-//           children: [
-//             Expanded(
-//               child: _buildInputFieldNoLabel(
-//                   "Min",
-//                   textSize,
-//                   controller.min.value,
-//                   "Min",
-//                   AutovalidateMode.onUserInteraction),
-//             ),
-//             const Padding(
-//                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-//                 child: Text("/")),
-//             Expanded(
-//               child: _buildInputFieldNoLabel(
-//                   "Max",
-//                   textSize,
-//                   controller.max.value,
-//                   "Max",
-//                   AutovalidateMode.onUserInteraction),
-//             ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildInputFieldNoLabel(
-//       String hint,
-//       double textSize,
-//       TextEditingController? controller,
-//       String fieldName,
-//       AutovalidateMode autovalidatemode) {
-//     return TextFormField(
-//       autovalidateMode: autovalidatemode,
-//       controller: controller,
-//       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-//       validator: (value) {
-//         if (value == null || value.trim().isEmpty) {
-//           return "$fieldName required";
-//         }
-//         return null;
-//       },
-//       decoration: InputDecoration(
-//         hintText: hint,
-//         filled: true,
-//         fillColor: Colors.grey[50],
-//         contentPadding: const EdgeInsets.symmetric(
-//           horizontal: 12,
-//           vertical: 10,
-//         ),
-//         border: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//         enabledBorder: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(10),
-//           borderSide: const BorderSide(color: Colors.black26),
-//         ),
-//         focusedBorder: const OutlineInputBorder(
-//           borderSide: BorderSide(color: Colors.blue, width: 2),
-//         ),
-//         errorBorder: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(10),
-//           borderSide: const BorderSide(color: Colors.red, width: 1),
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
+import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
 import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -682,7 +36,7 @@ class RecipeAdditionScreen extends StatelessWidget {
                 key: _engineFormKey,
                 child: Column(
                   children: [
-                    // --- SECTION 1: ENGINE DETAILS ---
+                    // ── SECTION 1: ENGINE DETAILS ──────────────────────────
                     _buildSectionHeader(
                       "Engine Details",
                       fontSize: headerFontSize,
@@ -709,10 +63,9 @@ class RecipeAdditionScreen extends StatelessWidget {
                           textSize: inputFontSize,
                           controller: controller.typeController.value),
                     ]),
-
                     const SizedBox(height: 40),
 
-                    // --- SECTION 2: SENSOR LIST ---
+                    // ── SECTION 2: SENSOR LIST ─────────────────────────────
                     _buildSectionHeader(
                       "Added Sensor List",
                       fontSize: headerFontSize,
@@ -738,194 +91,163 @@ class RecipeAdditionScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
 
+                    // ── SENSOR TABLE ───────────────────────────────────────
                     Obx(() => controller.addedSensors.isEmpty
                         ? const Padding(
                             padding: EdgeInsets.all(20.0),
                             child: Text("No sensors added yet.",
                                 style: TextStyle(color: Colors.grey)),
                           )
-                         : Container(
+                        : Container(
                             width: double.infinity,
                             margin: const EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: const Color.fromRGBO(238, 238, 238, 1),
-                              ),
+                                  color:
+                                      const Color.fromRGBO(238, 238, 238, 1)),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: DataTable(
-                              columnSpacing: 24,
-                              // 🔥 SET TO 0 to remove the default dark horizontal line
-                              dividerThickness: 0,
-                              horizontalMargin: 12,
-                              showBottomBorder:
-                                  false, // Set to false to use the custom border instead
-
-                              // --- CUSTOM FAINT GRID ---
-                              border: TableBorder(
-                                // Faint horizontal lines
-                                horizontalInside: BorderSide(
-                                  color: Colors.grey
-                                      .withOpacity(0.15), // Very transparent
-                                  width: 0.5,
+                            child: Column(
+                              children: [
+                                // Header
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(8)),
+                                  ),
+                                  child:
+                                      _buildTableHeaderRow(tableHeaderFontSize),
                                 ),
-                                // Faint vertical lines
-                                verticalInside: BorderSide(
-                                  color: Colors.grey
-                                      .withOpacity(0.5), // Very transparent
-                                  width: 0.5,
-                                ),
-                                // Faint bottom border for the last row
-                                bottom: BorderSide(
-                                  color: Colors.grey.withOpacity(0.15),
-                                  width: 0.5,
-                                ),
-                              ),
+                                const Divider(
+                                    height: 1,
+                                    color: Color.fromRGBO(238, 238, 238, 1)),
 
-                              headingRowColor:
-                                  WidgetStateProperty.all(Colors.grey[100]),
-                              headingRowHeight: 45,
-                              dataRowMinHeight: 40,
-                              dataRowMaxHeight: 60,
+                                // Rows
+                                ...controller.addedSensors.map((sensor) {
+                                  final String key = sensor.sensorName ?? '';
+                                  final bool isExpanded =
+                                      controller.expandedSensors.contains(key);
 
-                              columns: [
-                                _buildDataColumn(
-                                    'Sensor Name', tableHeaderFontSize),
-                                _buildDataColumn(
-                                    'Sensor Type', tableHeaderFontSize),
-                                _buildDataColumn(
-                                    'Register ', tableHeaderFontSize),
-                                _buildDataColumn(
-                                    'Range', tableHeaderFontSize),
-                                _buildDataColumn('Action', tableHeaderFontSize),
-                                
+                                  // ✅ logs come directly from sensor.operations
+                                  final List<OperationLog> logs =
+                                      sensor.operations;
+
+                                  return Column(
+                                    children: [
+                                      // Main row
+                                      IntrinsicHeight(
+                                        child: Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 40,
+                                              child: IconButton(
+                                                padding: EdgeInsets.zero,
+                                                icon: AnimatedRotation(
+                                                  turns: isExpanded ? 0.25 : 0,
+                                                  duration: const Duration(
+                                                      milliseconds: 200),
+                                                  child: const Icon(
+                                                      Icons.chevron_right,
+                                                      color: Color(0xFF0055BB)),
+                                                ),
+                                                onPressed: () => controller
+                                                    .toggleSensorExpanded(key),
+                                              ),
+                                            ),
+                                            _buildTableCell(
+                                                sensor.sensorName ?? '',
+                                                tableCellFontSize,
+                                                flex: 3),
+                                            _buildTableCell(
+                                                sensor.sensorType ?? '',
+                                                tableCellFontSize,
+                                                flex: 3),
+                                            _buildTableCell(
+                                                sensor.registerNumber
+                                                    .toString(),
+                                                tableCellFontSize,
+                                                flex: 2),
+                                            _buildTableCell(
+                                                "${sensor.min} / ${sensor.max}",
+                                                tableCellFontSize,
+                                                flex: 2),
+                                            Expanded(
+                                              flex: 2,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  IconButton(
+                                                    icon: Icon(
+                                                        Icons.edit_outlined,
+                                                        color: Colors.blue,
+                                                        size: isDesktop
+                                                            ? 22
+                                                            : 20),
+                                                    onPressed: () => controller
+                                                        .editSensor(sensor),
+                                                  ),
+                                                  IconButton(
+                                                    icon: Icon(
+                                                        Icons.delete_outline,
+                                                        color: Colors.red,
+                                                        size: isDesktop
+                                                            ? 22
+                                                            : 20),
+                                                    onPressed: () => controller
+                                                        .addedSensors
+                                                        .remove(sensor),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Expandable log sub-table
+                                      AnimatedCrossFade(
+                                        firstChild: const SizedBox.shrink(),
+                                        secondChild: logs.isEmpty
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 40,
+                                                    bottom: 12,
+                                                    top: 4),
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    "No operations logged yet.",
+                                                    style: TextStyle(
+                                                        color: Colors.grey[500],
+                                                        fontSize:
+                                                            tableCellFontSize),
+                                                  ),
+                                                ),
+                                              )
+                                            : _buildLogSubTable(
+                                                logs, tableCellFontSize),
+                                        crossFadeState: isExpanded
+                                            ? CrossFadeState.showSecond
+                                            : CrossFadeState.showFirst,
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                      ),
+
+                                      const Divider(
+                                          height: 1,
+                                          color:
+                                              Color.fromRGBO(238, 238, 238, 1)),
+                                    ],
+                                  );
+                                }),
                               ],
-                              rows: controller.addedSensors.map((sensor) {
-                                  return DataRow(cells: [
-                                  DataCell(Center(
-                                    child: Text(sensor.sensorName ?? '',
-                                        style: TextStyle(
-                                            fontSize: tableCellFontSize)),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text(sensor.sensorType ?? '',
-                                        style: TextStyle(
-                                            fontSize: tableCellFontSize)),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text(
-                                        sensor.registerNumber.toString(),
-                                        style: TextStyle(
-                                            fontSize: tableCellFontSize)),
-                                  )),
-                                  DataCell(Center(
-                                    child: Text("${sensor.min} / ${sensor.max}",
-                                        style: TextStyle(
-                                            fontSize: tableCellFontSize)),
-                                  )),
-                                  DataCell(Center(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Icons.edit_outlined,
-                                              color: Colors.blue,
-                                              size: isDesktop ? 22 : 20),
-                                          onPressed: () =>
-                                              controller.editSensor(sensor),
-                                        ),
-                                        IconButton(
-                                          icon: Icon(Icons.delete_outline,
-                                              color: Colors.red,
-                                              size: isDesktop ? 22 : 20),
-                                          onPressed: () => controller.addedSensors
-                                              .remove(sensor),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                                ]);
-                              }).toList(),
                             ),
-                          )
-                        // : Container(
-                        //     width: double.infinity,
-                        //     margin: const EdgeInsets.only(bottom: 20),
-                        //     decoration: BoxDecoration(
-                        //       border: Border.all(color: Colors.grey.shade300),
-                        //       borderRadius: BorderRadius.circular(8),
-                        //     ),
-                        //     child: DataTable(
-                        //       headingRowColor:
-                        //           WidgetStateProperty.all(Colors.grey[100]),
-                        //       columns: [
-                        //         DataColumn(
-                        //             label: Text('Name',
-                        //                 style: TextStyle(
-                        //                     fontSize: tableHeaderFontSize,
-                        //                     fontWeight: FontWeight.bold))),
-                        //         DataColumn(
-                        //             label: Text('Type',
-                        //                 style: TextStyle(
-                        //                     fontSize: tableHeaderFontSize,
-                        //                     fontWeight: FontWeight.bold))),
-                        //         DataColumn(
-                        //             label: Text('Register',
-                        //                 style: TextStyle(
-                        //                     fontSize: tableHeaderFontSize,
-                        //                     fontWeight: FontWeight.bold))),
-                        //         DataColumn(
-                        //             label: Text('Range',
-                        //                 style: TextStyle(
-                        //                     fontSize: tableHeaderFontSize,
-                        //                     fontWeight: FontWeight.bold))),
-                        //         DataColumn(
-                        //             label: Text('Action',
-                        //                 style: TextStyle(
-                        //                     fontSize: tableHeaderFontSize,
-                        //                     fontWeight: FontWeight.bold))),
-                        //       ],
-                        //       rows: controller.addedSensors.map((sensor) {
-                        //         return DataRow(cells: [
-                        //           DataCell(Text(sensor.sensorName ?? '',
-                        //               style: TextStyle(
-                        //                   fontSize: tableCellFontSize))),
-                        //           DataCell(Text(sensor.sensorType ?? '',
-                        //               style: TextStyle(
-                        //                   fontSize: tableCellFontSize))),
-                        //           DataCell(Text(
-                        //               sensor.registerNumber.toString(),
-                        //               style: TextStyle(
-                        //                   fontSize: tableCellFontSize))),
-                        //           DataCell(Text("${sensor.min} / ${sensor.max}",
-                        //               style: TextStyle(
-                        //                   fontSize: tableCellFontSize))),
-                        //           DataCell(Row(
-                        //             mainAxisSize: MainAxisSize.min,
-                        //             children: [
-                        //               IconButton(
-                        //                 icon: Icon(Icons.edit_outlined,
-                        //                     color: Colors.blue,
-                        //                     size: isDesktop ? 22 : 20),
-                        //                 onPressed: () =>
-                        //                     controller.editSensor(sensor),
-                        //               ),
-                        //               IconButton(
-                        //                 icon: Icon(Icons.delete_outline,
-                        //                     color: Colors.red,
-                        //                     size: isDesktop ? 22 : 20),
-                        //                 onPressed: () => controller.addedSensors
-                        //                     .remove(sensor),
-                        //               ),
-                        //             ],
-                        //           )),
-                        //         ]);
-                        //       }).toList(),
-                        //     ),
-                        //   )
-                          ),
+                          )),
 
-                    // --- SECTION 3: SENSOR CONFIGURATION FORM ---
+                    // ── CONFIGURE NEW SENSOR FORM ──────────────────────────
                     Obx(() => AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: controller.isAddingSensor.value
@@ -939,196 +261,88 @@ class RecipeAdditionScreen extends StatelessWidget {
                                           "Configure New Sensor",
                                           fontSize: headerFontSize),
                                       const SizedBox(height: 20),
+                                      _buildModeSwitcher(),
+                                      const SizedBox(height: 30),
                                       _buildResponsiveGrid(isDesktop, [
                                         _buildInputField(
                                             "Sensor Name", "e.g. Oil Pressure",
+                                            controller:
+                                                controller.sensorName.value,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller:
-                                                controller.sensorName.value),
+                                            readOnly:
+                                                controller.isWriteMode.value),
                                         _buildInputField(
                                             "Sensor Type", "e.g. Analog",
+                                            controller:
+                                                controller.sensorType.value,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
-                                            controller:
-                                                controller.sensorType.value),
+                                            readOnly:
+                                                controller.isWriteMode.value),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
                                         _buildInputField(
                                             "Register Address", "0x00",
                                             isNumeric: true,
+                                            controller:
+                                                controller.registerNumber.value,
                                             labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            controller: controller
-                                                .registerNumber.value),
+                                            textSize: inputFontSize),
                                         _buildMinMaxField(isDesktop,
                                             labelFontSize, inputFontSize),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
-                                        _buildInputField("Multiplier", "1.0",
-                                            isNumeric: true,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            controller:
-                                                controller.multiplier.value),
-                                        _buildInputField("Offset", "0",
-                                            isNumeric: true,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            controller:
-                                                controller.offset.value),
-                                      ]),
-                                      const SizedBox(height: 20),
-                                      _buildResponsiveGrid(isDesktop, [
+                                        if (!controller.isWriteMode.value) ...[
+                                          _buildInputField("Multiplier", "1.0",
+                                              isNumeric: true,
+                                              controller:
+                                                  controller.multiplier.value,
+                                              labelSize: labelFontSize,
+                                              textSize: inputFontSize),
+                                          _buildInputField("Offset", "0",
+                                              isNumeric: true,
+                                              controller:
+                                                  controller.offset.value,
+                                              labelSize: labelFontSize,
+                                              textSize: inputFontSize),
+                                        ],
                                         _buildInputField("Unit", "e.g. Ohms",
+                                            controller: controller.unit.value,
                                             labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            controller: controller.unit.value),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text("Sensor Test / Operation",
-                                                style: TextStyle(
-                                                    fontSize: labelFontSize,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: _buildInputFieldNoLabel(
-                                                      "Result",
-                                                      inputFontSize,
-                                                      controller
-                                                          .testResult.value,
-                                                      "Test Result",
-                                                      AutovalidateMode
-                                                          .onUserInteraction),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                // --- READ BUTTON ---
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    int reg = int.tryParse(
-                                                            controller
-                                                                .registerNumber
-                                                                .value
-                                                                .text) ??
-                                                        0;
-                                                    controller.testResult.value
-                                                        .text = "Reading...";
-                                                    controller
-                                                        .sendGeneratorDataRequest1(
-                                                            reg);
-                                                  },
-                                                  style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          const Color(
-                                                              0xFF0055BB),
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 18,
-                                                          horizontal: 15),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10))),
-                                                  child: const Text("Read",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                // --- WRITE BUTTON ---
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    int reg = int.tryParse(
-                                                            controller
-                                                                .registerNumber
-                                                                .value
-                                                                .text) ??
-                                                        0;
-                                                    int val = int.tryParse(
-                                                            controller
-                                                                .testResult
-                                                                .value
-                                                                .text) ??
-                                                        0;
-                                                    controller.testResult.value
-                                                        .text = "Writing...";
-                                                    // Make sure to add this method in your controller
-                                                    controller
-                                                        .writeGeneratorDataRequest(
-                                                            reg, val);
-                                                  },
-                                                  style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors
-                                                          .orange.shade800,
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 18,
-                                                          horizontal: 15),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10))),
-                                                  child: const Text("Write",
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold)),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                            textSize: inputFontSize),
                                       ]),
                                       const SizedBox(height: 30),
-
-                                      // --- SAVE BUTTON ---
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            if (_sensorFormKey.currentState!
-                                                .validate()) {
-                                              controller.saveSensorToList();
-                                              controller.isAddingSensor.value =
-                                                  false;
-                                            }
-                                          },
-                                          icon: const Icon(Icons.check),
-                                          label: Text("Save Sensor to Table",
-                                              style: TextStyle(
-                                                  fontSize: labelFontSize)),
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.green[700],
-                                              foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 24,
-                                                      vertical: 12)),
-                                        ),
-                                      ),
-                                      const Divider(height: 60),
+                                      Obx(() {
+                                        final bool isWrite =
+                                            controller.isWriteMode.value;
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            _buildTestSection(isDesktop,
+                                                labelFontSize, inputFontSize),
+                                            if (!isWrite) ...[
+                                              const SizedBox(width: 15),
+                                              _buildSaveButton(labelFontSize),
+                                            ],
+                                          ],
+                                        );
+                                      }),
+                                      const SizedBox(height: 60),
                                     ],
                                   ),
                                 )
                               : const SizedBox.shrink(),
                         )),
 
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 40),
+                    const Divider(thickness: 2, color: Colors.black),
+                    const SizedBox(height: 20),
 
-                    // --- FINAL ACTION BUTTONS ---
+                    // ── FINAL ACTION BUTTONS ───────────────────────────────
                     Row(
                       mainAxisAlignment: isDesktop
                           ? MainAxisAlignment.end
@@ -1179,7 +393,139 @@ class RecipeAdditionScreen extends StatelessWidget {
     );
   }
 
-  // --- HELPERS (STAY THE SAME) ---
+  // ── Widgets ──────────────────────────────────────────────────────────────────
+
+  Widget _buildSaveButton(double labelFontSize) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        if (_sensorFormKey.currentState!.validate()) {
+          controller.saveSensorToList();
+          controller.isAddingSensor.value = false;
+          Get.snackbar(
+            "Success",
+            "Sensor added to table",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.8),
+            colorText: Colors.white,
+          );
+        }
+      },
+      icon: const Icon(Icons.check, color: Colors.white),
+      label: Text("Save Sensor to Table",
+          style: TextStyle(fontSize: labelFontSize, color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green[700],
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
+  Widget _buildModeSwitcher() {
+    return Obx(() {
+      final bool isWrite = controller.isWriteMode.value;
+      return Row(
+        children: [
+          OutlinedButton.icon(
+            onPressed: () {
+              controller.isWriteMode.value = false;
+              _sensorFormKey.currentState?.reset();
+            },
+            icon: Icon(Icons.visibility,
+                size: 18,
+                color: !isWrite ? Colors.white : const Color(0xFF0055BB)),
+            label: const Text("READ MODE"),
+            style: OutlinedButton.styleFrom(
+              backgroundColor:
+                  !isWrite ? const Color(0xFF0055BB) : Colors.transparent,
+              foregroundColor:
+                  !isWrite ? Colors.white : const Color(0xFF0055BB),
+              side: const BorderSide(color: Color(0xFF0055BB), width: 1.5),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          const SizedBox(width: 15),
+          OutlinedButton.icon(
+            onPressed: () {
+              controller.isWriteMode.value = true;
+              controller.registerNumber.value.clear();
+              controller.multiplier.value.clear();
+              controller.offset.value.clear();
+              controller.unit.value.clear();
+              controller.min.value.clear();
+              controller.max.value.clear();
+              controller.testResult.value.clear();
+              _sensorFormKey.currentState?.reset();
+            },
+            icon: Icon(Icons.edit,
+                size: 18,
+                color: isWrite ? Colors.white : Colors.orange.shade900),
+            label: const Text("WRITE MODE"),
+            style: OutlinedButton.styleFrom(
+              backgroundColor:
+                  isWrite ? Colors.orange.shade900 : Colors.transparent,
+              foregroundColor: isWrite ? Colors.white : Colors.orange.shade900,
+              side: BorderSide(color: Colors.orange.shade900, width: 1.5),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildTestSection(bool isDesktop, double labelSize, double textSize) {
+    return Obx(() {
+      final bool isWrite = controller.isWriteMode.value;
+      final Color themeColor =
+          isWrite ? Colors.orange.shade900 : const Color(0xFF0055BB);
+
+      return OutlinedButton.icon(
+        onPressed: () async {
+          if (_sensorFormKey.currentState!.validate()) {
+            final int reg =
+                int.tryParse(controller.registerNumber.value.text) ?? 0;
+            final String sensorName = controller.sensorName.value.text;
+
+            if (isWrite) {
+              final int val =
+                  int.tryParse(controller.testResult.value.text) ?? 0;
+              await controller.writeGeneratorDataRequest(reg, val);
+
+              // ✅ log directly on the sensor object
+              controller.logOperation(
+                sensorName: sensorName,
+                operation: "WRITE",
+                value: val.toString(),
+              );
+            } else {
+              await controller.sendGeneratorDataRequest1(reg);
+
+              final String result = controller.testResult.value.text;
+
+              // ✅ log directly on the sensor object
+              controller.logOperation(
+                sensorName: sensorName,
+                operation: "READ",
+                value: result,
+              );
+            }
+          }
+        },
+        label: Text(isWrite ? "EXECUTE WRITE" : "READ SENSOR"),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: themeColor,
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    });
+  }
 
   Widget _buildSectionHeader(String title,
       {required double fontSize, Widget? trailing}) {
@@ -1216,19 +562,136 @@ class RecipeAdditionScreen extends StatelessWidget {
           .toList(),
     );
   }
-  DataColumn _buildDataColumn(String label, double fontSize) {
-    return DataColumn(
-    label: Expanded(
+
+  Widget _buildTableHeaderRow(double fontSize) {
+    return Row(
+      children: [
+        const SizedBox(width: 40),
+        _buildHeaderCell('Sensor Name', fontSize, flex: 3),
+        _buildHeaderCell('Sensor Type', fontSize, flex: 3),
+        _buildHeaderCell('Register', fontSize, flex: 2),
+        _buildHeaderCell('Range', fontSize, flex: 2),
+        _buildHeaderCell('Action', fontSize, flex: 2),
+      ],
+    );
+  }
+
+  Widget _buildHeaderCell(String label, double fontSize, {int flex = 1}) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildTableCell(String value, double fontSize, {int flex = 1}) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+        child: Text(value,
+            textAlign: TextAlign.center, style: TextStyle(fontSize: fontSize)),
+      ),
+    );
+  }
+
+  Widget _buildLogSubTable(List<OperationLog> logs, double fontSize) {
+    return Container(
+      margin: const EdgeInsets.only(left: 40, right: 8, bottom: 12, top: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F8FF),
+        border: Border.all(color: const Color(0xFFD0DFF8)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        children: [
+          // Sub-header
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFFEAF0FB),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+            ),
+            child: Row(
+              children: [
+                _buildLogCell('Operation', fontSize, bold: true, flex: 2),
+                _buildLogCell('Register', fontSize, bold: true, flex: 2),
+                _buildLogCell('Value', fontSize, bold: true, flex: 3),
+                _buildLogCell('Time', fontSize, bold: true, flex: 2),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: Color(0xFFD0DFF8)),
+
+          // Log rows
+          ...logs.map((log) {
+            final bool isWrite = log.operation == "WRITE";
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 12),
+              decoration: const BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(color: Color(0xFFE8EEF8), width: 0.5)),
+              ),
+              child: Row(
+                children: [
+                  // Operation badge
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isWrite
+                              ? Colors.orange.shade100
+                              : Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          log.operation,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: fontSize - 1,
+                            fontWeight: FontWeight.bold,
+                            color: isWrite
+                                ? Colors.orange.shade900
+                                : const Color(0xFF0055BB),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _buildLogCell(log.registerAddress, fontSize, flex: 2),
+                  _buildLogCell(log.value, fontSize, bold: true, flex: 3),
+                  _buildLogCell(log.timestamp, fontSize,
+                      color: Colors.grey[600], flex: 2),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogCell(String value, double fontSize,
+      {bool bold = false, Color? color, int flex = 1}) {
+    return Expanded(
+      flex: flex,
       child: Text(
-        label,
+        value,
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: fontSize,
-          fontWeight: FontWeight.bold,
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          color: color ?? Colors.black87,
         ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildInputField(String label, String hint,
@@ -1321,29 +784,39 @@ class RecipeAdditionScreen extends StatelessWidget {
       TextEditingController? controller,
       String fieldName,
       AutovalidateMode autovalidatemode) {
-    return TextFormField(
-      autovalidateMode: autovalidatemode,
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      validator: (value) => (value == null || value.trim().isEmpty)
-          ? "$fieldName required"
-          : null,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.grey[50],
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.black26)),
-        focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue, width: 2)),
-        errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.red, width: 1)),
-      ),
-    );
+    return Obx(() {
+      final bool isWriteActive =
+          Get.find<AddRecipeController>().isWriteMode.value;
+      final TextEditingController effectiveController = isWriteActive
+          ? TextEditingController()
+          : (controller ?? TextEditingController());
+
+      return TextFormField(
+        autovalidateMode: autovalidatemode,
+        controller: effectiveController,
+        validator: (value) {
+          if (isWriteActive) return null;
+          return (value == null || value.trim().isEmpty)
+              ? "$fieldName required"
+              : null;
+        },
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.grey[50],
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.black26)),
+          focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue, width: 2)),
+          errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Colors.red, width: 1)),
+        ),
+      );
+    });
   }
 }
