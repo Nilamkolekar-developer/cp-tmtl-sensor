@@ -94,9 +94,8 @@ class TestRecipeScreen extends StatelessWidget {
                                     _buildTableCell(item.type ?? '',
                                         fontSize: tableCellSize),
                                     _buildTableCell(
-                                        (item.sensors != null &&
-                                                item.sensors!.isNotEmpty)
-                                            ? item.sensors![0].registerNumber
+                                        (item.sensors.isNotEmpty)
+                                            ? item.sensors[0].registerNumber
                                                 .toString()
                                             : 'N/A',
                                         fontSize: tableCellSize),

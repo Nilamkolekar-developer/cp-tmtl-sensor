@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppPreferences {
@@ -20,6 +21,7 @@ class AppPreferences {
   static const String _rememberMeKey = 'RememberIsChecked';
   static const String _savedUserKey = 'user_id';
   static const String _savedPassKey = 'password';
+  static const String _recipesKey = 'recipes_data';
 
 // ================= GD DATA =================
 
@@ -134,6 +136,27 @@ class AppPreferences {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_channelIdKey);
   }
+
+  static Future<void> saveRecipes(List<Recipe> recipes) async {
+  final prefs = await SharedPreferences.getInstance();
+  final List<Map<String, dynamic>> jsonList =
+      recipes.map((r) => r.toJson()).toList();
+  await prefs.setString(_recipesKey, jsonEncode(jsonList));
+  print("✅ Recipes saved: ${recipes.length}");
+}
+
+static Future<List<Recipe>> getRecipes() async {
+  final prefs = await SharedPreferences.getInstance();
+  final String? raw = prefs.getString(_recipesKey);
+  if (raw == null || raw.isEmpty) return [];
+  try {
+    final List<dynamic> jsonList = jsonDecode(raw);
+    return jsonList.map((j) => Recipe.fromJson(j)).toList();
+  } catch (e) {
+    print("❌ Failed to parse recipes: $e");
+    return [];
+  }
+}
 
   // ================= USER =================
 
