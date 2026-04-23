@@ -114,8 +114,8 @@ class RecipeAdditionReadOnly extends StatelessWidget {
                                     'Sensor Name', tableHeaderFontSize),
                                 _buildDataColumn(
                                     'Sensor Type', tableHeaderFontSize),
-                                _buildDataColumn(
-                                    'Register Add', tableHeaderFontSize),
+                                // _buildDataColumn(
+                                //     'Register Add', tableHeaderFontSize),
                                 _buildDataColumn(
                                     'Multiplier', tableHeaderFontSize),
                                 _buildDataColumn('Offset', tableHeaderFontSize),
@@ -137,12 +137,12 @@ class RecipeAdditionReadOnly extends StatelessWidget {
                                         style: TextStyle(
                                             fontSize: tableCellFontSize)),
                                   )),
-                                  DataCell(Center(
-                                    child: Text(
-                                        sensor.registerNumber.toString(),
-                                        style: TextStyle(
-                                            fontSize: tableCellFontSize)),
-                                  )),
+                                  // DataCell(Center(
+                                  //   child: Text(
+                                  //       sensor.registerNumber.toString(),
+                                  //       style: TextStyle(
+                                  //           fontSize: tableCellFontSize)),
+                                  // )),
                                   DataCell(Center(
                                     child: Text("${sensor.multiplier}",
                                         style: TextStyle(

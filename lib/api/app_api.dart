@@ -139,7 +139,7 @@ class AppAPIs {
           if (isShowTost == false) {
             if (response.data != null) {
               if (response.data["success"] == false) {
-                String? userId = await AppPreferences.getUserId();
+                String? userId = await AppPreferences.getActiveUser();
                 if(userId!=""){ // for guest user fun
                    AppTostMassage.showTostErrorMassage(massage: "$path ${response.data["message"].toString()}");
                 }

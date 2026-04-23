@@ -103,11 +103,11 @@ void selectSensor(SensorConfig sensor) {
       modelController.value.text = recipe.model ?? "";
       typeController.value.text = recipe.type ?? "";
 
-      if (recipe.sensors != null && recipe.sensors!.isNotEmpty) {
-        addedSensors.assignAll(recipe.sensors!);
+      if (recipe.sensors.isNotEmpty) {
+        addedSensors.assignAll(recipe.sensors);
 
         // Optionally fill the "Current Sensor" fields with the first sensor data
-        var firstSensor = recipe.sensors![0];
+        var firstSensor = recipe.sensors[0];
         sensorName.value.text = firstSensor.sensorName ?? "";
         sensorType.value.text = firstSensor.sensorType ?? "";
         registerNumber.value.text =

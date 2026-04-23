@@ -554,9 +554,13 @@ class CustomDrawer extends StatelessWidget {
         endIndent: 20);
   }
 
-  void _handleNavigation(String route, bool isLogout) async {
+  
+void _handleNavigation(String route, bool isLogout) async {
     if (isLogout) {
-      await AppPreferences.clearExceptCredentials();
+      // ✅ ONLY remove the active session ID
+      // Do NOT use clearAll()
+      await AppPreferences.logout(); 
+      
       Get.offAllNamed(route);
     } else {
       Get.toNamed(route);

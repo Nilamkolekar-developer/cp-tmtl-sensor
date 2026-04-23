@@ -1024,6 +1024,8 @@
 //     }
 //   }
 // }
+import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -1038,19 +1040,49 @@ class LoginController extends GetxController {
     hidePassword.value = !hidePassword.value;
   }
 
-  void login() async {
-    String user = "abc@autopeepal.com";
-    String pass = "1234";
+ void login() async {
+  String user = "abc@autopeepal.com"; // In production, use controller.text
+  String pass = "1234";
 
-    if (user.isEmpty || pass.isEmpty) {
-      Get.snackbar("Error", "Please enter credentials");
-      return;
+  if (user.isEmpty || pass.isEmpty) {
+    Get.snackbar(
+      "Error", 
+      "Please enter credentials",
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.white
+    );
+    return;
+  }
+
+  try {
+    isLoading.value = true;
+    print("🚀 [LOGIN START] Authenticating: $user");
+
+    // Simulate API delay
+    await Future.delayed(const Duration(seconds: 2));
+
+    // 1. SET ACTIVE USER (The "Key" to your data)
+    // We use the email as the ID. This removes the [null] from your logs.
+    await AppPreferences.setActiveUser(user);
+    print("👤 [SESSION] Active User ID set to: $user");
+
+    // 2. SYNC DATA BEFORE NAVIGATION
+    // Reach into the dashboard controller and force it to load this user's recipes
+    if (Get.isRegistered<TestRecipeController>()) {
+      final testController = Get.find<TestRecipeController>();
+      await testController.loadStoredRecipes();
+      print("🔄 [SYNC] Recipes loaded for $user. Count: ${testController.recipeList.length}");
     }
 
-    isLoading.value = true;
-    print("Attempting login for: $user");
-    
-    await Future.delayed(const Duration(seconds: 2));
     isLoading.value = false;
+
+    // 3. NAVIGATE
+    Get.offAllNamed('/dashboard');
+
+  } catch (e) {
+    isLoading.value = false;
+    print("❌ [LOGIN ERROR] $e");
+    Get.snackbar("Login Failed", "An error occurred during login");
   }
+}
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
 import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
 import 'package:CP_TMTL_Sensor_Zig/common_widgets/app_error_widget.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/bindings/initial_bindings.dart';
@@ -92,6 +93,7 @@ class App {
         WidgetsFlutterBinding.ensureInitialized();
         /* -------- Get Storage Initialize -----------   */
         await GetStorage.init();
+        await AppPreferences.setActiveUser("abc@autopeepal.com");
         /* --------Setting configuration parameters-----------   */
         _devMode = devMode;
         _appLog = appLog;

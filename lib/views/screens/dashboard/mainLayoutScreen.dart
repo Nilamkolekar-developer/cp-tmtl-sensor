@@ -279,6 +279,26 @@ class MainLayout extends StatelessWidget {
                 ),
               ),
 
+              // const Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: Text("Port",
+              //       style: TextStyle(
+              //           color: Colors.blueGrey, fontWeight: FontWeight.w500)),
+              // ),
+              // const SizedBox(height: 10),
+              // TextFormField(
+              //   controller: controller.portController,
+              //   keyboardType: TextInputType.number,
+              //   decoration: InputDecoration(
+              //     filled: true,
+              //     fillColor: Colors.grey[100],
+              //     border: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     hintText: "e.g. 502", // ✅ Correct
+              //   ),
+              // ),
+
               // Note: Port is kept invisible but exists in controller.portController.text
 
               const SizedBox(height: 30),
@@ -312,7 +332,8 @@ class MainLayout extends StatelessWidget {
                                 // 1. Attempt connection
                                 await controller.connectToPLC(
                                     controller.ipController.text,
-                                    controller.portController.text);
+                                     // 🔥 hardcoded port
+                                    );
 
                                 // 2. Handle Outcome
                                 if (controller.isConnected.value) {
@@ -323,9 +344,8 @@ class MainLayout extends StatelessWidget {
                                       title: "Connected",
                                       message:
                                           " Established connection to ${controller.ipController.text}",
-                                      isError:
-                                          true, // Uses that red accent we discussed
-                                      confirmText: "Retry",
+                                       // Uses that red accent we discussed
+                                      confirmText: "Okay",
                                       onConfirm: () => Get
                                           .back(), // Closes popup to let them try again
                                     ),

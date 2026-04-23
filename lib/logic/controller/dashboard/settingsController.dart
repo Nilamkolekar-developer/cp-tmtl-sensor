@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/sensorAnalysisController.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,10 +13,16 @@ class PLCController extends GetxController {
   var isConnecting = false.obs;
   var debugStatus = "Idle".obs;
   var plcDataValue = 0.obs;
-
+  int? currentRegister;
   final ipController = TextEditingController();
   final portController = TextEditingController();
   Socket? socket;
+  @override
+  void onInit() {
+    super.onInit();
+    loadSettings(); // Load IP/Port automatically when screen opens
+  }
+
   Future<void> saveSettings() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -33,45 +40,103 @@ class PLCController extends GetxController {
     }
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadSettings(); // Load IP/Port automatically when screen opens
-  }
-
   // --- LOAD FROM SHARED PREFERENCES ---
   Future<void> loadSettings() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+
     ipController.text = prefs.getString('plc_ip') ?? '';
-    portController.text = prefs.getString('plc_port') ?? '';
+
+    final dynamic storedPort = prefs.get('plc_port');
+
+    int port;
+
+    if (storedPort is int) {
+      port = storedPort;
+    } else if (storedPort is String) {
+      port = int.tryParse(storedPort) ?? 502;
+    } else {
+      port = 502;
+    }
+
+    portController.text = port.toString();
   }
 
   // --- 2. CONNECTION LOGIC ---
-  Future<void> connectToPLC(String ip, String port) async {
+  // Future<void> connectToPLC(String ip, String port) async {
+  //   if (isConnecting.value) return;
+  //   await _cleanupBeforeConnect();
+
+  //   int? portNum = int.tryParse(port);
+  //   if (portNum == null) return;
+
+  //   try {
+  //     isConnecting.value = true;
+  //     debugStatus.value = "Connecting...";
+  //     socket = await Socket.connect(ip, portNum,
+  //         timeout: const Duration(seconds: 4));
+  //     socket!.setOption(SocketOption.tcpNoDelay, true);
+
+  //     isConnected.value = true;
+  //     debugStatus.value = "Connected";
+
+  //     socket!.listen(
+  //       (data) => _handleResponse(data),
+  //       onError: (err) => disconnect(),
+  //       onDone: () => disconnect(),
+  //       cancelOnError: true,
+  //     );
+  //   } catch (e) {
+  //     debugStatus.value = "Connect Error";
+  //     disconnect();
+  //   } finally {
+  //     isConnecting.value = false;
+  //   }
+  // }
+  Future<void> connectToPLC(String ip) async {
     if (isConnecting.value) return;
+
     await _cleanupBeforeConnect();
 
-    int? portNum = int.tryParse(port);
-    if (portNum == null) return;
+    const int portNum = 502;
 
     try {
       isConnecting.value = true;
       debugStatus.value = "Connecting...";
-      socket = await Socket.connect(ip, portNum,
-          timeout: const Duration(seconds: 4));
+
+      print("🔍 [PLC] Attempting to connect to $ip on port $portNum...");
+
+      // Use InternetAddress.lookup or specify IPv4 to skip DNS delays
+      socket = await Socket.connect(
+        ip,
+        portNum,
+        timeout: const Duration(seconds: 4),
+      );
+
+      // Important for Modbus performance
       socket!.setOption(SocketOption.tcpNoDelay, true);
 
       isConnected.value = true;
       debugStatus.value = "Connected";
 
       socket!.listen(
-        (data) => _handleResponse(data),
-        onError: (err) => disconnect(),
-        onDone: () => disconnect(),
+        _handleResponse,
+        onError: (err) {
+          print("❌ [PLC] Socket Stream Error: $err");
+          disconnect();
+        },
+        onDone: () {
+          print("ℹ️ [PLC] Connection closed by server.");
+          disconnect();
+        },
         cancelOnError: true,
       );
+    } on SocketException catch (e) {
+      debugStatus.value = "Unreachable";
+      print("❌ [PLC] Network unreachable or refused: ${e.message}");
+      disconnect();
     } catch (e) {
       debugStatus.value = "Connect Error";
+      print("❌ [PLC] General Exception: $e");
       disconnect();
     } finally {
       isConnecting.value = false;
@@ -98,38 +163,31 @@ class PLCController extends GetxController {
 
   void _handleResponse(List<int> data) {
     _printHex("RESPONSE", data);
-    // Header (7) + Func (1) + ByteCount (1) + Data (2) = 11 bytes
+
     if (data.length >= 11 && data[7] == 0x03) {
       int rawValue = (data[9] << 8) | data[10];
-      plcDataValue.value = rawValue;
+      print("Parsed VALUE: $rawValue");
 
-      // --- 1. ROUTE TO RECIPE ADDITION SCREEN ---
+      // ✅ ROUTE TO ESN CONTROLLER (MAIN FIX)
+      if (Get.isRegistered<ESNController>() && currentRegister != null) {
+        final esnCtrl = Get.find<ESNController>();
+        esnCtrl.handlePlcData(currentRegister!, rawValue);
+      }
+
+      // OPTIONAL (keep your existing flows)
+      if (Get.isRegistered<SensorAnalysisController>()) {
+        Get.find<SensorAnalysisController>().addRealHardwarePoint(rawValue);
+      }
+
       if (Get.isRegistered<AddRecipeController>()) {
         final recipeCtrl = Get.find<AddRecipeController>();
 
         double m = double.tryParse(recipeCtrl.multiplier.value.text) ?? 1.0;
         double c = double.tryParse(recipeCtrl.offset.value.text) ?? 0.0;
-        double minVal = double.tryParse(recipeCtrl.min.value.text) ?? 0.0;
-        double maxVal = double.tryParse(recipeCtrl.max.value.text) ?? 0.0;
 
-        double calculatedValue = (rawValue * m) + c;
+        double value = (rawValue * m) + c;
 
-        if (calculatedValue >= minVal && calculatedValue <= maxVal) {
-          recipeCtrl.testResult.value.text =
-              "ok (${calculatedValue.toStringAsFixed(2)})";
-        } else {
-          recipeCtrl.testResult.value.text =
-              "Not ok (${calculatedValue.toStringAsFixed(2)})";
-        }
-      }
-
-      // --- 2. ROUTE TO SENSOR ANALYSIS SCREEN (LIVE GRAPH) ---
-      if (Get.isRegistered<SensorAnalysisController>()) {
-        final analysisCtrl = Get.find<SensorAnalysisController>();
-
-        // We pass the raw int value to the analysis controller
-        // It will handle its own y = mx + c based on the "Active Sensor"
-        analysisCtrl.addRealHardwarePoint(rawValue);
+        recipeCtrl.testResult.value.text = value.toStringAsFixed(2);
       }
     }
   }

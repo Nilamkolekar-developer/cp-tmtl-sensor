@@ -673,7 +673,8 @@ class TestingScreen extends StatelessWidget {
                   Obx(() => ElevatedButton(
                         onPressed: controller.isValidated.value &&
                                 !controller.isTesting.value
-                            ? () => controller.startTestingSequence()
+                            ? 
+                            () => controller.startTestingSequence()
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green.shade700,
@@ -738,7 +739,7 @@ class TestingScreen extends StatelessWidget {
                       1: FlexColumnWidth(4), // Component
                       2: FlexColumnWidth(1.5), // Min
                       3: FlexColumnWidth(1.5), // Max
-                      //4: FlexColumnWidth(1.5), // Val
+                      4: FlexColumnWidth(1.5), // Val
                       5: FlexColumnWidth(2), // Result
                     },
                     border: TableBorder.all(color: Colors.black12),
@@ -747,7 +748,7 @@ class TestingScreen extends StatelessWidget {
                       TableRow(
                         decoration: BoxDecoration(color: Colors.grey[200]),
                         children: [
-                          _buildCell("Sr.",
+                          _buildCell("Register",
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Component",
                               isHeader: true, fontSize: tableCellFontSize),
@@ -755,10 +756,11 @@ class TestingScreen extends StatelessWidget {
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Max",
                               isHeader: true, fontSize: tableCellFontSize),
-                          // _buildCell("Val",
-                          //     isHeader: true, fontSize: tableCellFontSize),
+                          _buildCell("Val",
+                              isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Result",
                               isHeader: true, fontSize: tableCellFontSize),
+                             
                         ],
                       ),
 
@@ -766,7 +768,7 @@ class TestingScreen extends StatelessWidget {
                       ...controller.sensorResults.map((sensor) {
                         return TableRow(
                           children: [
-                            _buildCell(sensor['sr'].toString(),
+                            _buildCell(sensor['reg'].toString(),
                                 fontSize: tableCellFontSize), // 1
                             _buildCell(sensor['part'],
                                 fontSize: tableCellFontSize,
@@ -775,10 +777,11 @@ class TestingScreen extends StatelessWidget {
                                 fontSize: tableCellFontSize), // 3
                             _buildCell(sensor['max'].toString(),
                                 fontSize: tableCellFontSize), // 4
-                            // _buildCell(sensor['val'].toString(),
-                            //     fontSize: tableCellFontSize), // 5
+                            _buildCell(sensor['val'].toString(),
+                                fontSize: tableCellFontSize), // 5
                             _buildStatusBadge(
                                 sensor['status'], tableCellFontSize), // 6
+                              
                           ],
                         );
                       }).toList(),

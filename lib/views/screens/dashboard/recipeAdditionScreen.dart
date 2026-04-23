@@ -247,7 +247,6 @@ class RecipeAdditionScreen extends StatelessWidget {
                             ),
                           )),
 
-                    // ── CONFIGURE NEW SENSOR FORM ──────────────────────────
                     Obx(() => AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: controller.isAddingSensor.value
@@ -272,14 +271,17 @@ class RecipeAdditionScreen extends StatelessWidget {
                                             textSize: inputFontSize,
                                             readOnly:
                                                 controller.isWriteMode.value),
-                                        _buildInputField(
-                                            "Sensor Type", "e.g. Analog",
+                                        _buildInputField("Sensor Type",
+                                            "e.g. Resistance / Analog",
                                             controller:
                                                 controller.sensorType.value,
                                             labelSize: labelFontSize,
                                             textSize: inputFontSize,
                                             readOnly:
-                                                controller.isWriteMode.value),
+                                                controller.isWriteMode.value,
+                                            onChanged: (val) => controller
+                                                .sensorType
+                                                .refresh()),
                                       ]),
                                       const SizedBox(height: 20),
                                       _buildResponsiveGrid(isDesktop, [
@@ -294,43 +296,95 @@ class RecipeAdditionScreen extends StatelessWidget {
                                             labelFontSize, inputFontSize),
                                       ]),
                                       const SizedBox(height: 20),
-                                      _buildResponsiveGrid(isDesktop, [
-                                        if (!controller.isWriteMode.value) ...[
-                                          _buildInputField("Multiplier", "1.0",
-                                              isNumeric: true,
-                                              controller:
-                                                  controller.multiplier.value,
-                                              labelSize: labelFontSize,
-                                              textSize: inputFontSize),
-                                          _buildInputField("Offset", "0",
-                                              isNumeric: true,
-                                              controller:
-                                                  controller.offset.value,
-                                              labelSize: labelFontSize,
-                                              textSize: inputFontSize),
-                                        ],
-                                        _buildInputField("Unit", "e.g. Ohms",
-                                            controller: controller.unit.value,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize),
-                                      ]),
-                                      const SizedBox(height: 30),
+
+                                      // ── DYNAMIC FORMULA SECTION ────────────────
                                       Obx(() {
-                                        final bool isWrite =
-                                            controller.isWriteMode.value;
-                                        return Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                        if (controller.isWriteMode.value)
+                                          return const SizedBox.shrink();
+
+                                        bool isResistance = [
+                                          "resistance",
+                                          "resistance(2200)",
+                                          "resistance(100)",
+                                          "current",
+                                        ].contains(controller
+                                            .sensorType.value.text
+                                            .toLowerCase());
+                                        return Column(
                                           children: [
-                                            _buildTestSection(isDesktop,
-                                                labelFontSize, inputFontSize),
-                                            if (!isWrite) ...[
-                                              const SizedBox(width: 15),
-                                              _buildSaveButton(labelFontSize),
+                                            if (isResistance) ...[
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                    "R1 (Ref Resistor)", "1000",
+                                                    isNumeric: true,
+                                                    controller:
+                                                        controller.r1Controller,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                                _buildInputField(
+                                                    "Vin (Input Voltage)",
+                                                    "5.0",
+                                                    isNumeric: true,
+                                                    controller: controller
+                                                        .vinController,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                              ]),
+                                              const SizedBox(height: 20),
+                                              // _buildResponsiveGrid(isDesktop, [
+                                              //   _buildInputField("Vout (Measured)", "2.5",
+                                              //       isNumeric: true,
+                                              //       controller: controller.voutController,
+                                              //       labelSize: labelFontSize,
+                                              //       textSize: inputFontSize),
+                                              //   _buildInputField("Unit", "Ohms",
+                                              //       controller: controller.unit.value,
+                                              //       labelSize: labelFontSize,
+                                              //       textSize: inputFontSize),
+                                              // ]),
+                                            ] else ...[
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                    "Multiplier (m)", "1.0",
+                                                    isNumeric: true,
+                                                    controller: controller
+                                                        .multiplier.value,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                                _buildInputField(
+                                                    "Offset (c)", "0",
+                                                    isNumeric: true,
+                                                    controller:
+                                                        controller.offset.value,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                              ]),
+                                              const SizedBox(height: 20),
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                    "Unit", "e.g. Bar",
+                                                    controller:
+                                                        controller.unit.value,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                                const SizedBox(),
+                                              ]),
                                             ],
                                           ],
                                         );
                                       }),
+
+                                      const SizedBox(height: 30),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          _buildTestSection(isDesktop,
+                                              labelFontSize, inputFontSize),
+                                          const SizedBox(width: 15),
+                                          _buildSaveButton(labelFontSize),
+                                        ],
+                                      ),
                                       const SizedBox(height: 60),
                                     ],
                                   ),
@@ -485,38 +539,65 @@ class RecipeAdditionScreen extends StatelessWidget {
           isWrite ? Colors.orange.shade900 : const Color(0xFF0055BB);
 
       return OutlinedButton.icon(
+        // onPressed: () async {
+        //   if (_sensorFormKey.currentState!.validate()) {
+        //     // 1. Get local form data
+        //     final String sensorName = controller.sensorName.value.text;
+        //     final String currentVal = controller.testResult.value.text;
+
+        //     if (isWrite) {
+        //       // --- COMMAND BLOCKED ---
+        //       // final int val = int.tryParse(currentVal) ?? 0;
+        //       // final int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
+        //       // await controller.writeGeneratorDataRequest(reg, val);
+        //       // ------------------------
+
+        //       // ✅ Log "WRITE" data directly to the local list
+        //       controller.logOperation(
+        //         sensorName: sensorName,
+        //         operation: "WRITE",
+        //         value: currentVal,
+        //       );
+        //     } else {
+        //       // --- COMMAND BLOCKED ---
+        //       // final int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
+        //       // await controller.sendGeneratorDataRequest1(reg);
+        //       // ------------------------
+
+        //       // ✅ Log "READ" data directly from what is currently in the text box
+        //       controller.logOperation(
+        //         sensorName: sensorName,
+        //         operation: "READ",
+        //         value: currentVal,
+        //       );
+        //     }
+
+        //     Get.snackbar(
+        //       "Local Log",
+        //       "Data added to ${sensorName} operations successfully",
+        //       snackPosition: SnackPosition.BOTTOM,
+        //       backgroundColor: Colors.blueGrey,
+        //       colorText: Colors.white,
+        //     );
+        //   }
+        // },
         onPressed: () async {
           if (_sensorFormKey.currentState!.validate()) {
-            final int reg =
-                int.tryParse(controller.registerNumber.value.text) ?? 0;
+            //controller.processSensorValue(); // 👈 ADD THIS FIRST
+
             final String sensorName = controller.sensorName.value.text;
+            final String currentVal = controller.testResult.value.text;
 
-            if (isWrite) {
-              final int val =
-                  int.tryParse(controller.testResult.value.text) ?? 0;
-              await controller.writeGeneratorDataRequest(reg, val);
-
-              // ✅ log directly on the sensor object
-              controller.logOperation(
-                sensorName: sensorName,
-                operation: "WRITE",
-                value: val.toString(),
-              );
-            } else {
-              await controller.sendGeneratorDataRequest1(reg);
-
-              final String result = controller.testResult.value.text;
-
-              // ✅ log directly on the sensor object
-              controller.logOperation(
-                sensorName: sensorName,
-                operation: "READ",
-                value: result,
-              );
-            }
+            controller.logOperation(
+              sensorName: sensorName,
+              operation: controller.isWriteMode.value ? "WRITE" : "READ",
+              value: currentVal,
+            );
           }
         },
-        label: Text(isWrite ? "EXECUTE WRITE" : "READ SENSOR"),
+        icon: Icon(isWrite ? Icons.edit_note : Icons.visibility,
+            color: Colors.white),
+        label: Text(isWrite ? "LOG WRITE DATA" : "LOG READ DATA"),
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white,
           backgroundColor: themeColor,
@@ -622,23 +703,30 @@ class RecipeAdditionScreen extends StatelessWidget {
                 _buildLogCell('Register', fontSize, bold: true, flex: 2),
                 _buildLogCell('Value', fontSize, bold: true, flex: 3),
                 _buildLogCell('Time', fontSize, bold: true, flex: 2),
+                _buildLogCell('Delete', fontSize, bold: true, flex: 2),
               ],
             ),
           ),
           const Divider(height: 1, color: Color(0xFFD0DFF8)),
 
           // Log rows
-          ...logs.map((log) {
+          // Change .map to .asMap().entries.map
+          ...logs.asMap().entries.map((entry) {
+            final int logIndex =
+                entry.key; // ✅ Now logIndex is defined (0, 1, 2...)
+            final log = entry.value; // This is your OperationLog object
             final bool isWrite = log.operation == "WRITE";
+
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 12),
               decoration: const BoxDecoration(
                 border: Border(
-                    bottom: BorderSide(color: Color(0xFFE8EEF8), width: 0.5)),
+                  bottom: BorderSide(color: Color(0xFFE8EEF8), width: 0.5),
+                ),
               ),
               child: Row(
                 children: [
-                  // Operation badge
+                  // 1. Operation badge (flex: 2)
                   Expanded(
                     flex: 2,
                     child: Center(
@@ -665,14 +753,29 @@ class RecipeAdditionScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // 2. Data Cells using your existing helper
                   _buildLogCell(log.registerAddress, fontSize, flex: 2),
                   _buildLogCell(log.value, fontSize, bold: true, flex: 3),
                   _buildLogCell(log.timestamp, fontSize,
                       color: Colors.grey[600], flex: 2),
+
+                  // 3. Delete Button (flex: 1)
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.delete_outline,
+                          color: Colors.red, size: 18),
+                      onPressed: () => controller.deleteOperationLog(
+                          logIndex), // ✅ No longer undefined
+                    ),
+                  ),
                 ],
               ),
             );
-          }),
+          }).toList(), // ✅ Add .toList() to convert the map entries back to a widget list
         ],
       ),
     );
@@ -694,12 +797,63 @@ class RecipeAdditionScreen extends StatelessWidget {
     );
   }
 
+  // Widget _buildInputField(String label, String hint,
+  //     {required double labelSize,
+  //     required double textSize,
+  //     bool isNumeric = false,
+  //     bool readOnly = false,
+  //     TextEditingController? controller,
+  //     AutovalidateMode autovalidatemode = AutovalidateMode.onUserInteraction}) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(label,
+  //           style: TextStyle(
+  //               fontSize: labelSize,
+  //               fontWeight: FontWeight.w600,
+  //               color: Colors.black87)),
+  //       const SizedBox(height: 8),
+  //       TextFormField(
+  //         readOnly: readOnly,
+  //         cursorColor: Colors.black,
+  //         autovalidateMode: autovalidatemode,
+  //         controller: controller,
+  //         style: TextStyle(
+  //             color: readOnly ? Colors.blueGrey : Colors.black,
+  //             fontWeight: readOnly ? FontWeight.bold : FontWeight.normal),
+  //         keyboardType: isNumeric
+  //             ? const TextInputType.numberWithOptions(decimal: true)
+  //             : TextInputType.text,
+  //         validator: (value) => (value == null || value.trim().isEmpty)
+  //             ? "$label is required"
+  //             : null,
+  //         decoration: InputDecoration(
+  //           hintText: hint,
+  //           hintStyle: TextStyle(fontSize: textSize, color: Colors.grey),
+  //           filled: true,
+  //           fillColor: readOnly ? Colors.grey[200] : Colors.grey[50],
+  //           contentPadding:
+  //               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+  //           enabledBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //               borderSide: const BorderSide(color: Colors.black26)),
+  //           focusedBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //               borderSide: BorderSide(
+  //                   color: readOnly ? Colors.black26 : Colors.blue, width: 2)),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget _buildInputField(String label, String hint,
       {required double labelSize,
       required double textSize,
       bool isNumeric = false,
       bool readOnly = false,
       TextEditingController? controller,
+      Function(String)? onChanged, // Add this
       AutovalidateMode autovalidatemode = AutovalidateMode.onUserInteraction}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -711,6 +865,7 @@ class RecipeAdditionScreen extends StatelessWidget {
                 color: Colors.black87)),
         const SizedBox(height: 8),
         TextFormField(
+          onChanged: onChanged, // Pass it here
           readOnly: readOnly,
           cursorColor: Colors.black,
           autovalidateMode: autovalidatemode,
