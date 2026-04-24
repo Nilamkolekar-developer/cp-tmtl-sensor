@@ -286,7 +286,6 @@
 //     );
 //   }
 
-
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
 import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
@@ -560,8 +559,6 @@ import 'package:get/get.dart';
 //   }
 // }
 
-
-
 class TestingScreen extends StatelessWidget {
   TestingScreen({super.key});
 
@@ -673,8 +670,7 @@ class TestingScreen extends StatelessWidget {
                   Obx(() => ElevatedButton(
                         onPressed: controller.isValidated.value &&
                                 !controller.isTesting.value
-                            ? 
-                            () => controller.startTestingSequence()
+                            ? () => controller.startTestingSequence()
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green.shade700,
@@ -739,8 +735,9 @@ class TestingScreen extends StatelessWidget {
                       1: FlexColumnWidth(4), // Component
                       2: FlexColumnWidth(1.5), // Min
                       3: FlexColumnWidth(1.5), // Max
-                      4: FlexColumnWidth(1.5), // Val
-                      5: FlexColumnWidth(2), // Result
+                      4: FlexColumnWidth(1.5),
+                      5: FlexColumnWidth(1.5), // Val
+                      6: FlexColumnWidth(2), // Result
                     },
                     border: TableBorder.all(color: Colors.black12),
                     children: [
@@ -756,11 +753,12 @@ class TestingScreen extends StatelessWidget {
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Max",
                               isHeader: true, fontSize: tableCellFontSize),
+                          _buildCell("Unit",
+                              isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Val",
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Result",
                               isHeader: true, fontSize: tableCellFontSize),
-                             
                         ],
                       ),
 
@@ -777,11 +775,12 @@ class TestingScreen extends StatelessWidget {
                                 fontSize: tableCellFontSize), // 3
                             _buildCell(sensor['max'].toString(),
                                 fontSize: tableCellFontSize), // 4
+                            _buildCell(sensor['unit'].toString(),
+                                fontSize: tableCellFontSize),
                             _buildCell(sensor['val'].toString(),
                                 fontSize: tableCellFontSize), // 5
                             _buildStatusBadge(
                                 sensor['status'], tableCellFontSize), // 6
-                              
                           ],
                         );
                       }).toList(),
