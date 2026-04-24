@@ -579,21 +579,21 @@ class TestingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCell(String text,
-      {required double fontSize,
-      bool isHeader = false,
-      TextAlign align = TextAlign.center}) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Center(
-        child: Text(text,
-            textAlign: align,
-            style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: isHeader ? FontWeight.bold : FontWeight.normal)),
-      ),
-    );
-  }
+  // Widget _buildCell(String text,
+  //     {required double fontSize,
+  //     bool isHeader = false,
+  //     TextAlign align = TextAlign.center}) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(12),
+  //     child: Center(
+  //       child: Text(text,
+  //           textAlign: align,
+  //           style: TextStyle(
+  //               fontSize: fontSize,
+  //               fontWeight: isHeader ? FontWeight.bold : FontWeight.normal)),
+  //     ),
+  //   );
+  // }
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(

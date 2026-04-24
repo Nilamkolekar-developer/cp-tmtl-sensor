@@ -136,7 +136,7 @@ void toggleSensorExpanded(String key) {
           "unit": s.unit,
           "val": "-",
           "status": "PENDING",
-          "operations": s.operations ?? [], // ✅ ADD THIS
+          "operations": s.operations, // ✅ ADD THIS
         };
 
         print(
