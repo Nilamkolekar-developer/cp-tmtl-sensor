@@ -31,10 +31,10 @@ class AppPreferences {
   // ================= USER-SPECIFIC RECIPES =================
 
   /// Saves a recipe into a map unique to the logged-in User ID
-static Future<void> saveRecipeForCurrentUser(Recipe recipe) async {
+  static Future<void> saveRecipeForCurrentUser(Recipe recipe) async {
     final prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString(_currentUserIdKey);
-    
+
     // DEBUG: Monitor the Save key
     print("💾 PREFS-SAVE: Active User is [$userId]");
 
@@ -45,79 +45,99 @@ static Future<void> saveRecipeForCurrentUser(Recipe recipe) async {
     if (recipe.model == null) return;
 
     String storageKey = "$_userRecipePrefix$userId";
-    
+
     final String? rawData = prefs.getString(storageKey);
     Map<String, dynamic> recipeMap = rawData != null ? jsonDecode(rawData) : {};
-    
+
     recipeMap[recipe.model!] = recipe.toJson();
 
     bool success = await prefs.setString(storageKey, jsonEncode(recipeMap));
-    print("✅ PREFS-SAVE: Model [${recipe.model}] saved to key [$storageKey]. Success: $success");
+    print(
+        "✅ PREFS-SAVE: Model [${recipe.model}] saved to key [$storageKey]. Success: $success");
   }
 
- static Future<List<Recipe>> getRecipesForCurrentUser() async {
-  final prefs = await SharedPreferences.getInstance();
-  
-  // 1. Try to get the ID
-  String? userId = prefs.getString(_currentUserIdKey);
-  
-  // 🚀 SAFETY FALLBACK: If userId is null, force the default developer ID
-  // This prevents the "Successfully synced 0 recipes" error during testing.
-  if (userId == null || userId == "null") {
-    print("🛠️ PREFS-READ: UserId was null, recovering session...");
-    userId = "abc@autopeepal.com"; 
-    await prefs.setString(_currentUserIdKey, userId); 
+  static Future<List<Recipe>> getRecipesForCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 1. Try to get the ID
+    String? userId = prefs.getString(_currentUserIdKey);
+
+    // 🚀 SAFETY FALLBACK: If userId is null, force the default developer ID
+    // This prevents the "Successfully synced 0 recipes" error during testing.
+    if (userId == null || userId == "null") {
+      print("🛠️ PREFS-READ: UserId was null, recovering session...");
+      userId = "abc@autopeepal.com";
+      await prefs.setString(_currentUserIdKey, userId);
+    }
+
+    print("📖 PREFS-READ: Attempting to load for User [$userId]");
+
+    String storageKey = "$_userRecipePrefix$userId";
+    final String? rawData = prefs.getString(storageKey);
+
+    if (rawData == null || rawData.isEmpty) {
+      print("📂 PREFS-READ: Key [$storageKey] not found or empty.");
+      return [];
+    }
+
+    try {
+      Map<String, dynamic> map = jsonDecode(rawData);
+      List<Recipe> recipes =
+          map.values.map((json) => Recipe.fromJson(json)).toList();
+      print("📦 PREFS-READ: Found ${recipes.length} recipes in [$storageKey]");
+      return recipes;
+    } catch (e) {
+      print("❌ PREFS-READ: Parse Error (likely malformed JSON): $e");
+      return [];
+    }
   }
 
-  print("📖 PREFS-READ: Attempting to load for User [$userId]");
-
-  String storageKey = "$_userRecipePrefix$userId";
-  final String? rawData = prefs.getString(storageKey);
-  
-  if (rawData == null || rawData.isEmpty) {
-    print("📂 PREFS-READ: Key [$storageKey] not found or empty.");
-    return [];
+  static Future<void> setToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+    print("🔑 [PREFS] Token saved");
   }
-  
-  try {
-    Map<String, dynamic> map = jsonDecode(rawData);
-    List<Recipe> recipes = map.values.map((json) => Recipe.fromJson(json)).toList();
-    print("📦 PREFS-READ: Found ${recipes.length} recipes in [$storageKey]");
-    return recipes;
-  } catch (e) {
-    print("❌ PREFS-READ: Parse Error (likely malformed JSON): $e");
-    return [];
-  }
-}
 
- // ================= MODBUS CONNECTION =================
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  static Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+    print("🗑️ [PREFS] Token cleared");
+  }
+
+  // ================= MODBUS CONNECTION =================
 
   static Future<void> setModbusSettings(String ip, int port) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('plc_ip', ip.trim()); 
-  await prefs.setInt('plc_port', port);
-}
- static Future<Map<String, String>> getModbusSettings() async {
-  final prefs = await SharedPreferences.getInstance();
-  
-  // Get IP
-  String ip = prefs.getString('plc_ip') ?? "192.168.1.1";
-  
-  // Get Port safely
-  final Object? rawPort = prefs.get('plc_port');
-  int portInt;
-
-  if (rawPort is int) {
-    portInt = rawPort;
-  } else if (rawPort is String) {
-    portInt = int.tryParse(rawPort) ?? 502;
-  } else {
-    portInt = 502;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('plc_ip', ip.trim());
+    await prefs.setInt('plc_port', port);
   }
 
-  return {
-    "ip": ip,
-    "port": portInt.toString(), // Returns string for your UI/Controllers
-  };
-}
+  static Future<Map<String, String>> getModbusSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get IP
+    String ip = prefs.getString('plc_ip') ?? "192.168.1.1";
+
+    // Get Port safely
+    final Object? rawPort = prefs.get('plc_port');
+    int portInt;
+
+    if (rawPort is int) {
+      portInt = rawPort;
+    } else if (rawPort is String) {
+      portInt = int.tryParse(rawPort) ?? 502;
+    } else {
+      portInt = 502;
+    }
+
+    return {
+      "ip": ip,
+      "port": portInt.toString(), // Returns string for your UI/Controllers
+    };
+  }
 }

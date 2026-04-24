@@ -1024,15 +1024,23 @@
 //     }
 //   }
 // }
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_urls.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class LoginController extends GetxController {
   // 1. Controllers for TextFields
-  final usernameController = TextEditingController(text: "abc@autopeepal.com");
-  final passwordController = TextEditingController(text: "1234");
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
 
   final hidePassword = true.obs;
   final isLoading = false.obs;
@@ -1040,49 +1048,94 @@ class LoginController extends GetxController {
     hidePassword.value = !hidePassword.value;
   }
 
- void login() async {
-  String user = "abc@autopeepal.com"; // In production, use controller.text
-  String pass = "1234";
+  void login() async {
+    String user = usernameController.value.text;
+    String pass = passwordController.value.text;
 
-  if (user.isEmpty || pass.isEmpty) {
-    Get.snackbar(
-      "Error", 
-      "Please enter credentials",
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white
-    );
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-    print("🚀 [LOGIN START] Authenticating: $user");
-
-    // Simulate API delay
-    await Future.delayed(const Duration(seconds: 2));
-
-    // 1. SET ACTIVE USER (The "Key" to your data)
-    // We use the email as the ID. This removes the [null] from your logs.
-    await AppPreferences.setActiveUser(user);
-    print("👤 [SESSION] Active User ID set to: $user");
-
-    // 2. SYNC DATA BEFORE NAVIGATION
-    // Reach into the dashboard controller and force it to load this user's recipes
-    if (Get.isRegistered<TestRecipeController>()) {
-      final testController = Get.find<TestRecipeController>();
-      await testController.loadStoredRecipes();
-      print("🔄 [SYNC] Recipes loaded for $user. Count: ${testController.recipeList.length}");
+    if (user.isEmpty || pass.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter credentials",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
     }
 
-    isLoading.value = false;
+    try {
+      isLoading.value = true;
+      print("🚀 [LOGIN START] Authenticating: $user");
+      print("password: $pass");
+      final String baseUrl = AppEnvironment.baseUrl;
+      final String loginUrl = "$baseUrl${AppURLs.login}";
+      print("🌐 [API] Hitting: $loginUrl");
 
-    // 3. NAVIGATE
-    Get.offAllNamed('/dashboard');
+      // ✅ Use form encoding — Django REST expects this by default
+      final response = await http.post(
+        Uri.parse(loginUrl),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json",
+        },
+        body: {
+          "username": user,
+          "password": pass,
+        },
+      );
 
-  } catch (e) {
-    isLoading.value = false;
-    print("❌ [LOGIN ERROR] $e");
-    Get.snackbar("Login Failed", "An error occurred during login");
+      print("📡 [RESPONSE] Status: ${response.statusCode}");
+      print("📡 [RESPONSE] Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+       final String? token = data['data']?['auth_token']?['access'];
+        if (token != null) {
+          await AppPreferences.setToken(token);
+          print("🔑 [TOKEN] Saved: $token");
+        }
+
+        await AppPreferences.setActiveUser(user);
+        print("👤 [SESSION] Active User set: $user");
+
+        if (Get.isRegistered<TestRecipeController>()) {
+          final testController = Get.find<TestRecipeController>();
+          await testController.loadStoredRecipes();
+          print("🔄 [SYNC] Recipes: ${testController.recipeList.length}");
+        }
+
+        isLoading.value = false;
+        Get.offAllNamed(Routes.dashboardScreen);
+      } else if (response.statusCode == 400) {
+        isLoading.value = false;
+        final Map<String, dynamic> errData = jsonDecode(response.body);
+        final String errMsg =
+            errData['error'] ?? errData['detail'] ?? "Invalid request";
+        print("❌ [LOGIN 400] $errMsg");
+        Get.snackbar("Login Failed", errMsg,
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      } else if (response.statusCode == 401) {
+        isLoading.value = false;
+        Get.snackbar("Login Failed", "Invalid email or password",
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      } else {
+        isLoading.value = false;
+        Get.snackbar(
+            "Server Error", "Something went wrong. (${response.statusCode})",
+            backgroundColor: Colors.orange, colorText: Colors.white);
+      }
+    } on SocketException {
+      isLoading.value = false;
+      Get.snackbar("No Connection", "Check your internet and try again",
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } on TimeoutException {
+      isLoading.value = false;
+      Get.snackbar("Timeout", "Server took too long to respond",
+          backgroundColor: Colors.orange, colorText: Colors.white);
+    } catch (e) {
+      isLoading.value = false;
+      print("❌ [LOGIN ERROR] $e");
+      Get.snackbar("Login Failed", "An error occurred during login");
+    }
   }
-}
 }
