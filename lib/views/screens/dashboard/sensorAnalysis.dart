@@ -183,49 +183,7 @@ class SensorAnalysisScreen extends StatelessWidget {
     );
   }
 
-  void _showRecipePicker(BuildContext context) {
-    Get.defaultDialog(
-      title: "Select Sensor Recipe",
-      titleStyle: const TextStyle(
-          color: Color(0xFF0055BB), fontWeight: FontWeight.bold),
-      content: SizedBox(
-        width: 400,
-        height: 400,
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text("Choose a pre-configured sensor template",
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ),
-            Expanded(
-              child: ListView.separated(
-                itemCount: controller.sensorRecipes.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  final recipe = controller.sensorRecipes[index];
-                  return ListTile(
-                    // leading: const Icon(Icons.se, color: Color(0xFF0055BB)),
-                    title: Text(recipe['name'],
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(
-                        "Reg: ${recipe['register']} | Range: ${recipe['min']}-${recipe['max']} ${recipe['unit']}"),
-                    trailing: const Icon(Icons.add_circle_outline,
-                        color: Colors.green),
-                    onTap: () => controller.addSensorFromRecipe(recipe),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      cancel: TextButton(
-        onPressed: () => Get.back(),
-        child: const Text("Close", style: TextStyle(color: Colors.red)),
-      ),
-    );
-  }
+ 
   // --- HELPER METHODS MOVED INSIDE CLASS ---
 
   // Widget _buildSensorTable() {
