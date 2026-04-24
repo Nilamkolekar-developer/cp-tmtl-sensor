@@ -814,7 +814,7 @@ class ESNController extends GetxController {
       return;
     }
 
-    const int readRegister = 38; // EGR current register
+    const int readRegister = 36; // EGR current register
     const int writeRegister = 317; // EGR control register
 
     print("🚀 [TEST START] EGR Sequence initiated");

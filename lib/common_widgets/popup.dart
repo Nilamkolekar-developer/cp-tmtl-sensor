@@ -1,4 +1,3 @@
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -125,13 +124,16 @@ class CustomPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF202020), // Slightly deeper Windows dark theme
+      backgroundColor:
+          const Color(0xFF202020), // Slightly deeper Windows dark theme
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8), // Windows 11 style radius
-        side: BorderSide(color: Colors.white.withOpacity(0.1)), // Thin border for depth
+        side: BorderSide(
+            color: Colors.white.withOpacity(0.1)), // Thin border for depth
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 450), // Keep it from stretching too wide
+        constraints: const BoxConstraints(
+            maxWidth: 450), // Keep it from stretching too wide
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -140,16 +142,18 @@ class CustomPopup extends StatelessWidget {
             Row(
               children: [
                 // Error icon if it's a critical connection loss
-                if (isError) 
-                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 24),
+                if (isError)
+                  const Icon(Icons.error_outline,
+                      color: Colors.redAccent, size: 24),
                 if (isError) const SizedBox(width: 12),
-                
+
                 Expanded(
                   child: Text(
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold, // Bold title for desktop scannability
+                      fontWeight: FontWeight
+                          .bold, // Bold title for desktop scannability
                       fontSize: 18,
                     ),
                   ),
@@ -162,7 +166,7 @@ class CustomPopup extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 14, // Slightly larger for desktop monitors
-                height: 1.5,  // Better line spacing for readability
+                height: 1.5, // Better line spacing for readability
               ),
             ),
             const SizedBox(height: 24),
@@ -180,14 +184,18 @@ class CustomPopup extends StatelessWidget {
                 if (showCancel) const SizedBox(width: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isError ? Colors.redAccent : const Color(0xFF0055BB),
+                    backgroundColor:
+                        isError ? Colors.redAccent : const Color(0xFF0055BB),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
                   ),
                   onPressed: onConfirm ?? () => Navigator.pop(context),
-                  child: Text(confirmText, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  child: Text(confirmText,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                 ),
               ],
             )

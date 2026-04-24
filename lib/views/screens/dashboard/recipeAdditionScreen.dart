@@ -168,6 +168,11 @@ class RecipeAdditionScreen extends StatelessWidget {
                                                     .toString(),
                                                 tableCellFontSize,
                                                 flex: 2),
+                                                 _buildTableCell(
+                                                sensor.unit
+                                                    .toString(),
+                                                tableCellFontSize,
+                                                flex: 2),
                                             _buildTableCell(
                                                 "${sensor.min} / ${sensor.max}",
                                                 tableCellFontSize,
@@ -329,7 +334,16 @@ class RecipeAdditionScreen extends StatelessWidget {
                                                         .vinController,
                                                     labelSize: labelFontSize,
                                                     textSize: inputFontSize),
+                                                _buildInputField(
+                                                    "Unit", "e.g. Bar",
+                                                    controller:
+                                                        controller.unit.value,
+                                                    labelSize: labelFontSize,
+                                                    textSize: inputFontSize),
+                                                const SizedBox(),
                                               ]),
+                                              // _buildResponsiveGrid(isDesktop, [
+
                                               const SizedBox(height: 20),
                                               // _buildResponsiveGrid(isDesktop, [
                                               //   _buildInputField("Vout (Measured)", "2.5",
@@ -651,6 +665,7 @@ class RecipeAdditionScreen extends StatelessWidget {
         _buildHeaderCell('Sensor Name', fontSize, flex: 3),
         _buildHeaderCell('Sensor Type', fontSize, flex: 3),
         _buildHeaderCell('Register', fontSize, flex: 2),
+         _buildHeaderCell('Unit', fontSize, flex: 2),
         _buildHeaderCell('Range', fontSize, flex: 2),
         _buildHeaderCell('Action', fontSize, flex: 2),
       ],
