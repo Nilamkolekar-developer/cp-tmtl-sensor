@@ -1,9 +1,7 @@
-
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
 import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 class TestingScreen extends StatelessWidget {
   TestingScreen({super.key});
@@ -233,191 +231,256 @@ class TestingScreen extends StatelessWidget {
               //       ],
               //     ))
               Obx(() => Column(
-  children: [
-    // ── HEADER ──
-    Container(
-      decoration: BoxDecoration(color: Colors.grey[200]),
-      child: Row(
-        children: [
-          const SizedBox(width: 40), // expand icon space
-          _buildHeaderCell("Register", tableCellFontSize, flex: 1),
-          _buildHeaderCell("Component", tableCellFontSize, flex: 4),
-          _buildHeaderCell("Min", tableCellFontSize, flex: 2),
-          _buildHeaderCell("Max", tableCellFontSize, flex: 2),
-          _buildHeaderCell("Unit", tableCellFontSize, flex: 2),
-          _buildHeaderCell("Val", tableCellFontSize, flex: 2),
-          _buildHeaderCell("Result", tableCellFontSize, flex: 2),
-        ],
-      ),
-    ),
-    const Divider(height: 1, color: Colors.black12),
-
-    // ── ROWS ──
-    ...controller.sensorResults.map((sensor) {
-      final String key = sensor['part'] ?? '';
-      final bool isExpanded = controller.expandedSensors.contains(key);
-      final List ops = sensor['operations'] ?? [];
-
-      return Column(
-        children: [
-          // Main sensor row
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                // ── Expand toggle ──
-                SizedBox(
-                  width: 40,
-                  child: ops.isEmpty
-                      ? const SizedBox()
-                      : IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: AnimatedRotation(
-                            turns: isExpanded ? 0.25 : 0,
-                            duration: const Duration(milliseconds: 200),
-                            child: const Icon(Icons.chevron_right,
-                                color: Color(0xFF0055BB)),
-                          ),
-                          onPressed: () =>
-                              controller.toggleSensorExpanded(key),
+                    children: [
+                      // ── HEADER ──
+                      Container(
+                        decoration: BoxDecoration(color: Colors.grey[200]),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 40), // expand icon space
+                            _buildHeaderCell("Register", tableCellFontSize,
+                                flex: 1),
+                            _buildHeaderCell("Component", tableCellFontSize,
+                                flex: 4),
+                            _buildHeaderCell("Min", tableCellFontSize, flex: 2),
+                            _buildHeaderCell("Max", tableCellFontSize, flex: 2),
+                            _buildHeaderCell("Unit", tableCellFontSize,
+                                flex: 2),
+                            _buildHeaderCell("Val", tableCellFontSize, flex: 2),
+                            _buildHeaderCell("Result", tableCellFontSize,
+                                flex: 2),
+                          ],
                         ),
-                ),
-                _buildFlexCell(sensor['reg'].toString(), tableCellFontSize, flex: 1),
-                _buildFlexCell(sensor['part'], tableCellFontSize, flex: 4, align: TextAlign.left),
-                _buildFlexCell(sensor['min'].toString(), tableCellFontSize, flex: 2),
-                _buildFlexCell(sensor['max'].toString(), tableCellFontSize, flex: 2),
-                _buildFlexCell(sensor['unit'].toString(), tableCellFontSize, flex: 2),
-                _buildFlexCell(sensor['val'].toString(), tableCellFontSize, flex: 2),
-                Expanded(
-                  flex: 2,
-                  child: _buildStatusBadge(sensor['status'], tableCellFontSize),
-                ),
-              ],
-            ),
-          ),
+                      ),
+                      const Divider(height: 1, color: Colors.black12),
 
-          // ── Operations sub-table ──
-          AnimatedCrossFade(
-            duration: const Duration(milliseconds: 250),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            firstChild: const SizedBox.shrink(),
-            secondChild: ops.isEmpty
-                ? const SizedBox.shrink()
-                : Container(
-                    margin: const EdgeInsets.only(
-                        left: 40, right: 8, bottom: 8, top: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F8FF),
-                      border: Border.all(color: const Color(0xFFD0DFF8)),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Column(
-                      children: [
-                        // Sub-header
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 6, horizontal: 12),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEAF0FB),
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(6)),
-                          ),
-                          child: Row(
-                            children: [
-                              _buildOpsHeaderCell("Step", tableCellFontSize, flex: 1),
-                              _buildOpsHeaderCell("Operation", tableCellFontSize, flex: 2),
-                              _buildOpsHeaderCell("Register", tableCellFontSize, flex: 2),
-                              _buildOpsHeaderCell("Value", tableCellFontSize, flex: 2),
-                            ],
-                          ),
-                        ),
-                        const Divider(height: 1, color: Color(0xFFD0DFF8)),
+                      // ── ROWS ──
+                      ...controller.sensorResults.map((sensor) {
+                        final String key = sensor['part'] ?? '';
+                        final bool isExpanded =
+                            controller.expandedSensors.contains(key);
+                        final List ops = sensor['operations'] ?? [];
 
-                        // Op rows
-                        ...ops.asMap().entries.map((entry) {
-                          final int i = entry.key;
-                          final op = entry.value;
-                          final bool isWrite = op.operation == "WRITE";
-
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                    color: Color(0xFFE8EEF8), width: 0.5),
+                        return Column(
+                          children: [
+                            // Main sensor row
+                            IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  // ── Expand toggle ──
+                                  SizedBox(
+                                    width: 40,
+                                    child: ops.isEmpty
+                                        ? const SizedBox()
+                                        : IconButton(
+                                            padding: EdgeInsets.zero,
+                                            icon: AnimatedRotation(
+                                              turns: isExpanded ? 0.25 : 0,
+                                              duration: const Duration(
+                                                  milliseconds: 200),
+                                              child: const Icon(
+                                                  Icons.chevron_right,
+                                                  color: Color(0xFF0055BB)),
+                                            ),
+                                            onPressed: () => controller
+                                                .toggleSensorExpanded(key),
+                                          ),
+                                  ),
+                                  _buildFlexCell(sensor['reg'].toString(),
+                                      tableCellFontSize,
+                                      flex: 1),
+                                  _buildFlexCell(
+                                      sensor['part'], tableCellFontSize,
+                                      flex: 4, align: TextAlign.left),
+                                  _buildFlexCell(sensor['min'].toString(),
+                                      tableCellFontSize,
+                                      flex: 2),
+                                  _buildFlexCell(sensor['max'].toString(),
+                                      tableCellFontSize,
+                                      flex: 2),
+                                  _buildFlexCell(sensor['unit'].toString(),
+                                      tableCellFontSize,
+                                      flex: 2),
+                                  _buildFlexCell(sensor['val'].toString(),
+                                      tableCellFontSize,
+                                      flex: 2),
+                                  Expanded(
+                                    flex: 2,
+                                    child: _buildStatusBadge(
+                                        sensor['status'], tableCellFontSize),
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                // Step number
-                                Expanded(
-                                  flex: 1,
-                                  child: Text("${i + 1}",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: tableCellFontSize - 1,
-                                          color: Colors.grey[600])),
-                                ),
-                                // Operation badge
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 3),
+
+                            // ── Operations sub-table ──
+                            AnimatedCrossFade(
+                              duration: const Duration(milliseconds: 250),
+                              crossFadeState: isExpanded
+                                  ? CrossFadeState.showSecond
+                                  : CrossFadeState.showFirst,
+                              firstChild: const SizedBox.shrink(),
+                              secondChild: ops.isEmpty
+                                  ? const SizedBox.shrink()
+                                  : Container(
+                                      margin: const EdgeInsets.only(
+                                          left: 40,
+                                          right: 8,
+                                          bottom: 8,
+                                          top: 4),
                                       decoration: BoxDecoration(
-                                        color: isWrite
-                                            ? Colors.orange.shade100
-                                            : Colors.blue.shade50,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
+                                        color: const Color(0xFFF5F8FF),
+                                        border: Border.all(
+                                            color: const Color(0xFFD0DFF8)),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: Text(
-                                        op.operation,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: tableCellFontSize - 1,
-                                          fontWeight: FontWeight.bold,
-                                          color: isWrite
-                                              ? Colors.orange.shade900
-                                              : const Color(0xFF0055BB),
-                                        ),
+                                      child: Column(
+                                        children: [
+                                          // Sub-header
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 6, horizontal: 12),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFFEAF0FB),
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                      top: Radius.circular(6)),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                _buildOpsHeaderCell(
+                                                    "Step", tableCellFontSize,
+                                                    flex: 1),
+                                                _buildOpsHeaderCell("Operation",
+                                                    tableCellFontSize,
+                                                    flex: 2),
+                                                _buildOpsHeaderCell("Register",
+                                                    tableCellFontSize,
+                                                    flex: 2),
+                                                _buildOpsHeaderCell(
+                                                    "Value", tableCellFontSize,
+                                                    flex: 2),
+                                              ],
+                                            ),
+                                          ),
+                                          const Divider(
+                                              height: 1,
+                                              color: Color(0xFFD0DFF8)),
+
+                                          // Op rows
+                                          ...ops.asMap().entries.map((entry) {
+                                            final int i = entry.key;
+                                            final op = entry.value;
+                                            final bool isWrite =
+                                                op.operation == "WRITE";
+
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 6,
+                                                      horizontal: 12),
+                                              decoration: const BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(
+                                                      color: Color(0xFFE8EEF8),
+                                                      width: 0.5),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  // Step number
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: Text("${i + 1}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                tableCellFontSize -
+                                                                    1,
+                                                            color: Colors
+                                                                .grey[600])),
+                                                  ),
+                                                  // Operation badge
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Center(
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8,
+                                                                vertical: 3),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: isWrite
+                                                              ? Colors.orange
+                                                                  .shade100
+                                                              : Colors
+                                                                  .blue.shade50,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        child: Text(
+                                                          op.operation,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                tableCellFontSize -
+                                                                    1,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: isWrite
+                                                                ? Colors.orange
+                                                                    .shade900
+                                                                : const Color(
+                                                                    0xFF0055BB),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                        op.registerAddress,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                tableCellFontSize -
+                                                                    1)),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(op.value,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                tableCellFontSize -
+                                                                    1,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(op.registerAddress,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: tableCellFontSize - 1)),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(op.value,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: tableCellFontSize - 1,
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                              ],
                             ),
-                          );
-                        }).toList(),
-                      ],
-                    ),
-                  ),
-          ),
 
-          const Divider(height: 1, color: Colors.black12),
-        ],
-      );
-    }).toList(),
-  ],
-))
+                            const Divider(height: 1, color: Colors.black12),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  ))
             ],
           ),
         ),
@@ -426,42 +489,40 @@ class TestingScreen extends StatelessWidget {
   }
 
   Widget _buildHeaderCell(String label, double fontSize, {int flex = 1}) {
-  return Expanded(
-    flex: flex,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        child: Text(label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+      ),
+    );
+  }
+
+  Widget _buildFlexCell(String text, double fontSize,
+      {int flex = 1, TextAlign align = TextAlign.center}) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        child:
+            Text(text, textAlign: align, style: TextStyle(fontSize: fontSize)),
+      ),
+    );
+  }
+
+  Widget _buildOpsHeaderCell(String label, double fontSize, {int flex = 1}) {
+    return Expanded(
+      flex: flex,
       child: Text(label,
           textAlign: TextAlign.center,
           style: TextStyle(
-              fontSize: fontSize, fontWeight: FontWeight.bold)),
-    ),
-  );
-}
-
-Widget _buildFlexCell(String text, double fontSize,
-    {int flex = 1, TextAlign align = TextAlign.center}) {
-  return Expanded(
-    flex: flex,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-      child: Text(text,
-          textAlign: align,
-          style: TextStyle(fontSize: fontSize)),
-    ),
-  );
-}
-
-Widget _buildOpsHeaderCell(String label, double fontSize, {int flex = 1}) {
-  return Expanded(
-    flex: flex,
-    child: Text(label,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-            fontSize: fontSize - 1,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF0055BB))),
-  );
-}
+              fontSize: fontSize - 1,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF0055BB))),
+    );
+  }
 
   // --- Reusable UI Components ---
 

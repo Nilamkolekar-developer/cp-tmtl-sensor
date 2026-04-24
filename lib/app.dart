@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
 import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
 import 'package:CP_TMTL_Sensor_Zig/common_widgets/app_error_widget.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:window_manager/window_manager.dart';
 
 class App {
   static App instance = App();
@@ -28,6 +30,7 @@ class App {
   static int subModelId = 0;
   static String firmwareVersion = '';
   static String sessionId = '';
+   static String currentUserId = '';
 
   String? _version;
 
@@ -80,57 +83,131 @@ class App {
   bool get isProd => _baseURLType == AtomURLType.DEV;
 
   ///initialize App variables and run app
+  // void initAndRunApp({
+  //   required bool appLog,
+  //   required bool apiLog,
+  //   required bool devMode,
+  //   required bool setDefault,
+  //   required bool samplePayment,
+  //   required String baseURLType,
+  // }) {
+  //   runZonedGuarded(
+  //     () async {
+  //       WidgetsFlutterBinding.ensureInitialized();
+  //       if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+  //       await windowManager.ensureInitialized();
+  //       WindowOptions windowOptions = const WindowOptions(
+  //         center: true,
+  //         title: "CP TMTL Sensor Zig",
+  //         titleBarStyle: TitleBarStyle.normal,
+  //       );
+  //       windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //         await windowManager.maximize(); // This makes it "Full Page" instead of minimized
+  //         await windowManager.show();
+  //         await windowManager.focus();
+  //       });
+  //     }
+  //       /* -------- Get Storage Initialize -----------   */
+  //       await GetStorage.init();
+  //       await AppPreferences.setActiveUser(currentUserId);
+  //       /* --------Setting configuration parameters-----------   */
+  //       _devMode = devMode;
+  //       _appLog = appLog;
+  //       _apiLog = apiLog;
+  //       _setDefault = setDefault;
+  //       _baseURLType = baseURLType;
+  //       _samplePayment = samplePayment;
+
+  //       /* --------Setting View Orientation Portrait-----------   */
+  //       SystemChrome.setPreferredOrientations([
+  //         DeviceOrientation.portraitUp,
+  //         DeviceOrientation.portraitDown,
+  //       ]);
+  //       /* --------Setting View Orientation Portrait-----------   */
+
+  //       /* --------ErrorWidget-----------   */
+  //       ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+  //         return AppErrorWidget(errorDetails: errorDetails);
+  //       };
+
+  //       initLogger();
+  //       appLogs('''
+  //       Appgurations
+  //       Orientation : Portrait
+  //       version : $_version
+  //       buildNumber : $_buildNumber
+  //       devMode : $_devMode
+  //       appLog : $_appLog
+  //       apiLog : $_apiLog
+  //       baseURLType : $baseURLType
+  //              ''');
+
+  //       runApp(const MyApp());
+  //     },
+  //     ErrorHandlerService.instance.appRecordError,
+  //   );
+  // }
   void initAndRunApp({
-    required bool appLog,
-    required bool apiLog,
-    required bool devMode,
-    required bool setDefault,
-    required bool samplePayment,
-    required String baseURLType,
-  }) {
-    runZonedGuarded(
-      () async {
-        WidgetsFlutterBinding.ensureInitialized();
-        /* -------- Get Storage Initialize -----------   */
-        await GetStorage.init();
-        await AppPreferences.setActiveUser("abc@autopeepal.com");
-        /* --------Setting configuration parameters-----------   */
-        _devMode = devMode;
-        _appLog = appLog;
-        _apiLog = apiLog;
-        _setDefault = setDefault;
-        _baseURLType = baseURLType;
-        _samplePayment = samplePayment;
+  required bool appLog,
+  required bool apiLog,
+  required bool devMode,
+  required bool setDefault,
+  required bool samplePayment,
+  required String baseURLType,
+}) {
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-        /* --------Setting View Orientation Portrait-----------   */
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-        /* --------Setting View Orientation Portrait-----------   */
+      // 1. WINDOW MANAGER FOR DESKTOP (Force Full Page/Maximized)
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        await windowManager.ensureInitialized();
+        WindowOptions windowOptions = const WindowOptions(
+          center: true,
+          title: "CP TMTL Sensor Zig",
+          titleBarStyle: TitleBarStyle.normal,
+        );
+        windowManager.waitUntilReadyToShow(windowOptions, () async {
+          await windowManager.maximize(); // This makes it "Full Page" instead of minimized
+          await windowManager.show();
+          await windowManager.focus();
+        });
+      }
 
-        /* --------ErrorWidget-----------   */
-        ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-          return AppErrorWidget(errorDetails: errorDetails);
-        };
+      /* -------- Get Storage Initialize -----------    */
+      await GetStorage.init();
+      
+      // Note: Removed the hardcoded setActiveUser to allow your persistent login logic to work correctly
+      // await AppPreferences.setActiveUser("abc@autopeepal.com"); 
 
-        initLogger();
-        appLogs('''
-        Appgurations
-        Orientation : Portrait
-        version : $_version
-        buildNumber : $_buildNumber
-        devMode : $_devMode
-        appLog : $_appLog
-        apiLog : $_apiLog
-        baseURLType : $baseURLType
-               ''');
+      /* --------Setting configuration parameters-----------    */
+      _devMode = devMode;
+      _appLog = appLog;
+      _apiLog = apiLog;
+      _setDefault = setDefault;
+      _baseURLType = baseURLType;
+      _samplePayment = samplePayment;
 
-        runApp(const MyApp());
-      },
-      ErrorHandlerService.instance.appRecordError,
-    );
-  }
+      /* --------Setting View Orientation & FullScreen (Mobile)-----------    */
+      // This enters "Immersive Mode" on Android/iOS (No status bar/navigation bar)
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft, // Changed to landscape for better diagnostic UI
+        DeviceOrientation.landscapeRight,
+      ]);
+
+      /* --------ErrorWidget-----------    */
+      ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+        return AppErrorWidget(errorDetails: errorDetails);
+      };
+
+      initLogger();
+      runApp(const MyApp());
+    },
+    ErrorHandlerService.instance.appRecordError,
+  );
+}
 }
 
 Future<void> main() async {

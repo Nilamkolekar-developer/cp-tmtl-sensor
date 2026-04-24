@@ -25,24 +25,11 @@ class AppPreferences {
 
   /// Logout: Simply removes the "Active User" pointer
   /// This leaves the actual recipe data on the device for next time
-  // static Future<void> logout() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.remove(_currentUserIdKey);
-  // }
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // 1. Remove the ID so Splash knows to stop auto-login
     await prefs.remove(_currentUserIdKey);
-    
-    // 2. Remove the Token so APIs stop working
-    await prefs.remove(_tokenKey);
-
-    // 3. Clear GetX memory entirely to wipe lists (sensorResults, etc.)
-    Get.deleteAll(force: true);
-
-    print("🗑️ [AUTH] Full logout: User ID and Token cleared. Memory wiped.");
   }
+ 
 
   // ================= USER-SPECIFIC RECIPES =================
 
