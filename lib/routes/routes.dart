@@ -1,4 +1,5 @@
 import 'package:CP_TMTL_Sensor_Zig/dev/dev_screen.dart';
+import 'package:CP_TMTL_Sensor_Zig/logic/bindings/dashboard_bindings.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/bindings/login_bindings.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/bindings/testing_bindings.dart';
 import 'package:CP_TMTL_Sensor_Zig/views/screens/auth/login.dart';
@@ -39,11 +40,12 @@ class AppRoutes {
     ),
     GetPage(
       name: Routes.dashboardScreen,
-      //binding: DashboardBinding(),
+      binding: DashboardBindings(),
       page: () => DashboardScreen(),
     ),
     GetPage(
       name: Routes.loginScreen,
+      binding: LoginBindings(),
       page: () => LoginScreen(),
     ),
     GetPage(

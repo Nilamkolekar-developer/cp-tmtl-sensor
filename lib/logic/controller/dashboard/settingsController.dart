@@ -161,36 +161,84 @@ class PLCController extends GetxController {
     _printHex("SENT", packet);
   }
 
+  // void _handleResponse(List<int> data) {
+  //   _printHex("RESPONSE", data);
+
+  //   if (data.length >= 11 && data[7] == 0x03) {
+  //     int rawValue = (data[9] << 8) | data[10];
+  //     print("Parsed VALUE: $rawValue");
+
+  //     // ✅ ROUTE TO ESN CONTROLLER (MAIN FIX)
+  //     if (Get.isRegistered<ESNController>() && currentRegister != null) {
+  //       final esnCtrl = Get.find<ESNController>();
+  //       esnCtrl.handlePlcData(currentRegister!, rawValue);
+  //     }
+
+  //     // OPTIONAL (keep your existing flows)
+  //     if (Get.isRegistered<SensorAnalysisController>()) {
+  //       Get.find<SensorAnalysisController>().addRealHardwarePoint(rawValue);
+  //     }
+
+  //     if (Get.isRegistered<AddRecipeController>()) {
+  //       final recipeCtrl = Get.find<AddRecipeController>();
+
+  //       double m = double.tryParse(recipeCtrl.multiplier.value.text) ?? 1.0;
+  //       double c = double.tryParse(recipeCtrl.offset.value.text) ?? 0.0;
+
+  //       double value = (rawValue * m) + c;
+
+  //       recipeCtrl.testResult.value.text = value.toStringAsFixed(2);
+  //     }
+  //   }
+  // }
+
   void _handleResponse(List<int> data) {
-    _printHex("RESPONSE", data);
+  _printHex("RESPONSE", data);
 
-    if (data.length >= 11 && data[7] == 0x03) {
-      int rawValue = (data[9] << 8) | data[10];
-      print("Parsed VALUE: $rawValue");
+  if (data.length >= 11 && data[7] == 0x03) {
+    int rawValue = (data[9] << 8) | data[10];
+    print("Parsed VALUE: $rawValue");
 
-      // ✅ ROUTE TO ESN CONTROLLER (MAIN FIX)
-      if (Get.isRegistered<ESNController>() && currentRegister != null) {
-        final esnCtrl = Get.find<ESNController>();
-        esnCtrl.handlePlcData(currentRegister!, rawValue);
-      }
-
-      // OPTIONAL (keep your existing flows)
-      if (Get.isRegistered<SensorAnalysisController>()) {
-        Get.find<SensorAnalysisController>().addRealHardwarePoint(rawValue);
-      }
-
-      if (Get.isRegistered<AddRecipeController>()) {
-        final recipeCtrl = Get.find<AddRecipeController>();
-
-        double m = double.tryParse(recipeCtrl.multiplier.value.text) ?? 1.0;
-        double c = double.tryParse(recipeCtrl.offset.value.text) ?? 0.0;
-
-        double value = (rawValue * m) + c;
-
-        recipeCtrl.testResult.value.text = value.toStringAsFixed(2);
+    // ✅ ROUTE TO ANALYSIS FIRST (if analysis is active)
+    if (Get.isRegistered<SensorAnalysisController>()) {
+      final analysisCtrl = Get.find<SensorAnalysisController>();
+      if (analysisCtrl.isAnalyzing.value && !analysisCtrl.isPaused.value) {
+        print("📊 [ROUTE] → SensorAnalysisController");
+        analysisCtrl.addRealHardwarePoint(rawValue);
+        return; // ✅ Don't double-process
       }
     }
+
+    // ✅ ROUTE TO TESTING SCREEN (if testing is active)
+    if (Get.isRegistered<ESNController>() && currentRegister != null) {
+      final esnCtrl = Get.find<ESNController>();
+      if (esnCtrl.isTesting.value) {
+        print("🔬 [ROUTE] → ESNController (Testing) | Reg: $currentRegister");
+        esnCtrl.handlePlcData(currentRegister!, rawValue);
+        return;
+      }
+    }
+
+    // ✅ ROUTE TO RECIPE CONTROLLER (if adding recipe)
+    if (Get.isRegistered<AddRecipeController>()) {
+      final recipeCtrl = Get.find<AddRecipeController>();
+      print("📋 [ROUTE] → AddRecipeController");
+
+      double m = double.tryParse(recipeCtrl.multiplier.value.text) ?? 1.0;
+      double c = double.tryParse(recipeCtrl.offset.value.text) ?? 0.0;
+      double value = (rawValue * m) + c;
+
+      recipeCtrl.testResult.value.text = value.toStringAsFixed(2);
+      return;
+    }
+
+    // ✅ FALLBACK — route to ESN anyway (e.g. manual single read)
+    if (Get.isRegistered<ESNController>() && currentRegister != null) {
+      print("🔁 [ROUTE] → ESNController (Fallback)");
+      Get.find<ESNController>().handlePlcData(currentRegister!, rawValue);
+    }
   }
+}
 
   void sendPacket(List<int> packet) {
     if (socket != null && isConnected.value) {

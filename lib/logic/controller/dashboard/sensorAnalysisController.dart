@@ -38,19 +38,34 @@ class SensorAnalysisController extends GetxController {
     unit.value.text = sensor['unit'];
   }
 
+  // void saveSensorToTable() {
+  //   addedSensors.add({
+  //     'name': sensorName.value.text,
+  //     'type': sensorType.value.text,
+  //     'register': registerNumber.value.text,
+  //     'min': double.tryParse(min.value.text) ?? 0.0,
+  //     'max': double.tryParse(max.value.text) ?? 100.0,
+  //     'unit': unit.value.text,
+  //     'samplingRate': 1.0,
+  //   });
+  //   _clearForm();
+  //   isAddingSensor.value = false;
+  // }
   void saveSensorToTable() {
-    addedSensors.add({
-      'name': sensorName.value.text,
-      'type': sensorType.value.text,
-      'register': registerNumber.value.text,
-      'min': double.tryParse(min.value.text) ?? 0.0,
-      'max': double.tryParse(max.value.text) ?? 100.0,
-      'unit': unit.value.text,
-      'samplingRate': 1.0,
-    });
-    _clearForm();
-    isAddingSensor.value = false;
-  }
+  addedSensors.add({
+    'name': sensorName.value.text,
+    'type': sensorType.value.text,
+    'register': registerNumber.value.text,
+    'min': double.tryParse(min.value.text) ?? 0.0,
+    'max': double.tryParse(max.value.text) ?? 100.0,
+    'unit': unit.value.text,
+    'multiplier': double.tryParse(multiplier.value.text) ?? 1.0, // ✅ m
+    'offset': double.tryParse(offset.value.text) ?? 0.0,         // ✅ c
+    'samplingRate': 1.0,
+  });
+  _clearForm();
+  isAddingSensor.value = false;
+}
 
   void _clearForm() {
     sensorName.value.clear();
@@ -132,14 +147,49 @@ class SensorAnalysisController extends GetxController {
   //   });
   // }
   // Inside SensorAnalysisController
-  void sendGeneratorDataRequest(int registerAddress) {
-    // Expected: 1 argument
-    final plcCtrl = Get.find<PLCController>();
+  // void sendGeneratorDataRequest(int registerAddress) {
+  //   // Expected: 1 argument
+  //   final plcCtrl = Get.find<PLCController>();
 
-    if (!plcCtrl.isConnected.value) {
-      isStreaming.value = false;
-      isAnalyzing.value = false;
-      Get.dialog(
+  //   if (!plcCtrl.isConnected.value) {
+  //     isStreaming.value = false;
+  //     isAnalyzing.value = false;
+  //     Get.dialog(
+  //       CustomPopup(
+  //         title: "PLC Connection Lost",
+  //         message:
+  //             "Hardware communication was interrupted. Please check your Modbus TCP settings and cable.",
+  //         isError: true, // This will make the button red and add an icon
+  //       ),
+  //     );
+  //   }
+  //   // Your bit shifting logic
+  //   int hiAddr = (registerAddress >> 8) & 0xFF;
+  //   int loAddr = registerAddress & 0xFF;
+
+  //   List<int> packet = [
+  //     0x00,
+  //     0x01,
+  //     0x00,
+  //     0x00,
+  //     0x00,
+  //     0x06,
+  //     0x01,
+  //     0x03,
+  //     hiAddr,
+  //     loAddr,
+  //     0x00,
+  //     0x01
+  //   ];
+
+  //   plcCtrl.sendPacket(packet);
+  // }
+ void sendGeneratorDataRequest(int registerAddress) {
+  final plcCtrl = Get.find<PLCController>();
+
+  if (!plcCtrl.isConnected.value) {
+    // ✅ Just skip this tick — don't kill the loop
+     Get.dialog(
         CustomPopup(
           title: "PLC Connection Lost",
           message:
@@ -147,92 +197,155 @@ class SensorAnalysisController extends GetxController {
           isError: true, // This will make the button red and add an icon
         ),
       );
-    }
-    // Your bit shifting logic
-    int hiAddr = (registerAddress >> 8) & 0xFF;
-    int loAddr = registerAddress & 0xFF;
-
-    List<int> packet = [
-      0x00,
-      0x01,
-      0x00,
-      0x00,
-      0x00,
-      0x06,
-      0x01,
-      0x03,
-      hiAddr,
-      loAddr,
-      0x00,
-      0x01
-    ];
-
-    plcCtrl.sendPacket(packet);
+    print("⚠️ [ANALYSIS] PLC not connected — skipping this poll");
+    return; // ❌ Was: isStreaming.value = false; isAnalyzing.value = false;
   }
 
-// 1. This starts the analysis
+  int hiAddr = (registerAddress >> 8) & 0xFF;
+  int loAddr = registerAddress & 0xFF;
+
+  List<int> packet = [
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x06,
+    0x01, 0x03,
+    hiAddr, loAddr,
+    0x00, 0x01
+  ];
+
+  plcCtrl.currentRegister = registerAddress;
+  plcCtrl.sendPacket(packet);
+}
+
   void startAnalysis(Map<String, dynamic> sensor) {
+  // ✅ Stop any previous loop cleanly first
+  isStreaming.value = false;
+  isAnalyzing.value = false;
+
+  // ✅ Small delay to let previous loop exit before starting new one
+  Future.delayed(const Duration(milliseconds: 200), () {
     activeSensor.value = sensor;
-    isAnalyzing.value = true;
-    isStreaming.value = true;
-    isPaused.value = false;
     liveDataPoints.clear();
     liveMin.value = double.infinity;
     liveMax.value = -double.infinity;
+    isPaused.value = false;
 
-    // Start the polling loop
+    isAnalyzing.value = true;
+    isStreaming.value = true; // ✅ Set BEFORE loop starts
+
+    print("🚀 [ANALYSIS START] Sensor: ${sensor['name']} | Reg: ${sensor['register']}");
     _runAnalysisLoop();
-  }
+  });
+}
 
-// 2. The recursive loop that keeps the socket busy
-  Future<void> _runAnalysisLoop() async {
-    while (isStreaming.value) {
-      if (!isPaused.value) {
-        // Get register from sensor map (handles 0x10 or "16")
-        String regStr = activeSensor['register'].toString();
-        int regAddress =
-            int.tryParse(regStr.replaceFirst("0x", ""), radix: 16) ??
-                int.tryParse(regStr) ??
-                0;
+Future<void> _runAnalysisLoop() async {
+  print("▶️ [LOOP] Started for: ${activeSensor['name']}");
 
-        // Send the request via your existing socket logic
-        sendGeneratorDataRequest(regAddress);
+  while (isStreaming.value) {
+    if (!isPaused.value) {
+      final plcCtrl = Get.find<PLCController>();
+
+      // ✅ ADD THIS — shows PLC state each iteration
+      print("🔄 [LOOP TICK] isStreaming=${isStreaming.value} | isAnalyzing=${isAnalyzing.value} | PLC=${plcCtrl.isConnected.value}");
+
+      if (!plcCtrl.isConnected.value) {
+        print("❌ [ANALYSIS] PLC disconnected — stopping loop");
+        isStreaming.value = false;
+        isAnalyzing.value = false;
+        Get.dialog(CustomPopup(
+          title: "PLC Connection Lost",
+          message: "Hardware disconnected. Check Modbus TCP settings.",
+          isError: true,
+        ));
+        break;
       }
 
-      // Wait based on the sampling rate before next request
-      double rate = activeSensor['samplingRate'] ?? 1.0;
-      await Future.delayed(Duration(milliseconds: (rate * 1000).toInt()));
+      String regStr = activeSensor['register'].toString();
+      int regAddress = regStr.startsWith("0x")
+          ? int.tryParse(regStr.replaceFirst("0x", ""), radix: 16) ?? 0
+          : int.tryParse(regStr) ?? 0;
+
+      print("📤 [ANALYSIS POLL] Sending request for reg: $regAddress");
+      sendGeneratorDataRequest(regAddress);
     }
+
+    double rate = (activeSensor['samplingRate'] ?? 1.0).toDouble();
+    int intervalMs = (rate * 1000).toInt();
+
+    print("⏱️ [LOOP] Waiting ${intervalMs}ms | isStreaming=${isStreaming.value}");
+    await Future.delayed(Duration(milliseconds: intervalMs));
+
+    // ✅ ADD THIS — shows what killed the loop
+    print("⏰ [LOOP] After delay | isStreaming=${isStreaming.value}");
   }
 
-// 3. THIS IS CALLED BY PLC_CONTROLLER whenever a response arrives
-  void addRealHardwarePoint(int rawValue) {
-    if (isPaused.value || !isAnalyzing.value) return;
+  print("🛑 [ANALYSIS LOOP] Exited | isStreaming=${isStreaming.value} | isAnalyzing=${isAnalyzing.value}");
+}
 
-    // Pull formula factors from the active sensor template
-    double m =
-        double.tryParse(activeSensor['multiplier']?.toString() ?? "1.0") ?? 1.0;
-    double c =
-        double.tryParse(activeSensor['offset']?.toString() ?? "0.0") ?? 0.0;
+void addRealHardwarePoint(int rawValue) {
+  if (isPaused.value || !isAnalyzing.value) return;
 
-    // Apply y = mx + c
-    double processedValue = (rawValue * m) + c;
+  String typeStr = (activeSensor['type'] ?? "").toString().toLowerCase();
+  double actualValue = 0.0;
 
-    // Add to chart
-    liveDataPoints.add(processedValue);
+  print("\n📊 [ANALYSIS] Sensor: ${activeSensor['name']} | Raw: $rawValue | Type: $typeStr");
 
-    // Update Stats
-    if (processedValue < liveMin.value) liveMin.value = processedValue;
-    if (processedValue > liveMax.value) liveMax.value = processedValue;
-
-    // Auto-scroll logic
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (chartScrollController.hasClients) {
-        chartScrollController
-            .jumpTo(chartScrollController.position.maxScrollExtent);
-      }
-    });
+  // =====================================================
+  // ⚡ CURRENT SENSOR
+  // =====================================================
+  if (typeStr.contains("current")) {
+    double vout = rawValue.toDouble() / 1000.0;
+    actualValue = (vout - 2.5) / 0.185;
+    print("⚡ [CURRENT] Vout=$vout | Result=$actualValue A");
   }
+
+  // =====================================================
+  // 🔌 RESISTANCE SENSOR
+  // =====================================================
+  else if (typeStr.contains("resistance")) {
+    double r1 = double.tryParse(activeSensor['multiplier']?.toString() ?? "") ?? 1000.0;
+
+    if (typeStr.contains("resistance(2200)")) r1 = 2200.0;
+    else if (typeStr.contains("resistance(100)")) r1 = 100.0;
+
+    double vin = double.tryParse(activeSensor['offset']?.toString() ?? "") ?? 5.0;
+    double vout = (rawValue.toDouble() / 1000.0) - 0.0001;
+
+    if (vout >= vin) vout = vin - 0.001;
+    if (vout < 0) vout = 0;
+
+    double denominator = vin - vout;
+    actualValue = denominator == 0 ? 0 : (r1 * vout) / denominator;
+
+    print("🔌 [RESISTANCE] R1=$r1 | Vin=$vin | Vout=$vout | Result=$actualValue Ω");
+  }
+
+  // =====================================================
+  // 📊 LINEAR SENSOR
+  // =====================================================
+  else {
+    int signedRaw = rawValue > 32767 ? rawValue - 65536 : rawValue;
+    double m = double.tryParse(activeSensor['multiplier']?.toString() ?? "") ?? 0.001;
+    double c = double.tryParse(activeSensor['offset']?.toString() ?? "") ?? 0.0;
+    actualValue = (m * signedRaw) + c;
+
+    print("📈 [LINEAR] signed=$signedRaw | m=$m | c=$c | Result=$actualValue");
+  }
+
+  // Add to chart
+  liveDataPoints.add(actualValue);
+
+  // Update Stats
+  if (actualValue < liveMin.value) liveMin.value = actualValue;
+  if (actualValue > liveMax.value) liveMax.value = actualValue;
+
+  // Auto-scroll
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (chartScrollController.hasClients) {
+      chartScrollController.jumpTo(
+        chartScrollController.position.maxScrollExtent,
+      );
+    }
+  });
+}
 
   void togglePause() {
     isPaused.value = !isPaused.value;
@@ -240,45 +353,21 @@ class SensorAnalysisController extends GetxController {
   }
 
   void stopAnalysis() {
-    _timer?.cancel(); // Cancel timer on stop
-    isStreaming.value = false;
-    isPaused.value = false;
-    liveDataPoints.clear();
-    isAnalyzing.value = false;
-  }
+  print("🔴 [ANALYSIS STOP] Stopping stream...");
+  isStreaming.value = false;  // ✅ This kills the while loop
+  isPaused.value = false;
+  isAnalyzing.value = false;
+  // ❌ Don't clear liveDataPoints here — let user see final chart
+}
 
-  final List<Map<String, dynamic>> sensorRecipes = [
-    {
-      'name': 'Engine RPM',
-      'type': 'Digital',
-      'register': '0x10',
-      'min': 0,
-      'max': 8000,
-      'unit': 'RPM',
-      'multiplier': 1.0,
-      'offset': 0
-    },
-    {
-      'name': 'Coolant Temp',
-      'type': 'Analog',
-      'register': '0x15',
-      'min': -40,
-      'max': 150,
-      'unit': '°C',
-      'multiplier': 1.0,
-      'offset': 0
-    },
-    {
-      'name': 'Battery Voltage',
-      'type': 'Analog',
-      'register': '0x20',
-      'min': 0,
-      'max': 18,
-      'unit': 'V',
-      'multiplier': 0.1,
-      'offset': 0
-    },
-  ];
+// ✅ Add separate clear method if needed
+void clearChart() {
+  liveDataPoints.clear();
+  liveMin.value = double.infinity;
+  liveMax.value = -double.infinity;
+}
+
+  
 
   void addSensorFromRecipe(Map<String, dynamic> recipe) {
     // Add a copy to the inventory table

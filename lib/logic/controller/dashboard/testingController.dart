@@ -39,13 +39,68 @@ class ESNController extends GetxController {
   var sensorResults = <Map<String, dynamic>>[].obs;
 
   // ✅ ADD these to TestRecipeController (where recipeList is defined)
+// In ESNController
+var expandedSensors = <String>{}.obs;
 
+void toggleSensorExpanded(String key) {
+  if (expandedSensors.contains(key)) {
+    expandedSensors.remove(key);
+  } else {
+    expandedSensors.add(key);
+  }
+}
   @override
   void onInit() {
     super.onInit();
 // add this line to existing onInit
   }
 
+  // loadSensorsFromRecipe() {
+  //   final testCtrl = Get.find<TestRecipeController>();
+
+  //   print("🔍 [LOAD] Requested model: ${modelNumber.value}");
+  //   print("📦 [AVAILABLE RECIPES]: ${testCtrl.recipeList.length}");
+
+  //   final recipe = testCtrl.recipeList.firstWhereOrNull(
+  //     (r) => r.model == modelNumber.value,
+  //   );
+
+  //   if (recipe == null) {
+  //     print("❌ [LOAD FAILED] No recipe found for model: ${modelNumber.value}");
+  //     Get.snackbar("Error", "No matching recipe found for model");
+  //     return;
+  //   }
+
+  //   selectedRecipe.value = recipe;
+
+  //   print("✅ [RECIPE FOUND]");
+  //   print("➡️ Model: ${recipe.model}");
+  //   print("➡️ Sensor count: ${recipe.sensors.length}");
+
+  //   sensorResults.assignAll(
+  //     recipe.sensors.map((s) {
+  //       final map = {
+  //         "reg": s.registerNumber,
+  //         "part": s.sensorName,
+  //         "type": s.sensorType,
+  //         //"reg": s.registerNumber,
+  //         "m": s.multiplier,
+  //         "c": s.offset,
+  //         "min": s.min,
+  //         "max": s.max,
+  //         "unit": s.unit,
+  //         "val": "-",
+  //         "status": "PENDING"
+  //       };
+
+  //       print("📡 [SENSOR LOADED] $map"); // 👈 important debug per sensor
+  //       return map;
+  //     }).toList(),
+  //   );
+
+  //   print("🎯 [FINAL] Total sensors mapped: ${sensorResults.length}");
+  //   print("🚀 Sensors successfully loaded for model: ${recipe.model}");
+  // }
   loadSensorsFromRecipe() {
     final testCtrl = Get.find<TestRecipeController>();
 
@@ -74,17 +129,18 @@ class ESNController extends GetxController {
           "reg": s.registerNumber,
           "part": s.sensorName,
           "type": s.sensorType,
-          //"reg": s.registerNumber,
           "m": s.multiplier,
           "c": s.offset,
           "min": s.min,
           "max": s.max,
           "unit": s.unit,
           "val": "-",
-          "status": "PENDING"
+          "status": "PENDING",
+          "operations": s.operations ?? [], // ✅ ADD THIS
         };
 
-        print("📡 [SENSOR LOADED] $map"); // 👈 important debug per sensor
+        print(
+            "📡 [SENSOR LOADED] reg=${map['reg']} | part=${map['part']} | ops=${(map['operations'] as List).length}");
         return map;
       }).toList(),
     );
@@ -238,68 +294,6 @@ class ESNController extends GetxController {
     return false;
   }
 
-  // --- 3. LIVE WEBCAM SCANNER ---
-  // Future<void> sc() async {
-  //   if (isScanning.value) return;
-
-  //   try {
-  //     final cameras = await availableCameras();
-  //     if (cameras.isEmpty) {
-  //       _showPopup("Hardware Error", "No webcam found.", true);
-  //       return;
-  //     }
-
-  //     cameraController = CameraController(
-  //       cameras.first,
-  //       ResolutionPreset.high,
-  //       enableAudio: false,
-  //     );
-
-  //     await cameraController!.initialize();
-  //     isScanning.value = true;
-
-  //     Get.dialog(
-  //       Obx(() => AlertDialog(
-  //             title: const Text("Scan Engine Barcode"),
-  //             content: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Container(
-  //                   decoration:
-  //                       BoxDecoration(border: Border.all(color: Colors.blue)),
-  //                   child: (isScanning.value &&
-  //                           cameraController != null &&
-  //                           cameraController!.value.isInitialized)
-  //                       ? CameraPreview(cameraController!)
-  //                       : const Center(child: CircularProgressIndicator()),
-  //                 ),
-  //                 const SizedBox(height: 15),
-  //                 const Text("Align barcode and hold steady (20cm)"),
-  //                 const SizedBox(height: 15),
-  //                 ElevatedButton.icon(
-  //                   onPressed: pickFromGallery,
-  //                   icon: const Icon(Icons.photo_library),
-  //                   label: Text("Select from Gallery",
-  //                       style: TextStyles.textfieldTextStyle),
-  //                 ),
-  //               ],
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: _closeScannerUI,
-  //                 child:
-  //                     const Text("Cancel", style: TextStyle(color: Colors.red)),
-  //               )
-  //             ],
-  //           )),
-  //       barrierDismissible: false,
-  //     );
-
-  //     _runScanLoop();
-  //   } catch (e) {
-  //     _showPopup("Camera Error", "Hardware access denied.", true);
-  //   }
-  // }
   Future<void> sc() async {
     if (isScanning.value) return;
     _isProcessing = false; // ✅ Reset guard
@@ -457,31 +451,6 @@ class ESNController extends GetxController {
   // Inside ESNController
   bool _isHandlingSuccess = false;
 
-  // --- 2. THE AUTO-CLOSE HANDLER ---
-  // void _handleAutoClose() {
-  //   print("DEBUG: _handleAutoClose called.");
-
-  //   // Update state first
-  //   isScanning.value = false;
-
-  //   // Check if dialog is open
-  //   bool isOpen = Get.isDialogOpen ?? false;
-  //   print("DEBUG: Is Get.dialog open? $isOpen");
-
-  //   if (isOpen) {
-  //     Get.back();
-  //     print("DEBUG: Get.back() executed.");
-  //   } else {
-  //     print("DEBUG: Get.back() skipped because isDialogOpen was false.");
-  //   }
-
-  //   // Cleanup Hardware
-  //   if (cameraController != null) {
-  //     print("DEBUG: Disposing CameraController.");
-  //     cameraController?.dispose();
-  //     cameraController = null;
-  //   }
-  // }
   void _handleAutoClose() {
     print("DEBUG: _handleAutoClose called.");
     isScanning.value = false;
@@ -1048,74 +1017,68 @@ class ESNController extends GetxController {
       print("❌ [SYNC ERROR] $e");
     }
   }
-  // Future<bool> _runEgrSequence(Map<String, dynamic> sensor) async {
-  //   try {
-  //     const int readRegister = 36;
-  //     const int writeRegister = 317;
 
-  //     print("✍️ [EGR] Activating...");
+  // Future<bool> _readWithTimeout(int regAddr) async {
+  //   final plcCtrl = Get.find<PLCController>();
 
-  //     // STEP 1: ON
-  //     await writeGeneratorDataRequest(writeRegister, 1);
-  //     await Future.delayed(const Duration(seconds: 2));
+  //   sendGeneratorDataRequest(regAddr);
 
-  //     // STEP 2: READ
-  //     sensor['val'] = "-";
-  //     sendGeneratorDataRequest(readRegister);
+  //   int timeout = 0;
 
-  //     bool ok = await _waitForResponse(readRegister);
-  //     if (!ok) {
-  //       print("❌ No response after activation");
+  //   while (timeout < 30) {
+  //     await Future.delayed(const Duration(milliseconds: 100));
+
+  //     if (!plcCtrl.isConnected.value) {
   //       return false;
   //     }
 
-  //     double value = double.tryParse(sensor['val'].toString()) ?? 0;
-  //     sensor['val'] = value.toStringAsFixed(2);
-  //     print("📊 EGR VALUE: $value");
+  //     int index = sensorResults.indexWhere((s) => s['reg'] == regAddr);
 
-  //     // ✅ VALIDATION (THIS WAS MISSING)
-  //     const double min = 1.21;
-  //     const double max = 1.63;
+  //     if (index != -1 && sensorResults[index]['val'] != "-") {
+  //       return true;
+  //     }
 
-  //     bool isOk = value >= min && value <= max;
-
-  //     print("📏 RANGE: $min - $max");
-  //     print("📊 STATUS: ${isOk ? "PASS ✅" : "FAIL ❌"}");
-
-  //     // STEP 3: RESET
-  //     print("🔄 Resetting...");
-  //     await writeGeneratorDataRequest(writeRegister, 0);
-
-  //     return isOk; // 🔥 IMPORTANT FIX
-  //   } catch (e) {
-  //     print("❌ EGR Exception: $e");
-  //     return false;
+  //     timeout++;
   //   }
+
+  //   return false;
   // }
 
   Future<bool> _readWithTimeout(int regAddr) async {
     final plcCtrl = Get.find<PLCController>();
 
+    print(
+        "📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
+
+    // ✅ Guard: don't even try if PLC offline
+    if (!plcCtrl.isConnected.value) {
+      print("❌ [READ SKIP] PLC not connected for reg: $regAddr");
+      return false;
+    }
+
     sendGeneratorDataRequest(regAddr);
 
     int timeout = 0;
 
-    while (timeout < 30) {
+    while (timeout < 50) {
+      // ✅ Increased from 30 to 50 (5 seconds total)
       await Future.delayed(const Duration(milliseconds: 100));
-
-      if (!plcCtrl.isConnected.value) {
-        return false;
-      }
 
       int index = sensorResults.indexWhere((s) => s['reg'] == regAddr);
 
       if (index != -1 && sensorResults[index]['val'] != "-") {
+        print(
+            "✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']} | Attempts: $timeout");
         return true;
       }
 
       timeout++;
+      if (timeout % 10 == 0) {
+        print("⏳ [WAITING] Reg: $regAddr | Attempt: $timeout/50");
+      }
     }
 
+    print("⌛ [TIMEOUT] No response for reg: $regAddr after ${timeout * 100}ms");
     return false;
   }
 
@@ -1140,10 +1103,10 @@ class ESNController extends GetxController {
   Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
 
-    if (!plcCtrl.isConnected.value) {
-      _showPopup("Hardware Offline", "Connect PLC first", true);
-      return;
-    }
+    // if (!plcCtrl.isConnected.value) {
+    //   _showPopup("Hardware Offline", "Connect PLC first", true);
+    //   return;
+    // }
 
     if (isTesting.value) return;
     isTesting.value = true;

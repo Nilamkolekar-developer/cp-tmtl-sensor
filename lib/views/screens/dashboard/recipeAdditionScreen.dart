@@ -168,9 +168,8 @@ class RecipeAdditionScreen extends StatelessWidget {
                                                     .toString(),
                                                 tableCellFontSize,
                                                 flex: 2),
-                                                 _buildTableCell(
-                                                sensor.unit
-                                                    .toString(),
+                                            _buildTableCell(
+                                                sensor.unit.toString(),
                                                 tableCellFontSize,
                                                 flex: 2),
                                             _buildTableCell(
@@ -252,6 +251,179 @@ class RecipeAdditionScreen extends StatelessWidget {
                             ),
                           )),
 
+                    //                   Obx(() => AnimatedSwitcher(
+                    //                         duration: const Duration(milliseconds: 300),
+                    //                         child: controller.isAddingSensor.value
+                    //                             ? Form(
+                    //                                 key: _sensorFormKey,
+                    //                                 child: Column(
+                    //                                   key: const ValueKey("ConfigForm"),
+                    //                                   children: [
+                    //                                     const SizedBox(height: 20),
+                    //                                     _buildSectionHeader(
+                    //                                         "Configure New Sensor",
+                    //                                         fontSize: headerFontSize),
+                    //                                     const SizedBox(height: 20),
+                    //                                     _buildModeSwitcher(),
+                    //                                     const SizedBox(height: 30),
+                    //                                     _buildResponsiveGrid(isDesktop, [
+                    //                                       _buildInputField(
+                    //                                           "Sensor Name", "e.g. Oil Pressure",
+                    //                                           controller:
+                    //                                               controller.sensorName.value,
+                    //                                           labelSize: labelFontSize,
+                    //                                           textSize: inputFontSize,
+                    //                                           readOnly:
+                    //                                               controller.isWriteMode.value),
+                    //                                       _buildInputField("Sensor Type",
+                    //                                           "e.g. Resistance / Analog",
+                    //                                           controller:
+                    //                                               controller.sensorType.value,
+                    //                                           labelSize: labelFontSize,
+                    //                                           textSize: inputFontSize,
+                    //                                           readOnly:
+                    //                                               controller.isWriteMode.value,
+                    //                                           onChanged: (val) => controller
+                    //                                               .sensorType
+                    //                                               .refresh()),
+                    //                                     ]),
+                    //                                     const SizedBox(height: 20),
+                    //                                     _buildResponsiveGrid(isDesktop, [
+                    //                                       _buildInputField(
+                    //                                           "Register Address", "0x00",
+                    //                                           isNumeric: true,
+                    //                                           controller:
+                    //                                               controller.registerNumber.value,
+                    //                                           labelSize: labelFontSize,
+                    //                                           textSize: inputFontSize),
+                    //                                       _buildMinMaxField(isDesktop,
+                    //                                           labelFontSize, inputFontSize),
+                    //                                     ]),
+                    //                                     const SizedBox(height: 20),
+
+                    //                                     // ── DYNAMIC FORMULA SECTION ────────────────
+                    //                                     Obx(() {
+                    //                                       // if (controller.isWriteMode.value)
+                    //                                       //   return const SizedBox.shrink();
+                    //                                       if (controller.isWriteMode.value) {
+                    //   // ✅ WRITE MODE: Only show Register + Value to Write
+                    //   return _buildResponsiveGrid(isDesktop, [
+
+                    //     _buildInputField(
+                    //       "Value to Write", "e.g. 1",
+                    //       isNumeric: true,
+                    //       controller: controller.testResult.value, // reuse testResult for write value
+                    //       labelSize: labelFontSize,
+                    //       textSize: inputFontSize,
+                    //     ),
+                    //     _buildInputField(
+                    //       "Unit", "e.g. ohm",
+                    //       isNumeric: true,
+                    //       controller: controller.unit.value, // reuse testResult for write value
+                    //       labelSize: labelFontSize,
+                    //       textSize: inputFontSize,
+                    //     ),
+                    //   ]);
+                    // }
+
+                    //                                       bool isResistance = [
+                    //                                         "resistance",
+                    //                                         "resistance(2200)",
+                    //                                         "resistance(100)",
+                    //                                         "current",
+                    //                                       ].contains(controller
+                    //                                           .sensorType.value.text
+                    //                                           .toLowerCase());
+                    //                                       return Column(
+                    //                                         children: [
+                    //                                           if (isResistance) ...[
+                    //                                             _buildResponsiveGrid(isDesktop, [
+                    //                                               _buildInputField(
+                    //                                                   "R1 (Ref Resistor)", "1000",
+                    //                                                   isNumeric: true,
+                    //                                                   controller:
+                    //                                                       controller.r1Controller,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                               _buildInputField(
+                    //                                                   "Vin (Input Voltage)",
+                    //                                                   "5.0",
+                    //                                                   isNumeric: true,
+                    //                                                   controller: controller
+                    //                                                       .vinController,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                               _buildInputField(
+                    //                                                   "Unit", "e.g. Bar",
+                    //                                                   controller:
+                    //                                                       controller.unit.value,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                               const SizedBox(),
+                    //                                             ]),
+                    //                                             // _buildResponsiveGrid(isDesktop, [
+
+                    //                                             const SizedBox(height: 20),
+                    //                                             // _buildResponsiveGrid(isDesktop, [
+                    //                                             //   _buildInputField("Vout (Measured)", "2.5",
+                    //                                             //       isNumeric: true,
+                    //                                             //       controller: controller.voutController,
+                    //                                             //       labelSize: labelFontSize,
+                    //                                             //       textSize: inputFontSize),
+                    //                                             //   _buildInputField("Unit", "Ohms",
+                    //                                             //       controller: controller.unit.value,
+                    //                                             //       labelSize: labelFontSize,
+                    //                                             //       textSize: inputFontSize),
+                    //                                             // ]),
+                    //                                           ] else ...[
+                    //                                             _buildResponsiveGrid(isDesktop, [
+                    //                                               _buildInputField(
+                    //                                                   "Multiplier (m)", "1.0",
+                    //                                                   isNumeric: true,
+                    //                                                   controller: controller
+                    //                                                       .multiplier.value,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                               _buildInputField(
+                    //                                                   "Offset (c)", "0",
+                    //                                                   isNumeric: true,
+                    //                                                   controller:
+                    //                                                       controller.offset.value,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                             ]),
+                    //                                             const SizedBox(height: 20),
+                    //                                             _buildResponsiveGrid(isDesktop, [
+                    //                                               _buildInputField(
+                    //                                                   "Unit", "e.g. Bar",
+                    //                                                   controller:
+                    //                                                       controller.unit.value,
+                    //                                                   labelSize: labelFontSize,
+                    //                                                   textSize: inputFontSize),
+                    //                                               const SizedBox(),
+                    //                                             ]),
+                    //                                           ],
+                    //                                         ],
+                    //                                       );
+                    //                                     }),
+
+                    //                                     const SizedBox(height: 30),
+                    //                                     Row(
+                    //                                       mainAxisAlignment:
+                    //                                           MainAxisAlignment.end,
+                    //                                       children: [
+                    //                                         _buildTestSection(isDesktop,
+                    //                                             labelFontSize, inputFontSize),
+                    //                                         const SizedBox(width: 15),
+                    //                                         _buildSaveButton(labelFontSize),
+                    //                                       ],
+                    //                                     ),
+                    //                                     const SizedBox(height: 60),
+                    //                                   ],
+                    //                                 ),
+                    //                               )
+                    //                             : const SizedBox.shrink(),
+                    //                       )),
                     Obx(() => AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: controller.isAddingSensor.value
@@ -267,47 +439,12 @@ class RecipeAdditionScreen extends StatelessWidget {
                                       const SizedBox(height: 20),
                                       _buildModeSwitcher(),
                                       const SizedBox(height: 30),
-                                      _buildResponsiveGrid(isDesktop, [
-                                        _buildInputField(
-                                            "Sensor Name", "e.g. Oil Pressure",
-                                            controller:
-                                                controller.sensorName.value,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            readOnly:
-                                                controller.isWriteMode.value),
-                                        _buildInputField("Sensor Type",
-                                            "e.g. Resistance / Analog",
-                                            controller:
-                                                controller.sensorType.value,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize,
-                                            readOnly:
-                                                controller.isWriteMode.value,
-                                            onChanged: (val) => controller
-                                                .sensorType
-                                                .refresh()),
-                                      ]),
-                                      const SizedBox(height: 20),
-                                      _buildResponsiveGrid(isDesktop, [
-                                        _buildInputField(
-                                            "Register Address", "0x00",
-                                            isNumeric: true,
-                                            controller:
-                                                controller.registerNumber.value,
-                                            labelSize: labelFontSize,
-                                            textSize: inputFontSize),
-                                        _buildMinMaxField(isDesktop,
-                                            labelFontSize, inputFontSize),
-                                      ]),
-                                      const SizedBox(height: 20),
 
-                                      // ── DYNAMIC FORMULA SECTION ────────────────
+                                      // ── SINGLE Obx handles ALL fields based on mode ──
                                       Obx(() {
-                                        if (controller.isWriteMode.value)
-                                          return const SizedBox.shrink();
-
-                                        bool isResistance = [
+                                        final bool isWrite =
+                                            controller.isWriteMode.value;
+                                        final bool isResistance = [
                                           "resistance",
                                           "resistance(2200)",
                                           "resistance(100)",
@@ -315,72 +452,176 @@ class RecipeAdditionScreen extends StatelessWidget {
                                         ].contains(controller
                                             .sensorType.value.text
                                             .toLowerCase());
+
+                                        if (isWrite) {
+                                          // ══════════════════════════════════════
+                                          // ✅ WRITE MODE
+                                          // Shows: Name, Type, Register, Value, Unit
+                                          // ══════════════════════════════════════
+                                          return Column(
+                                            children: [
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                  "Sensor Name",
+                                                  "e.g. Oil Pressure",
+                                                  controller: controller
+                                                      .sensorName.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
+                                                _buildInputField(
+                                                  "Sensor Type",
+                                                  "e.g. Resistance / Analog",
+                                                  controller: controller
+                                                      .sensorType.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
+                                              ]),
+                                              const SizedBox(height: 20),
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                  "Register Address",
+                                                  "0x00",
+                                                  isNumeric: true,
+                                                  controller: controller
+                                                      .registerNumber.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
+                                                _buildInputField(
+                                                  "Value to Write",
+                                                  "e.g. 1",
+                                                  isNumeric: true,
+                                                  controller: controller
+                                                      .testResult.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
+                                              ]),
+                                              const SizedBox(height: 20),
+                                              _buildResponsiveGrid(isDesktop, [
+                                                _buildInputField(
+                                                  "Unit",
+                                                  "e.g. ohm",
+                                                  controller:
+                                                      controller.unit.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
+                                                const SizedBox(),
+                                              ]),
+                                            ],
+                                          );
+                                        }
+
+                                        // ══════════════════════════════════════
+                                        // ✅ READ MODE
+                                        // Shows: Name, Type, Register, MinMax,
+                                        //        R1+Vin (resistance) OR m+c (linear), Unit
+                                        // ══════════════════════════════════════
                                         return Column(
                                           children: [
+                                            _buildResponsiveGrid(isDesktop, [
+                                              _buildInputField(
+                                                "Sensor Name",
+                                                "e.g. Oil Pressure",
+                                                controller:
+                                                    controller.sensorName.value,
+                                                labelSize: labelFontSize,
+                                                textSize: inputFontSize,
+                                              ),
+                                              _buildInputField(
+                                                "Sensor Type",
+                                                "e.g. Resistance / Analog",
+                                                controller:
+                                                    controller.sensorType.value,
+                                                labelSize: labelFontSize,
+                                                textSize: inputFontSize,
+                                                onChanged: (val) => controller
+                                                    .sensorType
+                                                    .refresh(),
+                                              ),
+                                            ]),
+                                            const SizedBox(height: 20),
+                                            _buildResponsiveGrid(isDesktop, [
+                                              _buildInputField(
+                                                "Register Address",
+                                                "0x00",
+                                                isNumeric: true,
+                                                controller: controller
+                                                    .registerNumber.value,
+                                                labelSize: labelFontSize,
+                                                textSize: inputFontSize,
+                                              ),
+                                              _buildMinMaxField(isDesktop,
+                                                  labelFontSize, inputFontSize),
+                                            ]),
+                                            const SizedBox(height: 20),
+
+                                            // Resistance / Current → R1 + Vin
                                             if (isResistance) ...[
                                               _buildResponsiveGrid(isDesktop, [
                                                 _buildInputField(
-                                                    "R1 (Ref Resistor)", "1000",
-                                                    isNumeric: true,
-                                                    controller:
-                                                        controller.r1Controller,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "R1 (Ref Resistor)",
+                                                  "1000",
+                                                  isNumeric: true,
+                                                  controller:
+                                                      controller.r1Controller,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                                 _buildInputField(
-                                                    "Vin (Input Voltage)",
-                                                    "5.0",
-                                                    isNumeric: true,
-                                                    controller: controller
-                                                        .vinController,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "Vin (Input Voltage)",
+                                                  "5.0",
+                                                  isNumeric: true,
+                                                  controller:
+                                                      controller.vinController,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                                 _buildInputField(
-                                                    "Unit", "e.g. Bar",
-                                                    controller:
-                                                        controller.unit.value,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "Unit",
+                                                  "e.g. Bar",
+                                                  controller:
+                                                      controller.unit.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                                 const SizedBox(),
                                               ]),
-                                              // _buildResponsiveGrid(isDesktop, [
-
-                                              const SizedBox(height: 20),
-                                              // _buildResponsiveGrid(isDesktop, [
-                                              //   _buildInputField("Vout (Measured)", "2.5",
-                                              //       isNumeric: true,
-                                              //       controller: controller.voutController,
-                                              //       labelSize: labelFontSize,
-                                              //       textSize: inputFontSize),
-                                              //   _buildInputField("Unit", "Ohms",
-                                              //       controller: controller.unit.value,
-                                              //       labelSize: labelFontSize,
-                                              //       textSize: inputFontSize),
-                                              // ]),
                                             ] else ...[
+                                              // Linear → Multiplier + Offset + Unit
                                               _buildResponsiveGrid(isDesktop, [
                                                 _buildInputField(
-                                                    "Multiplier (m)", "1.0",
-                                                    isNumeric: true,
-                                                    controller: controller
-                                                        .multiplier.value,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "Multiplier (m)",
+                                                  "1.0",
+                                                  isNumeric: true,
+                                                  controller: controller
+                                                      .multiplier.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                                 _buildInputField(
-                                                    "Offset (c)", "0",
-                                                    isNumeric: true,
-                                                    controller:
-                                                        controller.offset.value,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "Offset (c)",
+                                                  "0",
+                                                  isNumeric: true,
+                                                  controller:
+                                                      controller.offset.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                               ]),
                                               const SizedBox(height: 20),
                                               _buildResponsiveGrid(isDesktop, [
                                                 _buildInputField(
-                                                    "Unit", "e.g. Bar",
-                                                    controller:
-                                                        controller.unit.value,
-                                                    labelSize: labelFontSize,
-                                                    textSize: inputFontSize),
+                                                  "Unit",
+                                                  "e.g. Bar",
+                                                  controller:
+                                                      controller.unit.value,
+                                                  labelSize: labelFontSize,
+                                                  textSize: inputFontSize,
+                                                ),
                                                 const SizedBox(),
                                               ]),
                                             ],
@@ -555,57 +796,41 @@ class RecipeAdditionScreen extends StatelessWidget {
       return OutlinedButton.icon(
         // onPressed: () async {
         //   if (_sensorFormKey.currentState!.validate()) {
-        //     // 1. Get local form data
+        //     //controller.processSensorValue(); // 👈 ADD THIS FIRST
+
         //     final String sensorName = controller.sensorName.value.text;
         //     final String currentVal = controller.testResult.value.text;
 
-        //     if (isWrite) {
-        //       // --- COMMAND BLOCKED ---
-        //       // final int val = int.tryParse(currentVal) ?? 0;
-        //       // final int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
-        //       // await controller.writeGeneratorDataRequest(reg, val);
-        //       // ------------------------
-
-        //       // ✅ Log "WRITE" data directly to the local list
-        //       controller.logOperation(
-        //         sensorName: sensorName,
-        //         operation: "WRITE",
-        //         value: currentVal,
-        //       );
-        //     } else {
-        //       // --- COMMAND BLOCKED ---
-        //       // final int reg = int.tryParse(controller.registerNumber.value.text) ?? 0;
-        //       // await controller.sendGeneratorDataRequest1(reg);
-        //       // ------------------------
-
-        //       // ✅ Log "READ" data directly from what is currently in the text box
-        //       controller.logOperation(
-        //         sensorName: sensorName,
-        //         operation: "READ",
-        //         value: currentVal,
-        //       );
-        //     }
-
-        //     Get.snackbar(
-        //       "Local Log",
-        //       "Data added to ${sensorName} operations successfully",
-        //       snackPosition: SnackPosition.BOTTOM,
-        //       backgroundColor: Colors.blueGrey,
-        //       colorText: Colors.white,
+        //     controller.logOperation(
+        //       sensorName: sensorName,
+        //       operation: controller.isWriteMode.value ? "WRITE" : "READ",
+        //       value: currentVal,
         //     );
         //   }
         // },
         onPressed: () async {
           if (_sensorFormKey.currentState!.validate()) {
-            //controller.processSensorValue(); // 👈 ADD THIS FIRST
-
             final String sensorName = controller.sensorName.value.text;
-            final String currentVal = controller.testResult.value.text;
+
+            // ✅ Check sensor exists in list before logging
+            final bool exists =
+                controller.addedSensors.any((s) => s.sensorName == sensorName);
+
+            if (!exists) {
+              Get.snackbar(
+                "Save First",
+                "Click 'Save Sensor to Table' before logging operations",
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+                snackPosition: SnackPosition.BOTTOM,
+              );
+              return;
+            }
 
             controller.logOperation(
               sensorName: sensorName,
               operation: controller.isWriteMode.value ? "WRITE" : "READ",
-              value: currentVal,
+              value: controller.testResult.value.text, // ✅ passes current value
             );
           }
         },
@@ -665,7 +890,7 @@ class RecipeAdditionScreen extends StatelessWidget {
         _buildHeaderCell('Sensor Name', fontSize, flex: 3),
         _buildHeaderCell('Sensor Type', fontSize, flex: 3),
         _buildHeaderCell('Register', fontSize, flex: 2),
-         _buildHeaderCell('Unit', fontSize, flex: 2),
+        _buildHeaderCell('Unit', fontSize, flex: 2),
         _buildHeaderCell('Range', fontSize, flex: 2),
         _buildHeaderCell('Action', fontSize, flex: 2),
       ],

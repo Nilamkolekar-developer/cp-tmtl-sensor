@@ -9,9 +9,14 @@ class TestRecipeScreen extends StatelessWidget {
 
   // Initialize the controller
   final TestRecipeController controller = Get.put(TestRecipeController());
-
+  // final TestRecipeController controller = Get.isRegistered<TestRecipeController>()
+  //     ? Get.find<TestRecipeController>()
+  //     : Get.put(TestRecipeController());
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.loadStoredRecipes();
+    });
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     // --- RESPONSIVE FONT SIZES ---

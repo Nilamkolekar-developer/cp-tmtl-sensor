@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppPreferences {
   // 🔑 Keys
   static const String _currentUserIdKey = 'active_user_id';
   static const String _userRecipePrefix = 'recipes_for_user_'; // Unique prefix
+  static const String _tokenKey = 'auth_token';
 
   // ================= SESSION MANAGEMENT =================
 
@@ -23,9 +25,23 @@ class AppPreferences {
 
   /// Logout: Simply removes the "Active User" pointer
   /// This leaves the actual recipe data on the device for next time
+  // static Future<void> logout() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove(_currentUserIdKey);
+  // }
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // 1. Remove the ID so Splash knows to stop auto-login
     await prefs.remove(_currentUserIdKey);
+    
+    // 2. Remove the Token so APIs stop working
+    await prefs.remove(_tokenKey);
+
+    // 3. Clear GetX memory entirely to wipe lists (sensorResults, etc.)
+    Get.deleteAll(force: true);
+
+    print("🗑️ [AUTH] Full logout: User ID and Token cleared. Memory wiped.");
   }
 
   // ================= USER-SPECIFIC RECIPES =================
@@ -64,11 +80,11 @@ class AppPreferences {
 
     // 🚀 SAFETY FALLBACK: If userId is null, force the default developer ID
     // This prevents the "Successfully synced 0 recipes" error during testing.
-    if (userId == null || userId == "null") {
-      print("🛠️ PREFS-READ: UserId was null, recovering session...");
-      userId = "abc@autopeepal.com";
-      await prefs.setString(_currentUserIdKey, userId);
-    }
+    // if (userId == null || userId == "null") {
+    //   print("🛠️ PREFS-READ: UserId was null, recovering session...");
+    //   userId = "abc@autopeepal.com";
+    //   await prefs.setString(_currentUserIdKey, userId);
+    // }
 
     print("📖 PREFS-READ: Attempting to load for User [$userId]");
 
@@ -92,22 +108,53 @@ class AppPreferences {
     }
   }
 
+// --- TOKEN MANAGEMENT ---
   static Future<void> setToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', token);
-    print("🔑 [PREFS] Token saved");
+    await prefs.setString(_tokenKey, token);
+    print("🔑 [PREFS] Token saved for persistent login");
   }
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    return prefs.getString(_tokenKey);
   }
 
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    await prefs.remove(_tokenKey);
     print("🗑️ [PREFS] Token cleared");
   }
+
+  // ── USERNAME ──────────────────────────────────────
+static Future<void> saveUsername(String username) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('saved_username', username);
+}
+
+static Future<String?> getSavedUsername() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('saved_username');
+}
+
+// ── PASSWORD ──────────────────────────────────────
+static Future<void> savePassword(String password) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('saved_password', password);
+}
+
+static Future<String?> getSavedPassword() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('saved_password');
+}
+
+// ── CLEAR ON LOGOUT ───────────────────────────────
+static Future<void> clearCredentials() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('saved_username');
+  await prefs.remove('saved_password');
+  print("🗑️ [PREFS] Credentials cleared");
+}
 
   // ================= MODBUS CONNECTION =================
 

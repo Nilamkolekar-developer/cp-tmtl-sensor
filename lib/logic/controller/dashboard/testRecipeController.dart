@@ -119,23 +119,46 @@ class TestRecipeController extends GetxController {
   }
 
 
-  /// Fetches recipes from the SharedPreferences Map
- Future<void> loadStoredRecipes() async {
+//   /// Fetches recipes from the SharedPreferences Map
+//  Future<void> loadStoredRecipes() async {
+//   try {
+//     // 1. Fetch data specifically for the LOGGED-IN user
+//     // This uses the "active_user_id" to find the right key
+//     List<Recipe> storedRecipes = await AppPreferences.getRecipesForCurrentUser();
+    
+//     // 2. Clear the old memory list and assign the fresh data
+//     recipeList.assignAll(storedRecipes);
+    
+//     // 3. Trigger Obx listeners
+//     recipeList.refresh(); 
+    
+//     print("✅ Successfully synced ${recipeList.length} recipes for the current user.");
+//   } catch (e) {
+//     print("❌ Error loading stored recipes: $e");
+//     // Optional: Clear the list if error occurs to prevent showing wrong user's data
+//     recipeList.clear();
+//   }
+// }
+Future<void> loadStoredRecipes() async {
   try {
-    // 1. Fetch data specifically for the LOGGED-IN user
-    // This uses the "active_user_id" to find the right key
     List<Recipe> storedRecipes = await AppPreferences.getRecipesForCurrentUser();
     
-    // 2. Clear the old memory list and assign the fresh data
+    // ✅ ADD THIS — check if operations survive deserialization
+    for (var recipe in storedRecipes) {
+      print("📦 [RECIPE] ${recipe.model} | Sensors: ${recipe.sensors.length}");
+      for (var sensor in recipe.sensors) {
+        print("  📡 ${sensor.sensorName} | Ops: ${sensor.operations.length}");
+        for (var op in sensor.operations) {
+          print("    ▶️ ${op.operation} | Reg: ${op.registerAddress} | Val: ${op.value}");
+        }
+      }
+    }
+
     recipeList.assignAll(storedRecipes);
-    
-    // 3. Trigger Obx listeners
-    recipeList.refresh(); 
-    
+    recipeList.refresh();
     print("✅ Successfully synced ${recipeList.length} recipes for the current user.");
   } catch (e) {
     print("❌ Error loading stored recipes: $e");
-    // Optional: Clear the list if error occurs to prevent showing wrong user's data
     recipeList.clear();
   }
 }

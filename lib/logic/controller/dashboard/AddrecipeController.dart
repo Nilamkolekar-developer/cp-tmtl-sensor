@@ -17,7 +17,7 @@ class AddRecipeController extends GetxController {
   var isAddingSensor = false.obs;
   var hasTested = false.obs;
   var isEdit = false.obs;
-   var editingSensorName = "".obs;
+  var editingSensorName = "".obs;
 
   // ── Sensor table state ───────────────────────────────────────────────────────
   RxList<SensorConfig> addedSensors = <SensorConfig>[].obs;
@@ -238,21 +238,129 @@ class AddRecipeController extends GetxController {
   }
 
   // ── Operation log (stored directly on SensorConfig) ──────────────────────────
+  // void logOperation({
+  //   required String sensorName,
+  //   required String operation, // "READ" or "WRITE"
+  //   required String value,
+  // }) {
+  //   final sensor =
+  //       addedSensors.firstWhereOrNull((s) => s.sensorName == sensorName);
+  //   if (sensor == null) return;
+
+  //   sensor.addLog(
+  //     operation: operation,
+  //     registerAddress: registerNumber.value.text,
+  //     value: value,
+  //   );
+  //   addedSensors.refresh(); // triggers Obx rebuild in view
+  // }
   void logOperation({
     required String sensorName,
-    required String operation, // "READ" or "WRITE"
+    required String operation,
     required String value,
   }) {
-    final sensor =
-        addedSensors.firstWhereOrNull((s) => s.sensorName == sensorName);
-    if (sensor == null) return;
-
-    sensor.addLog(
-      operation: operation,
-      registerAddress: registerNumber.value.text,
-      value: value,
+    // ✅ Find by name — works whether editing or not
+    final int sensorIndex = addedSensors.indexWhere(
+      (s) => s.sensorName == sensorName,
     );
-    addedSensors.refresh(); // triggers Obx rebuild in view
+
+    if (sensorIndex == -1) {
+      print(
+          "❌ [LOG] Sensor '$sensorName' not found in list. Save sensor first.");
+      Get.snackbar(
+        "Save First",
+        "Please save the sensor to table before logging operations",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final String reg = registerNumber.value.text.trim();
+
+    // ✅ For WRITE: use testResult as value
+    // ✅ For READ:  use passed value (or empty string)
+    final String logValue =
+        operation == "WRITE" ? testResult.value.text.trim() : value;
+
+    if (reg.isEmpty) {
+      Get.snackbar(
+        "Missing Register",
+        "Please enter a register address before logging",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    addedSensors[sensorIndex].operations.add(
+          OperationLog(
+            operation: operation,
+            registerAddress: reg,
+            value: logValue,
+            timestamp: DateTime.now().toString().substring(11, 19),
+            sensorName: sensorName,
+          ),
+        );
+
+    addedSensors.refresh();
+
+    print(
+        "✅ [LOG] ${operation} logged for '$sensorName' | Reg: $reg | Val: $logValue");
+
+    Get.snackbar(
+      "Logged",
+      "$operation added to $sensorName",
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 1),
+    );
+  }
+
+  void deleteOperationLog(int logIndex) {
+    // ✅ Use editingSensorIndex if available, otherwise find by expanded sensor
+    int targetIndex = editingSensorIndex.value;
+
+    // ✅ Fallback: find by expanded sensor name
+    if (targetIndex == -1) {
+      final String expandedName =
+          expandedSensors.isNotEmpty ? expandedSensors.first : "";
+
+      if (expandedName.isNotEmpty) {
+        targetIndex = addedSensors.indexWhere(
+          (s) => s.sensorName == expandedName,
+        );
+      }
+    }
+
+    if (targetIndex == -1) {
+      Get.snackbar(
+        "Error",
+        "Could not find sensor to delete operation from",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    final sensor = addedSensors[targetIndex];
+
+    if (logIndex < 0 || logIndex >= sensor.operations.length) {
+      print("❌ [DELETE] Invalid log index: $logIndex");
+      return;
+    }
+
+    final String deletedOp = sensor.operations[logIndex].operation;
+    sensor.operations.removeAt(logIndex);
+    addedSensors[targetIndex] = sensor; // ✅ Force Obx update
+    addedSensors.refresh();
+
+    print(
+        "🗑️ [DELETE] $deletedOp at index $logIndex deleted from ${sensor.sensorName}");
   }
 
   void addRecipe() async {
@@ -289,13 +397,18 @@ class AddRecipeController extends GetxController {
       print("✅ [STEP 1] Recipe synced to storage for current user.");
 
       // 2. REFRESH
-      await testController.loadStoredRecipes();
+      // await testController.loadStoredRecipes();
+      if (Get.isRegistered<TestRecipeController>()) {
+    final testCtrl = Get.find<TestRecipeController>();
+    await testCtrl.loadStoredRecipes();
+    print("🔄 [SYNC] Recipes reloaded. Count: ${testCtrl.recipeList.length}");
+  }
       print(
           "✅ [STEP 2] Dashboard refreshed. Count: ${testController.recipeList.length}");
 
       // 3. UI Cleanup
       _resetForm();
-      Get.back();
+     // Get.back();
 
       Get.snackbar(
         "Success",
@@ -304,38 +417,39 @@ class AddRecipeController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      Get.toNamed(Routes.testRecipeScreen);
+      // Get.toNamed(Routes.testRecipeScreen);
+      Get.offAllNamed(Routes.testRecipeScreen);
     } catch (e) {
       print("❌ [CRITICAL ERROR] Failed to save recipe: $e");
       Get.snackbar("Error", "Failed to save recipe locally");
     }
   }
 
-  void deleteOperationLog(int logIndex) {
-    if (editingSensorIndex.value != -1) {
-      // 1. Get the current sensor
-      var currentSensor = addedSensors[editingSensorIndex.value];
+  // void deleteOperationLog(int logIndex) {
+  //   if (editingSensorIndex.value != -1) {
+  //     // 1. Get the current sensor
+  //     var currentSensor = addedSensors[editingSensorIndex.value];
 
-      // 2. Safety check for the index
-      if (logIndex >= 0 && logIndex < (currentSensor.operations.length)) {
-        // 3. Remove the item
-        currentSensor.operations.removeAt(logIndex);
+  //     // 2. Safety check for the index
+  //     if (logIndex >= 0 && logIndex < (currentSensor.operations.length)) {
+  //       // 3. Remove the item
+  //       currentSensor.operations.removeAt(logIndex);
 
-        // 4. Update the list with a COPY of the sensor to trigger Obx
-        // This forces the UI to re-render the specific row
-        addedSensors[editingSensorIndex.value] = currentSensor;
-        addedSensors.refresh();
+  //       // 4. Update the list with a COPY of the sensor to trigger Obx
+  //       // This forces the UI to re-render the specific row
+  //       addedSensors[editingSensorIndex.value] = currentSensor;
+  //       addedSensors.refresh();
 
-        print(
-            "🗑️ Operation log at index $logIndex deleted from ${currentSensor.sensorName}");
-      }
-    } else {
-      Get.snackbar("Notice", "Please select a sensor first",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.amber.shade700,
-          colorText: Colors.white);
-    }
-  }
+  //       print(
+  //           "🗑️ Operation log at index $logIndex deleted from ${currentSensor.sensorName}");
+  //     }
+  //   } else {
+  //     Get.snackbar("Notice", "Please select a sensor first",
+  //         snackPosition: SnackPosition.BOTTOM,
+  //         backgroundColor: Colors.amber.shade700,
+  //         colorText: Colors.white);
+  //   }
+  // }
 
   void _resetForm() {
     modelController.value.clear();
@@ -345,7 +459,7 @@ class AddRecipeController extends GetxController {
     isEditMode.value = false;
   }
 
-   clearSensorFields() {
+  clearSensorFields() {
     hasTested.value = false;
     sensorName.value.clear();
     sensorType.value.clear();
