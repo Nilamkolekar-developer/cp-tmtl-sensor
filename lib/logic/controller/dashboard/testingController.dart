@@ -1,15 +1,22 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
+import 'package:CP_TMTL_Sensor_Zig/api/app_urls.dart';
 import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
 import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
 import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
+import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
 import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
+import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
 import 'package:zxing_lib/zxing.dart';
 import 'package:zxing_lib/common.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,6 +33,7 @@ class ESNController extends GetxController {
   var serialNumber = "-".obs;
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
+  var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
   var sensorResults = <Map<String, dynamic>>[].obs;
@@ -38,7 +46,7 @@ class ESNController extends GetxController {
 // add this line to existing onInit
   }
 
-  void loadSensorsFromRecipe() {
+  loadSensorsFromRecipe() {
     final testCtrl = Get.find<TestRecipeController>();
 
     print("🔍 [LOAD] Requested model: ${modelNumber.value}");
@@ -85,29 +93,110 @@ class ESNController extends GetxController {
     print("🚀 Sensors successfully loaded for model: ${recipe.model}");
   }
 
-  void validateESN() {
+  // void validateESN() {
+  //   String esn = esnTextFieldController.text.trim();
+  //   if (esn.isEmpty) return;
+
+  //   serialNumber.value = "SN-$esn";
+
+  //   // Logic to determine model based on ESN content
+  //   if (esn.contains("9780070602205")) {
+  //     modelNumber.value = "TD 2.2 L3";
+  //     variantCode.value = "V-B8_DIESEL";
+  //   } else if (esn.contains("STATHNL000002088")) {
+  //     modelNumber.value = "TCD 2.2 L4";
+  //     variantCode.value = "V-C1_DIESEL";
+  //   } else if (esn.startsWith("9781119550822")) {
+  //     modelNumber.value = "TCD 2.9 L4";
+  //     variantCode.value = "V-IND_99";
+  //   } else {
+  //     modelNumber.value = "Default Model";
+  //     variantCode.value = "V-GENERIC";
+  //   }
+
+  //   loadSensorsFromRecipe(); // This will now load based on the updated model/variant
+  //   isValidated.value = true;
+  // }
+  RxBool isLoading = false.obs;
+  Future<void> validateESN() async {
     String esn = esnTextFieldController.text.trim();
-    if (esn.isEmpty) return;
-
-    serialNumber.value = "SN-$esn";
-
-    // Logic to determine model based on ESN content
-    if (esn.contains("9780070602205")) {
-      modelNumber.value = "TD 2.2 L3";
-      variantCode.value = "V-B8_DIESEL";
-    } else if (esn.contains("STATHNL000002088")) {
-      modelNumber.value = "TCD 2.2 L4";
-      variantCode.value = "V-C1_DIESEL";
-    } else if (esn.startsWith("9781119550822")) {
-      modelNumber.value = "TCD 2.9 L4";
-      variantCode.value = "V-IND_99";
-    } else {
-      modelNumber.value = "Default Model";
-      variantCode.value = "V-GENERIC";
+    if (esn.isEmpty) {
+      Get.snackbar("Error", "Please enter an ESN",
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+      return;
     }
 
-    loadSensorsFromRecipe(); // This will now load based on the updated model/variant
-    isValidated.value = true;
+    final String formattedEsn = "SN-$esn";
+
+    try {
+      isLoading.value = true;
+      print("📡 [ESN VALIDATION] Sending: $formattedEsn");
+
+      String? savedToken = await AppPreferences.getToken();
+      final String baseUrl = AppEnvironment.baseUrl;
+      final String validateUrl = "$baseUrl${AppURLs.engineNumberCheck}";
+      final response = await http.post(
+        Uri.parse(validateUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          // Prefix must be exactly "JWT " followed by your token
+          "Authorization": "JWT $savedToken",
+        },
+        body: jsonEncode({"engine_serial_no": formattedEsn}),
+      );
+
+      print("📡 [RESPONSE] Status: ${response.statusCode}");
+      print("📡 [RESPONSE] Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true && responseData['data'] != null) {
+          final data = responseData['data'];
+
+          serialNumber.value = formattedEsn;
+
+          // ✅ Updated keys to match typical Autopeepal API patterns
+          // Ensure these keys match exactly what the /validate/ ESN response returns
+          modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
+          variantCode.value =
+              data['variant_code']?.toString() ?? "Unknown Variant";
+          modelValidationId.value = responseData['data']['id'].toString();
+
+          print(
+              "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
+
+          await loadSensorsFromRecipe();
+          isValidated.value = true;
+
+          Get.snackbar("Success", "ESN Validated",
+              backgroundColor: Colors.green, colorText: Colors.white);
+        } else {
+          Get.snackbar("Invalid ESN",
+              responseData['message'] ?? "No data found for this ESN",
+              backgroundColor: Colors.orange);
+        }
+      } else if (response.statusCode == 401) {
+        // ⚠️ Handle Session Expired
+        print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
+        Get.snackbar("Session Expired", "Please login again",
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+
+        // Clear token and redirect to login
+        await AppPreferences.clearToken();
+        Get.offAllNamed(Routes.loginScreen);
+      } else {
+        Get.snackbar(
+            "Server Error", "Something went wrong (${response.statusCode})",
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
+    } catch (e) {
+      print("❌ [ESN VALIDATION ERROR] $e");
+      Get.snackbar("Error", "Failed to connect to server");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // --- 1. THE DECODING ENGINE (Pure Dart) ---
@@ -150,8 +239,71 @@ class ESNController extends GetxController {
   }
 
   // --- 3. LIVE WEBCAM SCANNER ---
+  // Future<void> sc() async {
+  //   if (isScanning.value) return;
+
+  //   try {
+  //     final cameras = await availableCameras();
+  //     if (cameras.isEmpty) {
+  //       _showPopup("Hardware Error", "No webcam found.", true);
+  //       return;
+  //     }
+
+  //     cameraController = CameraController(
+  //       cameras.first,
+  //       ResolutionPreset.high,
+  //       enableAudio: false,
+  //     );
+
+  //     await cameraController!.initialize();
+  //     isScanning.value = true;
+
+  //     Get.dialog(
+  //       Obx(() => AlertDialog(
+  //             title: const Text("Scan Engine Barcode"),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Container(
+  //                   decoration:
+  //                       BoxDecoration(border: Border.all(color: Colors.blue)),
+  //                   child: (isScanning.value &&
+  //                           cameraController != null &&
+  //                           cameraController!.value.isInitialized)
+  //                       ? CameraPreview(cameraController!)
+  //                       : const Center(child: CircularProgressIndicator()),
+  //                 ),
+  //                 const SizedBox(height: 15),
+  //                 const Text("Align barcode and hold steady (20cm)"),
+  //                 const SizedBox(height: 15),
+  //                 ElevatedButton.icon(
+  //                   onPressed: pickFromGallery,
+  //                   icon: const Icon(Icons.photo_library),
+  //                   label: Text("Select from Gallery",
+  //                       style: TextStyles.textfieldTextStyle),
+  //                 ),
+  //               ],
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: _closeScannerUI,
+  //                 child:
+  //                     const Text("Cancel", style: TextStyle(color: Colors.red)),
+  //               )
+  //             ],
+  //           )),
+  //       barrierDismissible: false,
+  //     );
+
+  //     _runScanLoop();
+  //   } catch (e) {
+  //     _showPopup("Camera Error", "Hardware access denied.", true);
+  //   }
+  // }
   Future<void> sc() async {
     if (isScanning.value) return;
+    _isProcessing = false; // ✅ Reset guard
+    _isHandlingSuccess = false; // ✅ Reset flag
 
     try {
       final cameras = await availableCameras();
@@ -162,13 +314,17 @@ class ESNController extends GetxController {
 
       cameraController = CameraController(
         cameras.first,
-        ResolutionPreset.high,
+        ResolutionPreset.low, // ✅ LOW = smallest file = fastest delete
         enableAudio: false,
+        imageFormatGroup: Platform.isWindows
+            ? ImageFormatGroup.bgra8888
+            : ImageFormatGroup.yuv420,
       );
 
       await cameraController!.initialize();
       isScanning.value = true;
 
+      // ... rest of your dialog code unchanged ...
       Get.dialog(
         Obx(() => AlertDialog(
               title: const Text("Scan Engine Barcode"),
@@ -212,91 +368,212 @@ class ESNController extends GetxController {
     }
   }
 
-  // Inside ESNController
-  bool _isHandlingSuccess = false;
-
-  // --- 1. THE SCAN LOOP ---
   Future<void> _runScanLoop() async {
     _isHandlingSuccess = false;
 
-    while (isScanning.value) {
-      // If a barcode was found by camera or gallery, kill the loop immediately
-      if (_isHandlingSuccess ||
-          cameraController == null ||
-          !cameraController!.value.isInitialized) {
-        break;
-      }
+    try {
+      // ✅ Try streaming first (works on mobile + newer Windows camera plugin)
+      await cameraController!.startImageStream((CameraImage cameraImage) async {
+        if (_isHandlingSuccess) return;
 
-      try {
-        final XFile file = await cameraController!.takePicture();
-        final Uint8List bytes = await file.readAsBytes();
-
-        // If _decodeFromBytes returns TRUE, it means barcode was found
-        if (_decodeFromBytes(bytes)) {
-          _isHandlingSuccess = true;
-          _handleAutoClose(); // Trigger the immediate close
-          break;
+        try {
+          final Uint8List bytes = _convertCameraImageToBytes(cameraImage);
+          if (_decodeFromBytes(bytes)) {
+            _isHandlingSuccess = true;
+            await cameraController?.stopImageStream();
+            _handleAutoClose();
+          }
+        } catch (e) {
+          // Skip bad frames silently
         }
-      } catch (e) {
-        print("Scanning...");
-      }
-      await Future.delayed(const Duration(milliseconds: 500));
+      });
+
+      print("✅ [SCAN] Image stream started successfully.");
+    } catch (e) {
+      // ✅ Stream not supported — use frame grab loop (no file saving)
+      print("⚠️ [SCAN] Stream failed ($e). Using frame grab fallback.");
+      _runCaptureFallbackLoop();
     }
   }
 
+  bool _isProcessing = false; // ✅ Prevent overlapping decode calls
+
+  Future<void> _runCaptureFallbackLoop() async {
+    while (isScanning.value && !_isHandlingSuccess) {
+      if (cameraController == null || !cameraController!.value.isInitialized)
+        break;
+      if (_isProcessing) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        continue;
+      }
+
+      _isProcessing = true;
+
+      try {
+        final XFile file = await cameraController!.takePicture();
+        final String filePath = file.path;
+        final Uint8List bytes = await File(filePath).readAsBytes();
+
+        // ✅ Delete immediately before decoding
+        try {
+          await File(filePath).delete();
+        } catch (_) {}
+
+        if (_decodeFromBytes(bytes)) {
+          _isHandlingSuccess = true;
+          _handleAutoClose();
+          break;
+        }
+      } catch (e) {
+        print("📸 Frame grab: $e");
+      } finally {
+        _isProcessing = false;
+      }
+
+      await Future.delayed(const Duration(milliseconds: 700));
+    }
+  }
+
+// Helper: Convert YUV CameraImage to JPEG/PNG-like bytes
+  Uint8List _convertCameraImageToBytes(CameraImage cameraImage) {
+    final img.Image image = img.Image(
+      width: cameraImage.width,
+      height: cameraImage.height,
+    );
+
+    final plane = cameraImage.planes[0]; // Y plane (luminance)
+    final bytes = plane.bytes;
+
+    for (int y = 0; y < cameraImage.height; y++) {
+      for (int x = 0; x < cameraImage.width; x++) {
+        final int pixelValue = bytes[y * plane.bytesPerRow + x];
+        image.setPixelRgb(x, y, pixelValue, pixelValue, pixelValue);
+      }
+    }
+
+    return Uint8List.fromList(img.encodeJpg(image));
+  }
+
+  // Inside ESNController
+  bool _isHandlingSuccess = false;
+
   // --- 2. THE AUTO-CLOSE HANDLER ---
+  // void _handleAutoClose() {
+  //   print("DEBUG: _handleAutoClose called.");
+
+  //   // Update state first
+  //   isScanning.value = false;
+
+  //   // Check if dialog is open
+  //   bool isOpen = Get.isDialogOpen ?? false;
+  //   print("DEBUG: Is Get.dialog open? $isOpen");
+
+  //   if (isOpen) {
+  //     Get.back();
+  //     print("DEBUG: Get.back() executed.");
+  //   } else {
+  //     print("DEBUG: Get.back() skipped because isDialogOpen was false.");
+  //   }
+
+  //   // Cleanup Hardware
+  //   if (cameraController != null) {
+  //     print("DEBUG: Disposing CameraController.");
+  //     cameraController?.dispose();
+  //     cameraController = null;
+  //   }
+  // }
   void _handleAutoClose() {
     print("DEBUG: _handleAutoClose called.");
-
-    // Update state first
     isScanning.value = false;
+    _isProcessing = false;
 
-    // Check if dialog is open
+    // ✅ Clean up any leftover camera temp files on Windows
+    if (Platform.isWindows) {
+      _cleanWindowsTempImages();
+    }
+
     bool isOpen = Get.isDialogOpen ?? false;
-    print("DEBUG: Is Get.dialog open? $isOpen");
-
     if (isOpen) {
       Get.back();
       print("DEBUG: Get.back() executed.");
-    } else {
-      print("DEBUG: Get.back() skipped because isDialogOpen was false.");
     }
 
-    // Cleanup Hardware
     if (cameraController != null) {
-      print("DEBUG: Disposing CameraController.");
       cameraController?.dispose();
       cameraController = null;
     }
   }
 
-  // --- 3. GALLERY SCANNER (The Fix) ---
-  Future<void> pickFromGallery() async {
+  void _cleanWindowsTempImages() {
     try {
-      FilePickerResult? result =
-          await FilePicker.platform.pickFiles(type: FileType.image);
-      if (result != null && result.files.single.path != null) {
-        final bytes = await File(result.files.single.path!).readAsBytes();
+      // Windows camera plugin saves to %TEMP% folder
+      final tempDir = Directory(Platform.environment['TEMP'] ?? '');
+      if (!tempDir.existsSync()) return;
 
-        if (_decodeFromBytes(bytes)) {
-          // If gallery finds a barcode, trigger the SAME auto-close logic
-          _isHandlingSuccess = true;
-          _handleAutoClose();
-        } else {
-          // Get.snackbar("Error", "No barcode found in image.",
-          //     backgroundColor: Colors.orange, colorText: Colors.white);
-        }
-      }
+      tempDir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.jpg') || f.path.endsWith('.jpeg'))
+          .forEach((f) {
+        try {
+          f.deleteSync();
+        } catch (_) {}
+      });
+
+      print("🧹 Temp images cleaned.");
     } catch (e) {
-      print("Gallery Error: $e");
+      print("⚠️ Cleanup error: $e");
     }
   }
 
   void _closeScannerUI() {
-    isScanning.value = false;
     _isHandlingSuccess = true;
-    if (Get.isDialogOpen ?? false) Get.back();
-    Future.delayed(const Duration(milliseconds: 300), () => _disposeCamera());
+    isScanning.value = false;
+
+    _safeStopStream().then((_) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      Future.delayed(const Duration(milliseconds: 300), () => _disposeCamera());
+    });
+  }
+
+  Future<void> _safeStopStream() async {
+    try {
+      if (cameraController != null &&
+          cameraController!.value.isInitialized &&
+          cameraController!.value.isStreamingImages) {
+        await cameraController!.stopImageStream();
+      }
+    } catch (e) {
+      print("⚠️ stopImageStream error (safe): $e");
+    }
+  }
+
+  Future<void> pickFromGallery() async {
+    try {
+      await _safeStopStream();
+      isScanning.value = false;
+
+      FilePickerResult? result =
+          await FilePicker.platform.pickFiles(type: FileType.image);
+
+      if (result != null && result.files.single.path != null) {
+        final bytes = await File(result.files.single.path!).readAsBytes();
+
+        if (_decodeFromBytes(bytes)) {
+          _handleAutoClose();
+        } else {
+          print("❌ No barcode found in selected image");
+          isScanning.value = true;
+          _runScanLoop();
+        }
+      } else {
+        // User cancelled — restart
+        isScanning.value = true;
+        _runScanLoop();
+      }
+    } catch (e) {
+      print("Gallery Error: $e");
+    }
   }
 
   void _disposeCamera() {
@@ -306,278 +583,8 @@ class ESNController extends GetxController {
     }
   }
 
-  // Future<void> startTestingSequence() async {
-  //   final plcCtrl = Get.find<PLCController>();
-
-  //   // Safety 1: Pre-check Connection
-  //   if (!plcCtrl.isConnected.value || plcCtrl.socket == null) {
-  //     _showPopup("Hardware Offline",
-  //         "Please connect to the PLC before starting.", true);
-  //     return;
-  //   }
-
-  //   if (isTesting.value) return;
-  //   isTesting.value = true;
-
-  //   for (int i = 0; i < sensorResults.length; i++) {
-  //     var sensor = sensorResults[i];
-  //     int regAddr = sensor['reg'];
-
-  //     // Safety 2: Mid-loop Connection Check
-  //     if (!plcCtrl.isConnected.value) {
-  //       _handleAbort("PLC connection lost during testing.");
-  //       return;
-  //     }
-
-  //     sensor['status'] = "TESTING...";
-  //     sensor['val'] = "-";
-  //     sensorResults.refresh();
-
-  //     sendGeneratorDataRequest(regAddr);
-
-  //     // --- WAIT FOR RESPONSE (3s Timeout) ---
-  //     int timeout = 0;
-  //     bool received = false;
-  //     while (timeout < 30) {
-  //       await Future.delayed(const Duration(milliseconds: 100));
-
-  //       if (!plcCtrl.isConnected.value) {
-  //         _handleAbort(
-  //             "Socket disconnected while waiting for Register $regAddr.");
-  //         return;
-  //       }
-
-  //       if (sensor['val'] != "-") {
-  //         received = true;
-  //         break;
-  //       }
-  //       timeout++;
-  //     }
-
-  //     // Safety 3: Stop immediately on No Response
-  //     if (!received) {
-  //       sensor['status'] = "FAIL: TIMEOUT";
-  //       sensorResults.refresh();
-  //       _showPopup("Sequence Halted",
-  //           "No response for ${sensor['part']}. Testing stopped.", true);
-  //       isTesting.value = false;
-  //       return;
-  //     }
-
-  //     await Future.delayed(const Duration(milliseconds: 500));
-  //   }
-
-  //   isTesting.value = false;
-  //   _showPopup("Complete", "Full verification finished successfully.", false);
-  // }
-
   var responseMap = <int, bool>{}.obs;
 
-//   void handlePlcData(int reg, int rawX) {
-//     int index = sensorResults.indexWhere((s) => s['reg'] == reg);
-//     if (index == -1) {
-//       print("❌ [DEBUG] No sensor found for Register: $reg");
-//       return;
-//     }
-
-//     var s = sensorResults[index];
-//     s['raw'] = rawX;
-
-//     String typeStr = (s['type'] ?? s['formula'] ?? "").toString().toLowerCase();
-//     String name = s['sensorName'] ?? "Unknown Sensor";
-//     double actualValue = 0.0;
-
-//     print("\n===================================================");
-//     print("🔍 [PROCESSING] Name: $name | Register: $reg");
-//     print("📥 [PLC RAW] Value: $rawX");
-
-//     if (typeStr.contains("resistance")) {
-//       // ── STEP 1: Determine R1 Fallback ──
-//       double defaultR1 = 1000.0;
-//       if (typeStr.contains("resistance(2200)")) {
-//         defaultR1 = 2200.0;
-//       } else if (typeStr.contains("resistance(100)")) {
-//         defaultR1 = 100.0;
-//       }
-
-//       // ── STEP 2: Get Params ──
-//       // Priority: multiplier from UI > default based on type string > 1000.0
-//       // ── STEP 1: Determine R1 ──
-//       double r1 = (s['multiplier'] as num?)?.toDouble() ?? defaultR1;
-//       print("🧩 STEP 1: R1 Calculation");
-//       print("   -> Multiplier from sensor: ${s['multiplier']}");
-//       print("   -> Default R1: $defaultR1");
-//       print("   -> Final R1 used: $r1 Ω");
-
-// // ── STEP 2: Determine Vin ──
-//       double vin = (s['offset'] as num?)?.toDouble() ?? 5.0;
-//       print("🧩 STEP 2: Vin Calculation");
-//       print("   -> Offset from sensor: ${s['offset']}");
-//       print("   -> Final Vin used: $vin V");
-
-// // ── STEP 3: Raw to Voltage Conversion ──
-//       double rawVoltage = rawX.toDouble() / 1000.0;
-//       double vout = rawVoltage - 0.0001;
-
-//       print("🧩 STEP 3: Vout Calculation");
-//       print("   -> Raw PLC value: $rawX");
-//       print("   -> Converted to Voltage (raw/1000): $rawVoltage V");
-//       print("   -> Calibration offset: -0.0001 V");
-//       print("   -> Final Vout: ${vout.toStringAsFixed(6)} V");
-
-// // ── STEP 4: Safety Constraints ──
-//       print("🧩 STEP 4: Safety Check");
-
-//       if (vout >= vin) {
-//         print("   ⚠️ Vout >= Vin ($vout >= $vin), applying clamp");
-//         vout = vin - 0.001;
-//       }
-
-//       if (vout < 0) {
-//         print("   ⚠️ Vout < 0 ($vout), setting to 0");
-//         vout = 0.0;
-//       }
-
-//       print("   -> Vout after safety: ${vout.toStringAsFixed(6)} V");
-
-// // ── STEP 5: Denominator Calculation ──
-//       double denominator = vin - vout;
-
-//       print("🧩 STEP 5: Denominator");
-//       print("   -> Vin - Vout = $vin - $vout = $denominator");
-
-// // ── STEP 6: Final Resistance Calculation ──
-//       actualValue = (r1 * vout) / denominator;
-
-//       print("🧩 STEP 6: Final R2 Calculation");
-//       print("   -> Formula: (R1 × Vout) / (Vin - Vout)");
-//       print("   -> Substitution: ($r1 × $vout) / ($denominator)");
-//       print("   -> Final R2: ${actualValue.toStringAsFixed(2)} Ω");
-// //       double r1 = (s['multiplier'] as num?)?.toDouble() ?? defaultR1;
-// //       double vin = (s['offset'] as num?)?.toDouble() ?? 5.0;
-
-// // // raw → voltage
-// //       double vout = (rawX.toDouble() / 1000.0) - 0.0001;
-
-// //       print("⚙️ [MODE] RESISTANCE");
-// //       print("   -> Params: R1=$r1 Ω, Vin=$vin V");
-// //       print("   -> Computed Vout: ${vout.toStringAsFixed(6)} V");
-
-// // // PURE FORMULA (no safety)
-// //       double denominator = vin - vout;
-// //       double actualValue = (r1 * vout) / denominator;
-
-// //       print("   -> Math: ($r1 * $vout) / ($vin - $vout)");
-// //       print("   -> Result (R2): ${actualValue.toStringAsFixed(2)} Ω");
-//     } else {
-//       // ── CASE 2: LINEAR (y = mx + c) ──
-//       print("⚙️ [MODE] LINEAR");
-
-//       // ── STEP 1: Raw Value ──
-//       print("🧩 STEP 1: Raw Input");
-//       print("   -> Raw PLC Value: $rawX");
-
-//       // ── STEP 2: Signed Conversion ──
-//       int signedRaw = rawX > 32767 ? rawX - 65536 : rawX;
-
-//       print("🧩 STEP 2: Signed Conversion");
-//       print("   -> Raw Value: $rawX");
-//       print("   -> Converted Signed Value: $signedRaw");
-
-//       if (rawX > 32767) {
-//         print(
-//             "   ⚠️ Value exceeded 16-bit range, converted using 2's complement");
-//       }
-
-//       // ── STEP 3: Get m and c ──
-//       double m = (s['multiplier'] as num?)?.toDouble() ?? 0.001;
-//       double c = (s['offset'] as num?)?.toDouble() ?? 0.0;
-
-//       print("🧩 STEP 3: Parameters");
-//       print("   -> Multiplier (m): ${s['multiplier']}");
-//       print("   -> Offset (c): ${s['offset']}");
-//       print("   -> Final m used: $m");
-//       print("   -> Final c used: $c");
-
-//       // ── STEP 4: Apply Formula ──
-//       print("🧩 STEP 4: Linear Calculation");
-//       print("   -> Formula: y = (m × x) + c");
-//       print("   -> Substitution: ($m × $signedRaw) + $c");
-
-//       actualValue = (m * signedRaw) + c;
-
-//       print("   -> Result (Actual Value): ${actualValue.toStringAsFixed(4)}");
-//     }
-
-// // ── STEP 5: Update UI Value ──
-//     s['val'] = actualValue.toStringAsFixed(2);
-
-//     print("🧩 STEP 5: UI Update");
-//     print("   -> Display Value (rounded): ${s['val']}");
-
-// // ── STEP 6: Range Check ──
-//     double minL = (s['min'] as num?)?.toDouble() ?? 0.0;
-//     double maxL = (s['max'] as num?)?.toDouble() ?? 0.0;
-
-//     print("🧩 STEP 6: Range Validation");
-//     print("   -> Min Limit: $minL");
-//     print("   -> Max Limit: $maxL");
-
-//     bool isOk = (actualValue >= minL && actualValue <= maxL);
-
-//     print(
-//         "   -> Condition: $minL <= ${actualValue.toStringAsFixed(4)} <= $maxL");
-//     print("   -> Result: ${isOk ? "WITHIN RANGE" : "OUT OF RANGE"}");
-
-// // ── STEP 7: Status Update ──
-//     s['status'] = isOk ? "OK" : "NOT OK";
-
-//     print("🧩 STEP 7: Final Status");
-//     print("   -> Status: ${s['status']} ${isOk ? '✅' : '❌'}");
-
-// // ── FINAL SUMMARY ──
-//     print("📊 [FINAL SUMMARY]");
-//     print("   -> Sensor: ${s['part']}");
-//     print("   -> Register: ${s['reg']}");
-//     print("   -> Final Value: ${s['val']}");
-//     print("   -> Limits: [$minL to $maxL]");
-//     print("   -> Status: ${s['status']}");
-//     print("===================================================\n");
-
-//     sensorResults.refresh();
-//     //else {
-//     //     // ── CASE 2: LINEAR (y = mx + c) ──
-//     //     print("⚙️ [MODE] LINEAR");
-
-//     //     // Convert to signed 16-bit
-//     //     int signedRaw = rawX > 32767 ? rawX - 65536 : rawX;
-
-//     //     double m = (s['multiplier'] as num?)?.toDouble() ?? 0.001;
-//     //     double c = (s['offset'] as num?)?.toDouble() ?? 0.0;
-
-//     //     actualValue = (m * signedRaw) + c;
-
-//     //     print("   -> Params: m=$m, c=$c");
-//     //     print("   -> Result: ${actualValue.toStringAsFixed(2)}");
-//     //   }
-
-//     //   // ── UPDATE UI DATA ──
-//     //   s['val'] = actualValue.toStringAsFixed(2);
-
-//     //   double minL = (s['min'] as num?)?.toDouble() ?? 0.0;
-//     //   double maxL = (s['max'] as num?)?.toDouble() ?? 0.0;
-
-//     //   bool isOk = (actualValue >= minL && actualValue <= maxL);
-//     //   s['status'] = isOk ? "OK" : "NOT OK";
-
-//     //   print("📊 [FINAL STATUS]");
-//     //   print("   -> Display Value: ${s['val']}");
-//     //   print("   -> Range Limits: [$minL to $maxL]");
-//     //   print("   -> Status: ${s['status']} ${isOk ? '✅' : '❌'}");
-//     //   print("===================================================\n");
-
-//     //   sensorResults.refresh();
-//   }
   void handlePlcData(int reg, int rawX) {
     int index = sensorResults.indexWhere((s) => s['reg'] == reg);
     if (index == -1) {
@@ -718,30 +725,6 @@ class ESNController extends GetxController {
     sensorResults.refresh();
   }
 
-  // void sendGeneratorDataRequest(int registerAddress) {
-  //   final plcCtrl = Get.find<PLCController>();
-  //   if (!plcCtrl.isConnected.value) return;
-
-  //   int hi = (registerAddress >> 8) & 0xFF;
-  //   int lo = registerAddress & 0xFF;
-
-  //   List<int> packet = [
-  //     0x00,
-  //     0x01,
-  //     0x00,
-  //     0x00,
-  //     0x00,
-  //     0x06,
-  //     0x01,
-  //     0x03,
-  //     0x00,
-  //     0x04,
-  //     0x00,
-  //     0x01
-  //   ];
-  //   plcCtrl.sendPacket(packet);
-  // }
-
   void sendGeneratorDataRequest(int registerAddress) {
     final plcCtrl = Get.find<PLCController>();
     if (!plcCtrl.isConnected.value) return;
@@ -869,143 +852,246 @@ class ESNController extends GetxController {
     print("✅ [TEST COMPLETE] EGR sequence finished");
   }
 
+//   Future<void> sendResultsToServer() async {
+//   if (sensorResults.isEmpty) {
+//     print("⚠️ [SAVE] Aborted: sensorResults list is empty.");
+//     Get.snackbar("No Data", "No test results to save",
+//         backgroundColor: Colors.orange);
+//     return;
+//   }
+
+//   if (modelValidationId.value.isEmpty) {
+//     print("⚠️ [SAVE] Aborted: modelValidationId is empty.");
+//     Get.snackbar("Error", "Validation ID missing. Re-validate ESN.",
+//         backgroundColor: Colors.redAccent);
+//     return;
+//   }
+
+//   try {
+//     isLoading.value = true;
+//     print("🚀 [SAVE START] Preparing payload for ID: ${modelValidationId.value}");
+
+//     // 1. Map data
+//     List<Map<String, dynamic>> payload = sensorResults.map((s) => {
+//           "register": int.tryParse(s['reg'].toString()) ?? 0,
+//           "component": s['part'].toString(),
+//           "min": double.tryParse(s['min'].toString()) ?? 0.0,
+//           "max": double.tryParse(s['max'].toString()) ?? 0.0,
+//           "value": double.tryParse(s['val'].toString()) ?? 0.0,
+//           "result": s['status'].toString(),
+//         }).toList();
+
+//     // Verification Print: See exactly what JSON is going out
+//     String jsonPayload = jsonEncode(payload);
+//     print("📦 [PAYLOAD]: $jsonPayload");
+
+//     // 2. Setup URL and Token
+//     final String url = "http://139.59.76.174:8080/api/v1/support/create/${modelValidationId.value}/model-validation-session/";
+//     String? token = await AppPreferences.getToken();
+
+//     print("🌐 [URL]: $url");
+//     print("🔑 [AUTH]: JWT ${token?.substring(0, 10)}..."); // Printing only start of token for security
+
+//     // 3. Make Request
+//     final response = await http.post(
+//       Uri.parse(url),
+//       headers: {
+//         "Content-Type": "application/json",
+//         "Authorization": "JWT $token",
+//       },
+//       body: jsonPayload,
+//     );
+
+//     // 4. Response Logs
+//     print("📡 [RESPONSE STATUS]: ${response.statusCode}");
+//     print("📡 [RESPONSE BODY]: ${response.body}");
+
+//     if (response.statusCode == 201 || response.statusCode == 200) {
+//       print("✅ [SAVE SUCCESS] Data accepted by server.");
+//       Get.snackbar("Success", "Test results saved successfully",
+//           backgroundColor: Colors.green, colorText: Colors.white);
+//     } else {
+//       print("❌ [SAVE FAILED] Server returned an error.");
+//       Get.snackbar("Error", "Failed to save data. (${response.statusCode})",
+//           backgroundColor: Colors.redAccent, colorText: Colors.white);
+//     }
+//   } catch (e) {
+//     print("🔥 [EXCEPTION] Error in sendResultsToServer: $e");
+//     Get.snackbar("Error", "An unexpected error occurred");
+//   } finally {
+//     isLoading.value = false;
+//     print("🏁 [SAVE END] isLoading set to false.");
+//   }
+// }
+  Future<void> sendResultsToServer() async {
+    if (sensorResults.isEmpty) return;
+
+    // 1. Prepare payload exactly like before
+    List<Map<String, dynamic>> payload = sensorResults
+        .map((s) => {
+              "register": int.tryParse(s['reg'].toString()) ?? 0,
+              "component": s['part'].toString(),
+              "min": double.tryParse(s['min'].toString()) ?? 0.0,
+              "max": double.tryParse(s['max'].toString()) ?? 0.0,
+              "value": double.tryParse(s['val'].toString()) ?? 0.0,
+              "result": s['status'].toString(),
+            })
+        .toList();
+
+    final String url =
+        "http://139.59.76.174:8080/api/v1/support/create/${modelValidationId.value}/model-validation-session/";
+
+    try {
+      isLoading.value = true;
+      String? token = await AppPreferences.getToken();
+
+      final response = await http
+          .post(
+            Uri.parse(url),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "JWT $token"
+            },
+            body: jsonEncode(payload),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        Get.snackbar("Success", "Data synced to server",
+            backgroundColor: Colors.green);
+      } else {
+        throw HttpException("Server Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      // 🔴 OFFLINE DETECTED or SERVER DOWN
+      print("📡 [OFFLINE] Saving to sync queue: $e");
+      await _saveToSyncQueue(url, payload);
+
+      Get.snackbar(
+          "Offline Mode", "Results saved locally. Will sync when online.",
+          backgroundColor: Colors.orange, duration: const Duration(seconds: 5));
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+// Save a failed request to a local file
+  Future<void> _saveToSyncQueue(
+      String url, List<Map<String, dynamic>> payload) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/sync_queue.json');
+
+      List<dynamic> queue = [];
+      if (await file.exists()) {
+        queue = jsonDecode(await file.readAsString());
+      }
+
+      // Add this request to the list
+      queue.add({
+        "url": url,
+        "payload": payload,
+        "timestamp": DateTime.now().toIso8601String(),
+      });
+
+      await file.writeAsString(jsonEncode(queue));
+      print("📦 [QUEUE] Total pending items: ${queue.length}");
+    } catch (e) {
+      print("❌ [QUEUE ERROR] $e");
+    }
+  }
+
+// Background task to push data when server is active
+  Future<void> syncOfflineData() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/sync_queue.json');
+
+      if (!await file.exists()) return;
+
+      List<dynamic> queue = jsonDecode(await file.readAsString());
+      if (queue.isEmpty) return;
+
+      print("🔄 [SYNC] Attempting to push ${queue.length} pending items...");
+      String? token = await AppPreferences.getToken();
+      List<dynamic> remainingItems = [];
+
+      for (var item in queue) {
+        try {
+          final response = await http
+              .post(
+                Uri.parse(item['url']),
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": "JWT $token"
+                },
+                body: jsonEncode(item['payload']),
+              )
+              .timeout(const Duration(seconds: 5));
+
+          if (response.statusCode != 200 && response.statusCode != 201) {
+            remainingItems.add(item); // Keep it in queue if server still errors
+          }
+        } catch (e) {
+          remainingItems.add(item); // Keep it in queue if still offline
+        }
+      }
+
+      // Update the file with whatever didn't sync
+      await file.writeAsString(jsonEncode(remainingItems));
+
+      if (remainingItems.length < queue.length) {
+        Get.snackbar("Sync Complete", "Offline records updated on server",
+            backgroundColor: Colors.blue);
+      }
+    } catch (e) {
+      print("❌ [SYNC ERROR] $e");
+    }
+  }
   // Future<bool> _runEgrSequence(Map<String, dynamic> sensor) async {
   //   try {
-  //     const int readRegister = 36; // EGR current
-  //     const int writeRegister = 317; // EGR control
+  //     const int readRegister = 36;
+  //     const int writeRegister = 317;
 
-  //    // print("🚀 [EGR] Step 1: Initial Read");
-
-  //     // Step 1: Read initial value
-  //     // sensor['val'] = "-";
-  //     // sendGeneratorDataRequest(readRegister);
-
-  //     // bool gotFirst = await _waitForResponse(readRegister);
-  //     // if (!gotFirst) return false;
-
-  //     // double before = double.tryParse(sensor['val'] ?? "0") ?? 0;
-
-  //     // print("📊 Initial EGR Value: $before");
-
-  //     // Step 2: Activate EGR
   //     print("✍️ [EGR] Activating...");
-  //     writeGeneratorDataRequest(writeRegister, 1);
 
+  //     // STEP 1: ON
+  //     await writeGeneratorDataRequest(writeRegister, 1);
   //     await Future.delayed(const Duration(seconds: 2));
 
-  //     // Step 3: Read after activation
+  //     // STEP 2: READ
   //     sensor['val'] = "-";
   //     sendGeneratorDataRequest(readRegister);
 
-  //     bool gotSecond = await _waitForResponse(readRegister);
-  //     if (!gotSecond) return false;
+  //     bool ok = await _waitForResponse(readRegister);
+  //     if (!ok) {
+  //       print("❌ No response after activation");
+  //       return false;
+  //     }
 
-  //     double after = double.tryParse(sensor['val'] ?? "0") ?? 0;
+  //     double value = double.tryParse(sensor['val'].toString()) ?? 0;
+  //     sensor['val'] = value.toStringAsFixed(2);
+  //     print("📊 EGR VALUE: $value");
 
-  //     print("📊 After Activation: $after");
+  //     // ✅ VALIDATION (THIS WAS MISSING)
+  //     const double min = 1.21;
+  //     const double max = 1.63;
 
-  //     // Step 4: Reset
-  //     print("🔄 [EGR] Resetting...");
-  //     writeGeneratorDataRequest(writeRegister, 0);
+  //     bool isOk = value >= min && value <= max;
 
-  //     print("✅ EGR test passed");
-  //     return true;
+  //     print("📏 RANGE: $min - $max");
+  //     print("📊 STATUS: ${isOk ? "PASS ✅" : "FAIL ❌"}");
+
+  //     // STEP 3: RESET
+  //     print("🔄 Resetting...");
+  //     await writeGeneratorDataRequest(writeRegister, 0);
+
+  //     return isOk; // 🔥 IMPORTANT FIX
   //   } catch (e) {
   //     print("❌ EGR Exception: $e");
   //     return false;
   //   }
   // }
-  Future<bool> _runEgrSequence(Map<String, dynamic> sensor) async {
-    try {
-      const int readRegister = 36;
-      const int writeRegister = 317;
-
-      print("✍️ [EGR] Activating...");
-
-      // STEP 1: ON
-      await writeGeneratorDataRequest(writeRegister, 1);
-      await Future.delayed(const Duration(seconds: 2));
-
-      // STEP 2: READ
-      sensor['val'] = "-";
-      sendGeneratorDataRequest(readRegister);
-
-      bool ok = await _waitForResponse(readRegister);
-      if (!ok) {
-        print("❌ No response after activation");
-        return false;
-      }
-
-      double value = double.tryParse(sensor['val'].toString()) ?? 0;
-      sensor['val'] = value.toStringAsFixed(2);
-      print("📊 EGR VALUE: $value");
-
-      // ✅ VALIDATION (THIS WAS MISSING)
-      const double min = 1.21;
-      const double max = 1.63;
-
-      bool isOk = value >= min && value <= max;
-
-      print("📏 RANGE: $min - $max");
-      print("📊 STATUS: ${isOk ? "PASS ✅" : "FAIL ❌"}");
-
-      // STEP 3: RESET
-      print("🔄 Resetting...");
-      await writeGeneratorDataRequest(writeRegister, 0);
-
-      return isOk; // 🔥 IMPORTANT FIX
-    } catch (e) {
-      print("❌ EGR Exception: $e");
-      return false;
-    }
-  }
-//   Future<bool> _runEgrSequence(Map<String, dynamic> sensor) async {
-//   try {
-//     const int readRegister = 36;
-//     const int writeRegister = 317;
-
-//     print("🚀 [EGR] Initial Read");
-
-//     // RESET STATE
-//     sensor['val'] = null;
-//     sensor['isUpdated'] = false;
-
-//     sendGeneratorDataRequest(readRegister);
-
-//     bool ok1 = await _waitForFreshResponse(sensor);
-//     if (!ok1) return false;
-
-//     double before = double.tryParse(sensor['val'].toString()) ?? 0;
-
-//     print("📊 Before: $before");
-
-//     print("✍️ Activating EGR");
-//     writeGeneratorDataRequest(writeRegister, 1);
-
-//     await Future.delayed(const Duration(milliseconds: 800));
-
-//     sensor['val'] = null;
-//     sensor['isUpdated'] = false;
-
-//     sendGeneratorDataRequest(readRegister);
-
-//     bool ok2 = await _waitForFreshResponse(sensor);
-//     if (!ok2) return false;
-
-//     double after = double.tryParse(sensor['val'].toString()) ?? 0;
-
-//     print("📊 After: $after");
-
-//     print("🔄 Reset EGR");
-//     writeGeneratorDataRequest(writeRegister, 0);
-
-//     return true;
-//   } catch (e) {
-//     print("❌ EGR Error: $e");
-//     return false;
-//   }
-// }
-
 
   Future<bool> _readWithTimeout(int regAddr) async {
     final plcCtrl = Get.find<PLCController>();
@@ -1054,96 +1140,137 @@ class ESNController extends GetxController {
   Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
 
-    // ✅ Safety 1: Pre-check Connection
-    if (!plcCtrl.isConnected.value || plcCtrl.socket == null) {
-      _showPopup("Hardware Offline",
-          "Please connect to the PLC before starting.", true);
+    if (!plcCtrl.isConnected.value) {
+      _showPopup("Hardware Offline", "Connect PLC first", true);
       return;
     }
 
     if (isTesting.value) return;
     isTesting.value = true;
 
-    for (int i = 0; i < sensorResults.length; i++) {
-      var sensor = sensorResults[i];
-      int regAddr = sensor['reg'];
-      String partName = (sensor['part'] ?? "").toString().toLowerCase();
+    for (var sensor in sensorResults) {
+      List operations = sensor['operations'] ?? [];
 
-      // ✅ Safety 2: Mid-loop connection check
-      if (!plcCtrl.isConnected.value) {
-        _handleAbort("PLC connection lost during testing.");
-        return;
-      }
+      print("\n🚀 [SENSOR START] ${sensor['part']}");
 
-      // Reset UI
-      sensor['status'] = "TESTING...";
-      sensor['val'] = "-";
-      sensorResults.refresh();
+      for (int i = 0; i < operations.length; i++) {
+        var op = operations[i];
 
-      // if (partName.contains("starter") && partName.contains("relay")) {
-      //   print("⚡ [STARTER RELAY DETECTED] Running EGR sequence...");
+        String operation = op.operation; // READ / WRITE
+        int reg = int.tryParse(op.registerAddress) ?? sensor['reg'];
+        int value = int.tryParse(op.value) ?? 0;
 
-      //   bool success = await _runEgrSequence(sensor);
+        print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
 
-      //   if (!success) {
-      //     sensor['status'] = "NOT OK";
-      //     sensor['val'] = "FAIL";
-      //     sensorResults.refresh();
-
-      //     _showPopup("Sequence Halted", "Starter relay test failed.", true);
-
-      //     isTesting.value = false;
-      //     return;
-      //   }
-
-      //   sensor['status'] = "OK";
-      //   sensor['val'] = value.toStringAsFixed(2);
-      //   sensorResults.refresh();
-
-      //   continue;
-      // }
-      if (partName.contains("starter") && partName.contains("relay")) {
-  print("⚡ [STARTER RELAY DETECTED] Running EGR sequence...");
-
-  bool success = await _runEgrSequence(sensor);
-
-  if (!success) {
-    sensor['status'] = "NOT OK";
-    // ❌ DO NOT clear value
-    sensorResults.refresh();
-
-    _showPopup("Sequence Halted", "Starter relay test failed.", true);
-
-    isTesting.value = false;
-    return;
-  }
-
-  sensor['status'] = "OK";
-  // ❌ DO NOT clear value
-  sensorResults.refresh();
-
-  continue;
-}
-      // =====================================================
-      // ✅ NORMAL SENSOR FLOW
-      // =====================================================
-      bool received = await _readWithTimeout(regAddr);
-
-      if (!received) {
-        sensor['status'] = "FAIL: TIMEOUT";
+        // UI update
+        sensor['status'] = "TESTING...";
         sensorResults.refresh();
 
-        _showPopup("Sequence Halted",
-            "No response for ${sensor['part']}. Testing stopped.", true);
+        // =========================
+        // 🔵 READ
+        // =========================
+        if (operation == "READ") {
+          bool received = await _readWithTimeout(reg);
 
-        isTesting.value = false;
-        return;
+          if (!received) {
+            sensor['status'] = "TIMEOUT";
+            sensorResults.refresh();
+
+            _handleAbort("Timeout at ${sensor['part']}");
+            return;
+          }
+        }
+
+        // =========================
+        // 🟠 WRITE
+        // =========================
+        else if (operation == "WRITE") {
+          writeGeneratorDataRequest(reg, value);
+
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+
+        await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      await Future.delayed(const Duration(milliseconds: 400));
+      // ✅ After all operations for this specific sensor are done
+      sensor['status'] = "OK";
+      sensorResults.refresh();
     }
 
+    // ✅ SEQUENCE COMPLETE
     isTesting.value = false;
-    _showPopup("Complete", "Full verification finished successfully.", false);
+
+    // --- AUTOMATIC API CALL ---
+    print("📡 [AUTO-SAVE] Sequence complete. Sending data to server...");
+    await sendResultsToServer();
+
+    _showPopup(
+        "Complete", "Sequence executed and data saved successfully", false);
   }
+  // Future<void> startTestingSequence() async {
+  //   final plcCtrl = Get.find<PLCController>();
+
+  //   if (!plcCtrl.isConnected.value) {
+  //     _showPopup("Hardware Offline", "Connect PLC first", true);
+  //     return;
+  //   }
+
+  //   if (isTesting.value) return;
+  //   isTesting.value = true;
+
+  //   for (var sensor in sensorResults) {
+  //     List operations = sensor['operations'] ?? [];
+
+  //     print("\n🚀 [SENSOR START] ${sensor['part']}");
+
+  //     for (int i = 0; i < operations.length; i++) {
+  //       var op = operations[i];
+
+  //       String operation = op.operation; // READ / WRITE
+  //       int reg = int.tryParse(op.registerAddress) ?? sensor['reg'];
+  //       int value = int.tryParse(op.value) ?? 0;
+
+  //       print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
+
+  //       // UI update
+  //       sensor['status'] = "TESTING...";
+  //       sensorResults.refresh();
+
+  //       // =========================
+  //       // 🔵 READ
+  //       // =========================
+  //       if (operation == "READ") {
+  //         bool received = await _readWithTimeout(reg);
+
+  //         if (!received) {
+  //           sensor['status'] = "TIMEOUT";
+  //           sensorResults.refresh();
+
+  //           _handleAbort("Timeout at ${sensor['part']}");
+  //           return;
+  //         }
+  //       }
+
+  //       // =========================
+  //       // 🟠 WRITE
+  //       // =========================
+  //       else if (operation == "WRITE") {
+  //         writeGeneratorDataRequest(reg, value);
+
+  //         await Future.delayed(const Duration(milliseconds: 500));
+  //       }
+
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //     }
+
+  //     // ✅ After all operations
+  //     sensor['status'] = "OK";
+  //     sensorResults.refresh();
+  //   }
+
+  //   isTesting.value = false;
+
+  //   _showPopup("Complete", "Sequence executed successfully", false);
+  // }
 }
