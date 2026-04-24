@@ -749,12 +749,13 @@ class TestingScreen extends StatelessWidget {
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Component",
                               isHeader: true, fontSize: tableCellFontSize),
+                              _buildCell("Unit",
+                              isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Min",
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Max",
                               isHeader: true, fontSize: tableCellFontSize),
-                          _buildCell("Unit",
-                              isHeader: true, fontSize: tableCellFontSize),
+                          
                           _buildCell("Val",
                               isHeader: true, fontSize: tableCellFontSize),
                           _buildCell("Result",
@@ -771,14 +772,15 @@ class TestingScreen extends StatelessWidget {
                             _buildCell(sensor['part'],
                                 fontSize: tableCellFontSize,
                                 align: TextAlign.left), // 2
+                                 _buildCell(sensor['unit'].toString(),
+                                fontSize: tableCellFontSize), // 5
                             _buildCell(sensor['min'].toString(),
                                 fontSize: tableCellFontSize), // 3
                             _buildCell(sensor['max'].toString(),
                                 fontSize: tableCellFontSize), // 4
-                            _buildCell(sensor['unit'].toString(),
-                                fontSize: tableCellFontSize),
                             _buildCell(sensor['val'].toString(),
-                                fontSize: tableCellFontSize), // 5
+                                fontSize: tableCellFontSize),
+                           
                             _buildStatusBadge(
                                 sensor['status'], tableCellFontSize), // 6
                           ],
