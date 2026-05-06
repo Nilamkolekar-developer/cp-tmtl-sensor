@@ -235,7 +235,6 @@
 // }
 import 'dart:async';
 import 'dart:io';
-import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 import 'package:cp_tmtl_sensor_zig/api/app_envirments.dart';
 import 'package:cp_tmtl_sensor_zig/common_widgets/app_error_widget.dart';
 import 'package:cp_tmtl_sensor_zig/logic/bindings/initial_bindings.dart';
@@ -248,7 +247,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 class App {
@@ -267,8 +265,7 @@ class App {
   static String sessionId = '';
   static String currentUserId = '';
 
-  String? _version;
-  String? _buildNumber;
+
   bool? _devMode;
   bool? _appLog;
   bool? _apiLog;
