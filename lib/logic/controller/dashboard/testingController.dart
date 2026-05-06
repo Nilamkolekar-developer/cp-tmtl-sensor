@@ -553,6 +553,7 @@ void toggleSensorExpanded(String key) {
   }
 
   var responseMap = <int, bool>{}.obs;
+ 
 
   void handlePlcData(int reg, int rawX) {
     int index = sensorResults.indexWhere((s) => s['reg'] == reg);
@@ -1044,31 +1045,65 @@ void toggleSensorExpanded(String key) {
   //   return false;
   // }
 
+  // Future<bool> _readWithTimeout(int regAddr) async {
+  //   final plcCtrl = Get.find<PLCController>();
+
+  //   print(
+  //       "📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
+
+  //   // ✅ Guard: don't even try if PLC offline
+  //   if (!plcCtrl.isConnected.value) {
+  //     print("❌ [READ SKIP] PLC not connected for reg: $regAddr");
+  //     return false;
+  //   }
+
+  //   sendGeneratorDataRequest(regAddr);
+
+  //   int timeout = 0;
+
+  //   while (timeout < 50) {
+  //     // ✅ Increased from 30 to 50 (5 seconds total)
+  //     await Future.delayed(const Duration(milliseconds: 100));
+
+  //     int index = sensorResults.indexWhere((s) => s['reg'] == regAddr);
+
+  //     if (index != -1 && sensorResults[index]['val'] != "-") {
+  //       print(
+  //           "✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']} | Attempts: $timeout");
+  //       return true;
+  //     }
+
+  //     timeout++;
+  //     if (timeout % 10 == 0) {
+  //       print("⏳ [WAITING] Reg: $regAddr | Attempt: $timeout/50");
+  //     }
+  //   }
+
+  //   print("⌛ [TIMEOUT] No response for reg: $regAddr after ${timeout * 100}ms");
+  //   return false;
+  // }
+
   Future<bool> _readWithTimeout(int regAddr) async {
     final plcCtrl = Get.find<PLCController>();
 
-    print(
-        "📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
+    print("📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
 
-    // ✅ Guard: don't even try if PLC offline
     if (!plcCtrl.isConnected.value) {
-      print("❌ [READ SKIP] PLC not connected for reg: $regAddr");
+      print("❌ [READ SKIP] PLC not connected");
       return false;
     }
 
     sendGeneratorDataRequest(regAddr);
 
     int timeout = 0;
-
-    while (timeout < 50) {
-      // ✅ Increased from 30 to 50 (5 seconds total)
+    while (timeout < 50) { // 5 seconds total
       await Future.delayed(const Duration(milliseconds: 100));
 
+      // We look for the sensor that is currently assigned this register
       int index = sensorResults.indexWhere((s) => s['reg'] == regAddr);
 
       if (index != -1 && sensorResults[index]['val'] != "-") {
-        print(
-            "✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']} | Attempts: $timeout");
+        print("✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']}");
         return true;
       }
 
@@ -1078,7 +1113,7 @@ void toggleSensorExpanded(String key) {
       }
     }
 
-    print("⌛ [TIMEOUT] No response for reg: $regAddr after ${timeout * 100}ms");
+    print("⌛ [TIMEOUT] No response for reg: $regAddr");
     return false;
   }
 
@@ -1100,77 +1135,274 @@ void toggleSensorExpanded(String key) {
     return false;
   }
 
-  Future<void> startTestingSequence() async {
+  // Future<void> startTestingSequence() async {
+  //   final plcCtrl = Get.find<PLCController>();
+
+  //   if (!plcCtrl.isConnected.value) {
+  //     _showPopup("Hardware Offline", "Connect PLC first", true);
+  //     return;
+  //   }
+
+  //   if (isTesting.value) return;
+  //   isTesting.value = true;
+
+  //   for (var sensor in sensorResults) {
+  //     List operations = sensor['operations'] ?? [];
+
+  //     print("\n🚀 [SENSOR START] ${sensor['part']}");
+
+  //     for (int i = 0; i < operations.length; i++) {
+  //       var op = operations[i];
+
+  //       String operation = op.operation; // READ / WRITE
+  //       int reg = int.tryParse(op.registerAddress) ?? sensor['reg'];
+  //       int value = int.tryParse(op.value) ?? 0;
+
+  //       print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
+
+  //       // UI update
+  //       sensor['status'] = "TESTING...";
+  //       sensorResults.refresh();
+
+  //       // =========================
+  //       // 🔵 READ
+  //       // =========================
+  //       if (operation == "READ") {
+  //         bool received = await _readWithTimeout(reg);
+
+  //         if (!received) {
+  //           sensor['status'] = "TIMEOUT";
+  //           sensorResults.refresh();
+
+  //           _handleAbort("Timeout at ${sensor['part']}");
+  //           return;
+  //         }
+  //       }
+
+  //       // =========================
+  //       // 🟠 WRITE
+  //       // =========================
+  //       else if (operation == "WRITE") {
+  //         writeGeneratorDataRequest(reg, value);
+
+  //         await Future.delayed(const Duration(milliseconds: 500));
+  //       }
+
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //     }
+
+  //     // ✅ After all operations for this specific sensor are done
+  //     sensor['status'] = "OK";
+  //     sensorResults.refresh();
+  //   }
+
+  //   // ✅ SEQUENCE COMPLETE
+  //   isTesting.value = false;
+
+  //   // --- AUTOMATIC API CALL ---
+  //   print("📡 [AUTO-SAVE] Sequence complete. Sending data to server...");
+  //   await sendResultsToServer();
+
+  //   _showPopup(
+  //       "Complete", "Sequence executed and data saved successfully", false);
+  // }
+
+Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
 
-    // if (!plcCtrl.isConnected.value) {
-    //   _showPopup("Hardware Offline", "Connect PLC first", true);
-    //   return;
-    // }
+    if (!plcCtrl.isConnected.value) {
+      _showPopup("Hardware Offline", "Connect PLC first", true);
+      return;
+    }
 
     if (isTesting.value) return;
     isTesting.value = true;
 
     for (var sensor in sensorResults) {
       List operations = sensor['operations'] ?? [];
-
       print("\n🚀 [SENSOR START] ${sensor['part']}");
+
+      // ✅ Store the original primary register to restore it later
+      final int originalPrimaryReg = sensor['reg'] ?? 0;
+      bool sensorPassed = true;
 
       for (int i = 0; i < operations.length; i++) {
         var op = operations[i];
-
-        String operation = op.operation; // READ / WRITE
-        int reg = int.tryParse(op.registerAddress) ?? sensor['reg'];
+        String operation = op.operation;
+        int currentStepReg = int.tryParse(op.registerAddress) ?? originalPrimaryReg;
         int value = int.tryParse(op.value) ?? 0;
 
-        print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
+        print("▶️ Step ${i + 1}: $operation | Reg: $currentStepReg");
 
-        // UI update
         sensor['status'] = "TESTING...";
         sensorResults.refresh();
 
-        // =========================
-        // 🔵 READ
-        // =========================
-        if (operation == "READ") {
-          bool received = await _readWithTimeout(reg);
+        // --- WRITE OPERATION ---
+        if (operation == "WRITE") {
+          writeGeneratorDataRequest(currentStepReg, value);
+          await Future.delayed(const Duration(milliseconds: 600));
+        } 
+        
+        // --- READ OPERATION ---
+        else if (operation == "READ") {
+          // 🛡️ TRICK: Temporarily set the sensor's main reg to the step's reg
+          // This allows 'handlePlcData' to find this sensor in the list.
+          sensor['reg'] = currentStepReg;
+          sensor['val'] = "-"; 
+          sensorResults.refresh();
+
+          bool received = await _readWithTimeout(currentStepReg);
 
           if (!received) {
+            // Restore original reg before aborting
+            sensor['reg'] = originalPrimaryReg;
             sensor['status'] = "TIMEOUT";
             sensorResults.refresh();
-
-            _handleAbort("Timeout at ${sensor['part']}");
+            _handleAbort("Timeout at register $currentStepReg");
             return;
           }
+
+          // Logic Comparison (Pass/Fail check)
+          double? actual = double.tryParse(sensor['val'].toString());
+          double? min = (sensor['min'] as num?)?.toDouble();
+          double? max = (sensor['max'] as num?)?.toDouble();
+
+          if (actual != null && min != null && max != null) {
+            if (actual < min || actual > max) {
+              sensorPassed = false;
+            }
+          }
         }
-
-        // =========================
-        // 🟠 WRITE
-        // =========================
-        else if (operation == "WRITE") {
-          writeGeneratorDataRequest(reg, value);
-
-          await Future.delayed(const Duration(milliseconds: 500));
-        }
-
         await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      // ✅ After all operations for this specific sensor are done
-      sensor['status'] = "OK";
+      // ✅ CRITICAL: Restore the original primary register after all steps are done
+      sensor['reg'] = originalPrimaryReg;
+      
+      // Final result for this sensor
+      sensor['status'] = sensorPassed ? "OK" : "NOT OK";
       sensorResults.refresh();
+      print("🏁 [SENSOR DONE] ${sensor['part']} -> ${sensor['status']}");
     }
 
-    // ✅ SEQUENCE COMPLETE
     isTesting.value = false;
-
-    // --- AUTOMATIC API CALL ---
-    print("📡 [AUTO-SAVE] Sequence complete. Sending data to server...");
     await sendResultsToServer();
-
-    _showPopup(
-        "Complete", "Sequence executed and data saved successfully", false);
+    _showPopup("Complete", "Sequence executed and data saved successfully", false);
   }
+
+  Future<void> startTestingSequence1() async {
+  final plcCtrl = Get.find<PLCController>();
+
+  if (!plcCtrl.isConnected.value) {
+    _showPopup("Hardware Offline", "Connect PLC first", true);
+    return;
+  }
+
+  if (isTesting.value) return;
+  isTesting.value = true;
+
+  for (var sensor in sensorResults) {
+    List operations = sensor['operations'] ?? [];
+
+    print("\n🚀 [SENSOR START] ${sensor['part']}");
+
+    // ✅ Reset sensor state before starting
+    sensor['val']    = "-";
+    sensor['status'] = "TESTING...";
+    sensorResults.refresh();
+
+    bool sensorPassed = true;
+
+    for (int i = 0; i < operations.length; i++) {
+      var op = operations[i];
+
+      String operation = op.operation;
+      int reg   = int.tryParse(op.registerAddress) ?? (sensor['reg'] ?? 0);
+      int value = int.tryParse(op.value) ?? 0;
+
+      print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
+
+      sensor['status'] = "TESTING...";
+      sensorResults.refresh();
+
+      // ── WRITE ────────────────────────────────────────────────────────
+      if (operation == "WRITE") {
+        writeGeneratorDataRequest(reg, value);
+        sensor['status'] = "WRITING...";
+        sensorResults.refresh();
+        print("📤 WRITE reg=$reg value=$value");
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      // ── READ ─────────────────────────────────────────────────────────
+      else if (operation == "READ") {
+        // ✅ Reset val before reading so we get fresh data
+        sensor['val'] = "-";
+        sensorResults.refresh();
+
+        bool received = await _readWithTimeout(reg);
+
+        if (!received) {
+          sensor['status'] = "TIMEOUT";
+          sensor['val']    = "--";
+          sensorResults.refresh();
+          _handleAbort("Timeout at ${sensor['part']}");
+          isTesting.value = false;
+          return;
+        }
+
+        // ✅ handlePlcData already calculated & stored val — just use it
+        String rawVal = sensor['val']?.toString() ?? "-";
+        double? actualValue = double.tryParse(rawVal);
+
+        print("📥 READ reg=$reg | Calculated val=$actualValue");
+
+        // ✅ Compare with min/max from sensor map
+        double? minVal = (sensor['min'] as num?)?.toDouble();
+        double? maxVal = (sensor['max'] as num?)?.toDouble();
+
+        if (actualValue != null && minVal != null && maxVal != null) {
+          bool isInRange = actualValue >= minVal && actualValue <= maxVal;
+
+          if (isInRange) {
+            sensor['status'] = "OK";
+            print("✅ PASS — $actualValue within [$minVal, $maxVal] ${sensor['unit'] ?? ''}");
+          } else {
+            sensor['status'] = "NOT OK";
+            sensorPassed = false;
+            print("❌ FAIL — $actualValue outside [$minVal, $maxVal] ${sensor['unit'] ?? ''}");
+          }
+        } else if (actualValue != null) {
+          // No min/max defined — just store OK
+          sensor['status'] = "OK";
+          print("ℹ️ No min/max defined — val=$actualValue stored as OK");
+        } else {
+          sensor['status'] = "NOT OK";
+          sensorPassed = false;
+          print("❌ Could not parse val: $rawVal");
+        }
+
+        sensorResults.refresh();
+      }
+
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+
+    // ✅ Final result for this sensor after all operations
+    sensor['status'] = sensorPassed ? "OK" : "NOT OK";
+    sensorResults.refresh();
+
+    print("${sensorPassed ? '✅' : '❌'} [SENSOR DONE] ${sensor['part']} → ${sensor['status']}");
+  }
+
+  // ✅ All sensors done
+  isTesting.value = false;
+  print("📡 [AUTO-SAVE] Sequence complete. Sending to server...");
+  await sendResultsToServer();
+  _showPopup("Complete", "Sequence executed and data saved successfully", false);
+}
+
+
   // Future<void> startTestingSequence() async {
   //   final plcCtrl = Get.find<PLCController>();
 
