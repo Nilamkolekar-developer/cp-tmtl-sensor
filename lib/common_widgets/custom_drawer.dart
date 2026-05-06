@@ -447,12 +447,12 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   Center(
                     child: Image.asset(
-                      'assets/new/tmtl-logo.png',
+                      'assets/new/tmtl-logo(1).png',
                       height: 75, // Adjust as needed
                       fit: BoxFit.contain,
                     ),
                   ),
-             
+         const SizedBox(height: 2,),
                   Center(
                     child: const Text(
                       "CP-TMTL",

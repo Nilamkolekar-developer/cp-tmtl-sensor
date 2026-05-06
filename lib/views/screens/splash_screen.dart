@@ -13,7 +13,7 @@ class SplashScreen extends StatelessWidget {
       backgroundColor: Color(0xFF003377),
       body: Center(
         child: Image.asset(
-         'assets/new/tmtl-logo.png', // your image path
+         'assets/new/tmtl-logo(1).png', // your image path
           width: 200, // adjust size if needed
           fit: BoxFit.contain,
         ),

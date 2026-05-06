@@ -40,7 +40,7 @@ class LoginScreen extends GetView<LoginController> {
                   children: [
                     // LOGO ABOVE NAME
                     Image.asset(
-                     'assets/new/tmtl-logo.png',
+                     'assets/new/tmtl-logo(1).png',
                       height: 120,
                       // Note: Removing 'color: Colors.white' allows the actual logo colors to show.
                       // Add it back if you want a solid white silhouette.
