@@ -1,5 +1,5 @@
-// import 'package:CP_TMTL_Sensor_Zig/common_widgets/custom_drawer.dart';
-// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
+// import 'package:cp_tmtl_sensor_zig/common_widgets/custom_drawer.dart';
+// import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 
@@ -122,9 +122,9 @@
 //     );
 //   }
 // }
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/custom_drawer.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/custom_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

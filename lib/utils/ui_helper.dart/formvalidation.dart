@@ -1,4 +1,4 @@
-import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
+import 'package:cp_tmtl_sensor_zig/utils/strings.dart';
 
 String? requiredValidation(val) {
   if (val == null || val.isEmpty) {

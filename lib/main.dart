@@ -1,5 +1,5 @@
-import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
-import 'package:CP_TMTL_Sensor_Zig/app.dart';
+import 'package:cp_tmtl_sensor_zig/api/app_envirments.dart';
+import 'package:cp_tmtl_sensor_zig/app.dart';
 
 void main() async {
   App.instance.initAndRunApp(

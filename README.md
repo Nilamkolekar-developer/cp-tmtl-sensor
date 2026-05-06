@@ -1,4 +1,4 @@
-# CP_TMTL_Sensor_Zig
+# cp_tmtl_sensor_zig
 
 A new Flutter project.
 

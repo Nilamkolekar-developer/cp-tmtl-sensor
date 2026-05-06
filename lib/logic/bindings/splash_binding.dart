@@ -1,5 +1,5 @@
 
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/splashController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/splashController.dart';
 import 'package:get/get.dart';
 
 class SplashBindings extends Bindings {

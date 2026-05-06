@@ -1,4 +1,4 @@
-    import 'package:CP_TMTL_Sensor_Zig/themes/app_theme.dart';
+    import 'package:cp_tmtl_sensor_zig/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class QuantitySelector extends StatelessWidget {

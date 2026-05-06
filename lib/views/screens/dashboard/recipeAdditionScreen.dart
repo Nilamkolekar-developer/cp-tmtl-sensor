@@ -1,6 +1,6 @@
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
-import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/AddrecipeController.dart';
+import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

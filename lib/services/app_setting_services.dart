@@ -1,5 +1,5 @@
-import 'package:CP_TMTL_Sensor_Zig/api/app_api.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/extension/extension/map_extensions.dart';
+import 'package:cp_tmtl_sensor_zig/api/app_api.dart';
+import 'package:cp_tmtl_sensor_zig/utils/extension/extension/map_extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettingsManager {

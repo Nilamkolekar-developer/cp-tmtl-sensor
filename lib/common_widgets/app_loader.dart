@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_colors.dart';
+import 'package:cp_tmtl_sensor_zig/utils/app_logs.dart';
+import 'package:cp_tmtl_sensor_zig/utils/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';

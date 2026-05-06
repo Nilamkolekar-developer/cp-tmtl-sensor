@@ -1,4 +1,4 @@
-import 'package:CP_TMTL_Sensor_Zig/app.dart';
+import 'package:cp_tmtl_sensor_zig/app.dart';
 
 class AtomURLType {
   static const String LOCAL = "LOCAL";

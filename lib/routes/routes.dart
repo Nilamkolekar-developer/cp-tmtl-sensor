@@ -1,18 +1,18 @@
-import 'package:CP_TMTL_Sensor_Zig/dev/dev_screen.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/bindings/dashboard_bindings.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/bindings/login_bindings.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/bindings/testing_bindings.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/auth/login.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/dashboard.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/recipeAdditionScreen.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/recipeAdditionScreenReadOnly.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/sensorAnalysis.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/settings.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/testRecipeScreen.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/testingScreen.dart';
+import 'package:cp_tmtl_sensor_zig/dev/dev_screen.dart';
+import 'package:cp_tmtl_sensor_zig/logic/bindings/dashboard_bindings.dart';
+import 'package:cp_tmtl_sensor_zig/logic/bindings/login_bindings.dart';
+import 'package:cp_tmtl_sensor_zig/logic/bindings/testing_bindings.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/auth/login.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/dashboard.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/recipeAdditionScreen.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/recipeAdditionScreenReadOnly.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/sensorAnalysis.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/settings.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/testRecipeScreen.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/testingScreen.dart';
 import 'package:get/get.dart';
-import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/splash_screen.dart';
+import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/splash_screen.dart';
 
 class AppRoutes {
   static final routes = [

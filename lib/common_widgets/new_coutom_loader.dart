@@ -1,4 +1,4 @@
-import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomLoader extends StatelessWidget {

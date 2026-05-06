@@ -1,6 +1,6 @@
-import 'package:CP_TMTL_Sensor_Zig/themes/app_theme.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/ui_helper_widgets.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_theme.dart';
+import 'package:cp_tmtl_sensor_zig/utils/sizes.dart';
+import 'package:cp_tmtl_sensor_zig/utils/ui_helper_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

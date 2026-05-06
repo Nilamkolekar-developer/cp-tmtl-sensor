@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/dasboardController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
 
 class InitialBinding extends Bindings {
   @override

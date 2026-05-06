@@ -1,6 +1,6 @@
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/input_decoration_widget.dart';
-import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
-import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/input_decoration_widget.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_colors.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_textstyles.dart';
 import 'package:flutter/material.dart';
 
 

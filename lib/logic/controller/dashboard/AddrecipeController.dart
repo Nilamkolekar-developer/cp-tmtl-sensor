@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
-import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
-import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
+import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testRecipeController.dart';
+import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
+import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

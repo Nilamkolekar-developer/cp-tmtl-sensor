@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/AddrecipeController.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/sensorAnalysisController.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/AddrecipeController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/sensorAnalysisController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testingController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';

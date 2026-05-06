@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.CP_TMTL_Sensor_Zig"
+    namespace = "com.example.cp_tmtl_sensor_zig"
     compileSdk = 36
 
     compileOptions {
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.CP_TMTL_Sensor_Zig"
+        applicationId = "com.example.cp_tmtl_sensor_zig"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = 1

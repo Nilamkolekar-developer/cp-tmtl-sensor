@@ -1,10 +1,10 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-project(CP_TMTL_Sensor_ZigLANGUAGES CXX)
+project(cp_tmtl_sensor_zigLANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "CP_TMTL_Sensor_Zig")
+set(BINARY_NAME "cp_tmtl_sensor_zig")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

@@ -1,6 +1,6 @@
-import 'package:CP_TMTL_Sensor_Zig/app.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
+import 'package:cp_tmtl_sensor_zig/app.dart';
+import 'package:cp_tmtl_sensor_zig/utils/app_logs.dart';
+import 'package:cp_tmtl_sensor_zig/utils/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';

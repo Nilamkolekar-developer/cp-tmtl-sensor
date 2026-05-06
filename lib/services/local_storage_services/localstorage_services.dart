@@ -1,7 +1,7 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/local_storage_model.dart';
-import 'package:CP_TMTL_Sensor_Zig/services/local_storage_services/local_storages_string.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/strings.dart';
+import 'package:cp_tmtl_sensor_zig/services/local_storage_services/local_storage_model.dart';
+import 'package:cp_tmtl_sensor_zig/services/local_storage_services/local_storages_string.dart';
+import 'package:cp_tmtl_sensor_zig/utils/strings.dart';
 
 class LocalServices {
 

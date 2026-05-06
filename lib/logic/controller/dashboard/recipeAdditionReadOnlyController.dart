@@ -1,4 +1,4 @@
-// import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
+// import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
 // import 'package:flutter/widgets.dart';
 // import 'package:get/get.dart';
 
@@ -40,7 +40,7 @@
 //     }
 //   }
 // }
-import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
+import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 

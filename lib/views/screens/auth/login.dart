@@ -1,4 +1,4 @@
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/auth/loginController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/auth/loginController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -40,7 +40,7 @@ class LoginScreen extends GetView<LoginController> {
                   children: [
                     // LOGO ABOVE NAME
                     Image.asset(
-                      'assets/new/autopeepal(1).png',
+                     'assets/new/tmtl-logo.png',
                       height: 120,
                       // Note: Removing 'color: Colors.white' allows the actual logo colors to show.
                       // Add it back if you want a solid white silhouette.
@@ -91,7 +91,7 @@ class LoginScreen extends GetView<LoginController> {
                         if (!isDesktop) ...[
                           Center(
                             child: Image.asset(
-                              'assets/new/CP_TMTL_Sensor_Zig(1).png',
+                              'assets/new/cp_tmtl_sensor_zig(1).png',
                               height: 60,
                               errorBuilder: (context, error, stackTrace) =>
                                   const Icon(Icons.settings_suggest,

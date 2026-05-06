@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/sizes.dart';
+import 'package:cp_tmtl_sensor_zig/utils/sizes.dart';
 
 ///UI helper widgets for custom space
 

@@ -1,6 +1,6 @@
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/ui_helper_widgets.dart';
-import 'package:CP_TMTL_Sensor_Zig/themes/app_theme.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/fonts.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/ui_helper_widgets.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_theme.dart';
+import 'package:cp_tmtl_sensor_zig/utils/fonts.dart';
 import 'package:flutter/material.dart';
 
 class TitleAndSubtitleText extends StatelessWidget {

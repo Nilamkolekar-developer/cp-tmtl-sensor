@@ -1,4 +1,4 @@
-// import 'package:CP_TMTL_Sensor_Zig/logic/controller/auth/registerController.dart';
+// import 'package:cp_tmtl_sensor_zig/logic/controller/auth/registerController.dart';
 // import 'package:get/get.dart';
 
 // class RegisterBindings extends Bindings {

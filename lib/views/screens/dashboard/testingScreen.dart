@@ -1,5 +1,5 @@
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testingController.dart';
-import 'package:CP_TMTL_Sensor_Zig/views/screens/dashboard/mainLayoutScreen.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testingController.dart';
+import 'package:cp_tmtl_sensor_zig/views/screens/dashboard/mainLayoutScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

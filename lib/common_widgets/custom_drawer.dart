@@ -1,9 +1,9 @@
 // // import 'dart:io';
-// // import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
-// // import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
-// // import 'package:CP_TMTL_Sensor_Zig/logic/controller/dataSyncController.dart';
-// // import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
-// // import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
+// // import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
+// // import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/dasboardController.dart';
+// // import 'package:cp_tmtl_sensor_zig/logic/controller/dataSyncController.dart';
+// // import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
+// // import 'package:cp_tmtl_sensor_zig/themes/app_colors.dart';
 // // import 'package:flutter/material.dart';
 // // import 'package:get/get.dart';
 // // import 'package:path_provider/path_provider.dart';
@@ -104,11 +104,11 @@
 // //   Widget buildDivider() => Divider(color: Colors.grey.shade300, height: 1, indent: 20, endIndent: 20);
 // // }
 
-// import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
+// import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/dasboardController.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
-// import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
-// import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+// import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
+// import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 
 // class CustomDrawer extends StatelessWidget {
 //   CustomDrawer({Key? key}) : super(key: key);
@@ -284,11 +284,11 @@
 //     }
 //   }
 // }
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/dasboardController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/dasboardController.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
-import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
+import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
+import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({Key? key}) : super(key: key);
@@ -445,13 +445,14 @@ class CustomDrawer extends StatelessWidget {
                 crossAxisAlignment:
                     CrossAxisAlignment.start, // Aligns logo/name to the left
                 children: [
-                  Image.asset(
-                    'assets/new/autopeepal(1).png',
-                    height: 40, // Adjust as needed
-                    fit: BoxFit.contain,
+                  Center(
+                    child: Image.asset(
+                      'assets/new/tmtl-logo.png',
+                      height: 75, // Adjust as needed
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  const SizedBox(
-                      height: 8), // Vertical space between logo and name
+             
                   Center(
                     child: const Text(
                       "CP-TMTL",

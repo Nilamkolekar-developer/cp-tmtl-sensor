@@ -9,7 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_libserialport
   geolocator_windows
   permission_handler_windows
-  screen_retriever
+  screen_retriever_windows
   url_launcher_windows
   window_manager
 )

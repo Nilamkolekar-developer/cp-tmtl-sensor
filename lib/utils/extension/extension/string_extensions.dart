@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:CP_TMTL_Sensor_Zig/api/dev/methods.dart';
-import 'package:CP_TMTL_Sensor_Zig/themes/app_colors.dart';
-import 'package:CP_TMTL_Sensor_Zig/utils/app_logs.dart';
+import 'package:cp_tmtl_sensor_zig/api/dev/methods.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_colors.dart';
+import 'package:cp_tmtl_sensor_zig/utils/app_logs.dart';
 import 'package:flutter/material.dart';
 
 

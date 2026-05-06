@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:CP_TMTL_Sensor_Zig/AppPreferences/app_areferences.dart';
-import 'package:CP_TMTL_Sensor_Zig/api/app_envirments.dart';
-import 'package:CP_TMTL_Sensor_Zig/api/app_urls.dart';
-import 'package:CP_TMTL_Sensor_Zig/common_widgets/popup.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/settingsController.dart';
-import 'package:CP_TMTL_Sensor_Zig/logic/controller/dashboard/testRecipeController.dart';
-import 'package:CP_TMTL_Sensor_Zig/models/receipe_model.dart';
-import 'package:CP_TMTL_Sensor_Zig/routes/routes_string.dart';
-import 'package:CP_TMTL_Sensor_Zig/themes/app_textstyles.dart';
+import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
+import 'package:cp_tmtl_sensor_zig/api/app_envirments.dart';
+import 'package:cp_tmtl_sensor_zig/api/app_urls.dart';
+import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
+import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testRecipeController.dart';
+import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
+import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
+import 'package:cp_tmtl_sensor_zig/themes/app_textstyles.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,6 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:zxing_lib/zxing.dart';
 import 'package:zxing_lib/common.dart';
-import 'package:file_picker/file_picker.dart';
 
 class ESNController extends GetxController {
   final esnTextFieldController = TextEditingController();

@@ -1,6 +1,6 @@
 {
-    "name": "CP_TMTL_Sensor_Zig",
-    "short_name": "CP_TMTL_Sensor_Zig",
+    "name": "cp_tmtl_sensor_zig",
+    "short_name": "cp_tmtl_sensor_zig",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

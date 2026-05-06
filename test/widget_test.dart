@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:CP_TMTL_Sensor_Zig/app.dart';
+import 'package:cp_tmtl_sensor_zig/app.dart';
 
 
 void main() {
