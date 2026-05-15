@@ -452,7 +452,9 @@ class CustomDrawer extends StatelessWidget {
                       fit: BoxFit.contain,
                     ),
                   ),
-         const SizedBox(height: 2,),
+                  const SizedBox(
+                    height: 2,
+                  ),
                   Center(
                     child: const Text(
                       "CP-TMTL",
@@ -522,29 +524,58 @@ class CustomDrawer extends StatelessWidget {
 
   Widget _buildVersionInfo() {
     return Obx(() => SafeArea(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: isExpanded.value
-                ? Column(
-                    children: [
-                      Text(
-                          "Sponsored By: ${controller.appName.value.replaceAll('_', ' ')}",
-                          style: const TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 4),
-                      Text(
-                          "Version ${controller.version.value} (${controller.buildNumber.value})",
-                          style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500)),
-                    ],
-                  )
-                : const Text("v1.0",
-                    style: TextStyle(fontSize: 10, color: Colors.grey)),
+          child: GestureDetector(
+            onTap: () => Get.toNamed(Routes.devScreen), // ✅ navigate on tap
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: isExpanded.value
+                  ? Column(
+                      children: [
+                        Text(
+                            "Sponsored By: ${controller.appName.value.replaceAll('_', ' ')}",
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 4),
+                        Text(
+                            "Version ${controller.version.value} (${controller.buildNumber.value})",
+                            style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    )
+                  : const Text("v1.0",
+                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+            ),
           ),
         ));
   }
+
+  // Widget _buildVersionInfo() {
+  //   return Obx(() => SafeArea(
+  //         child: Container(
+  //           padding: const EdgeInsets.symmetric(vertical: 12),
+  //           child: isExpanded.value
+  //               ? Column(
+  //                   children: [
+  //                     Text(
+  //                         "Sponsored By: ${controller.appName.value.replaceAll('_', ' ')}",
+  //                         style: const TextStyle(
+  //                             fontSize: 13, fontWeight: FontWeight.w600)),
+  //                     const SizedBox(height: 4),
+  //                     Text(
+  //                         "Version ${controller.version.value} (${controller.buildNumber.value})",
+  //                         style: const TextStyle(
+  //                             color: Colors.grey,
+  //                             fontSize: 12,
+  //                             fontWeight: FontWeight.w500)),
+  //                   ],
+  //                 )
+  //               : const Text("v1.0",
+  //                   style: TextStyle(fontSize: 10, color: Colors.grey)),
+  //         ),
+  //       ));
+  // }
 
   Widget _buildSidebarDivider() {
     return Divider(
@@ -555,13 +586,12 @@ class CustomDrawer extends StatelessWidget {
         endIndent: 20);
   }
 
-  
-void _handleNavigation(String route, bool isLogout) async {
+  void _handleNavigation(String route, bool isLogout) async {
     if (isLogout) {
       // ✅ ONLY remove the active session ID
       // Do NOT use clearAll()
-      await AppPreferences.logout(); 
-      
+      await AppPreferences.logout();
+
       Get.offAllNamed(route);
     } else {
       Get.toNamed(route);
