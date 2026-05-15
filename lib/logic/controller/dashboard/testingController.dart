@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 import 'package:cp_tmtl_sensor_zig/api/app_envirments.dart';
 import 'package:cp_tmtl_sensor_zig/api/app_urls.dart';
+import 'package:cp_tmtl_sensor_zig/api/dev/dev_service.dart';
 import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
 import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/settingsController.dart';
 import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testRecipeController.dart';
@@ -174,86 +176,217 @@ void toggleSensorExpanded(String key) {
   //   isValidated.value = true;
   // }
   RxBool isLoading = false.obs;
+  // Future<void> validateESN() async {
+  //   String esn = esnTextFieldController.text.trim();
+  //   if (esn.isEmpty) {
+  //     Get.snackbar("Error", "Please enter an ESN",
+  //         backgroundColor: Colors.redAccent, colorText: Colors.white);
+  //     return;
+  //   }
+
+  //   final String formattedEsn = "SN-$esn";
+
+  //   try {
+  //     isLoading.value = true;
+  //     print("📡 [ESN VALIDATION] Sending: $formattedEsn");
+
+  //     String? savedToken = await AppPreferences.getToken();
+  //     final String baseUrl = AppEnvironment.baseUrl;
+  //     final String validateUrl = "$baseUrl${AppURLs.engineNumberCheck}";
+  //     final response = await http.post(
+  //       Uri.parse(validateUrl),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json",
+  //         // Prefix must be exactly "JWT " followed by your token
+  //         "Authorization": "JWT $savedToken",
+  //       },
+  //       body: jsonEncode({"engine_serial_no": formattedEsn}),
+  //     );
+
+  //     print("📡 [RESPONSE] Status: ${response.statusCode}");
+  //     print("📡 [RESPONSE] Body: ${response.body}");
+
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+  //       if (responseData['success'] == true && responseData['data'] != null) {
+  //         final data = responseData['data'];
+
+  //         serialNumber.value = formattedEsn;
+
+  //         // ✅ Updated keys to match typical Autopeepal API patterns
+  //         // Ensure these keys match exactly what the /validate/ ESN response returns
+  //         modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
+  //         variantCode.value =
+  //             data['variant_code']?.toString() ?? "Unknown Variant";
+  //         modelValidationId.value = responseData['data']['id'].toString();
+
+  //         print(
+  //             "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
+
+  //         await loadSensorsFromRecipe();
+  //         isValidated.value = true;
+
+  //         Get.snackbar("Success", "ESN Validated",
+  //             backgroundColor: Colors.green, colorText: Colors.white);
+  //       } else {
+  //         Get.snackbar("Invalid ESN",
+  //             responseData['message'] ?? "No data found for this ESN",
+  //             backgroundColor: Colors.orange);
+  //       }
+  //     } else if (response.statusCode == 401) {
+  //       // ⚠️ Handle Session Expired
+  //       print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
+  //       Get.snackbar("Session Expired", "Please login again",
+  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
+
+  //       // Clear token and redirect to login
+  //       await AppPreferences.clearToken();
+  //       Get.offAllNamed(Routes.loginScreen);
+  //     } else {
+  //       Get.snackbar(
+  //           "Server Error", "Something went wrong (${response.statusCode})",
+  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
+  //     }
+  //   } catch (e) {
+  //     print("❌ [ESN VALIDATION ERROR] $e");
+  //     Get.snackbar("Error", "Failed to connect to server");
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
   Future<void> validateESN() async {
-    String esn = esnTextFieldController.text.trim();
-    if (esn.isEmpty) {
-      Get.snackbar("Error", "Please enter an ESN",
-          backgroundColor: Colors.redAccent, colorText: Colors.white);
-      return;
-    }
+  String esn = esnTextFieldController.text.trim();
+  if (esn.isEmpty) {
+    Get.snackbar("Error", "Please enter an ESN",
+        backgroundColor: Colors.redAccent, colorText: Colors.white);
+    return;
+  }
 
-    final String formattedEsn = "SN-$esn";
+  final String formattedEsn = "SN-$esn";
+  final requestBody = {"engine_serial_no": formattedEsn};
 
+  try {
+    isLoading.value = true;
+    print("📡 [ESN VALIDATION] Sending: $formattedEsn");
+
+    String? savedToken = await AppPreferences.getToken();
+    final String validateUrl = "${AppEnvironment.baseUrl}${AppURLs.engineNumberCheck}";
+
+    final response = await http.post(
+      Uri.parse(validateUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "JWT $savedToken",
+      },
+      body: jsonEncode(requestBody),
+    );
+
+    print("📡 [RESPONSE] Status: ${response.statusCode}");
+    print("📡 [RESPONSE] Body: ${response.body}");
+
+    // ✅ Log to DevScreen
+    Map<String, dynamic> parsedResponse = {};
     try {
-      isLoading.value = true;
-      print("📡 [ESN VALIDATION] Sending: $formattedEsn");
+      parsedResponse = jsonDecode(response.body);
+    } catch (_) {
+      parsedResponse = {"raw": response.body};
+    }
+    parsedResponse['statusCode'] = response.statusCode;
 
-      String? savedToken = await AppPreferences.getToken();
-      final String baseUrl = AppEnvironment.baseUrl;
-      final String validateUrl = "$baseUrl${AppURLs.engineNumberCheck}";
-      final response = await http.post(
-        Uri.parse(validateUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          // Prefix must be exactly "JWT " followed by your token
-          "Authorization": "JWT $savedToken",
-        },
-        body: jsonEncode({"engine_serial_no": formattedEsn}),
-      );
+    DevService.instance.insertAPICall(AppAPIsCall(
+      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+      type: 'POST ${response.statusCode}',
+      path: AppURLs.engineNumberCheck,
+      dateTime: DateTime.now(),
+      data: requestBody,
+      response: parsedResponse,
+    ));
 
-      print("📡 [RESPONSE] Status: ${response.statusCode}");
-      print("📡 [RESPONSE] Body: ${response.body}");
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+      if (responseData['success'] == true && responseData['data'] != null) {
+        final data = responseData['data'];
 
-        if (responseData['success'] == true && responseData['data'] != null) {
-          final data = responseData['data'];
+        serialNumber.value = formattedEsn;
+        modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
+        variantCode.value = data['variant_code']?.toString() ?? "Unknown Variant";
+        modelValidationId.value = data['id']?.toString() ?? "";
 
-          serialNumber.value = formattedEsn;
+        print("✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
 
-          // ✅ Updated keys to match typical Autopeepal API patterns
-          // Ensure these keys match exactly what the /validate/ ESN response returns
-          modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
-          variantCode.value =
-              data['variant_code']?.toString() ?? "Unknown Variant";
-          modelValidationId.value = responseData['data']['id'].toString();
+        await loadSensorsFromRecipe();
+        isValidated.value = true;
 
-          print(
-              "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
-
-          await loadSensorsFromRecipe();
-          isValidated.value = true;
-
-          Get.snackbar("Success", "ESN Validated",
-              backgroundColor: Colors.green, colorText: Colors.white);
-        } else {
-          Get.snackbar("Invalid ESN",
-              responseData['message'] ?? "No data found for this ESN",
-              backgroundColor: Colors.orange);
-        }
-      } else if (response.statusCode == 401) {
-        // ⚠️ Handle Session Expired
-        print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
-        Get.snackbar("Session Expired", "Please login again",
-            backgroundColor: Colors.redAccent, colorText: Colors.white);
-
-        // Clear token and redirect to login
-        await AppPreferences.clearToken();
-        Get.offAllNamed(Routes.loginScreen);
+        Get.snackbar("Success", "ESN Validated",
+            backgroundColor: Colors.green, colorText: Colors.white);
       } else {
         Get.snackbar(
-            "Server Error", "Something went wrong (${response.statusCode})",
-            backgroundColor: Colors.redAccent, colorText: Colors.white);
+          "Invalid ESN",
+          responseData['message'] ?? "No data found for this ESN",
+          backgroundColor: Colors.orange,
+        );
       }
-    } catch (e) {
-      print("❌ [ESN VALIDATION ERROR] $e");
-      Get.snackbar("Error", "Failed to connect to server");
-    } finally {
-      isLoading.value = false;
+    } else if (response.statusCode == 401) {
+      print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
+      await AppPreferences.clearToken();
+      Get.snackbar("Session Expired", "Please login again",
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.offAllNamed(Routes.loginScreen);
+
+    } else {
+      Get.snackbar(
+        "Server Error", "Something went wrong (${response.statusCode})",
+        backgroundColor: Colors.redAccent, colorText: Colors.white,
+      );
     }
+  } on SocketException {
+    // ✅ Log network error
+    DevService.instance.insertAPICall(AppAPIsCall(
+      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+      type: 'POST ERROR',
+      path: AppURLs.engineNumberCheck,
+      dateTime: DateTime.now(),
+      data: requestBody,
+      response: {"error": "SocketException", "message": "No internet connection"},
+    ));
+    Get.snackbar("No Connection", "Check your internet and try again",
+        backgroundColor: Colors.redAccent, colorText: Colors.white);
+
+  } on TimeoutException {
+    // ✅ Log timeout
+    DevService.instance.insertAPICall(AppAPIsCall(
+      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+      type: 'POST TIMEOUT',
+      path: AppURLs.engineNumberCheck,
+      dateTime: DateTime.now(),
+      data: requestBody,
+      response: {"error": "TimeoutException", "message": "Request timed out"},
+    ));
+    Get.snackbar("Timeout", "Server took too long to respond",
+        backgroundColor: Colors.orange, colorText: Colors.white);
+
+  } catch (e) {
+    // ✅ Log exception
+    DevService.instance.insertAPICall(AppAPIsCall(
+      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+      type: 'POST EXCEPTION',
+      path: AppURLs.engineNumberCheck,
+      dateTime: DateTime.now(),
+      data: requestBody,
+      response: {"error": "Exception", "message": e.toString()},
+    ));
+    print("❌ [ESN VALIDATION ERROR] $e");
+    Get.snackbar("Error", "Failed to connect to server");
+
+  } finally {
+    isLoading.value = false;
   }
+}
 
   // --- 1. THE DECODING ENGINE (Pure Dart) ---
   bool _decodeFromBytes(Uint8List bytes) {
