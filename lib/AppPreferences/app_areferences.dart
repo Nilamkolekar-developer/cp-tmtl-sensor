@@ -7,6 +7,7 @@ class AppPreferences {
   static const String _currentUserIdKey = 'active_user_id';
   static const String _userRecipePrefix = 'recipes_for_user_'; // Unique prefix
   static const String _tokenKey = 'auth_token';
+   static const String stationId = 'auth_token';
 
   // ================= SESSION MANAGEMENT =================
 
@@ -122,6 +123,18 @@ static Future<String?> getSavedUsername() async {
   final prefs = await SharedPreferences.getInstance();
   return prefs.getString('saved_username');
 }
+
+ // ── USERNAME ──────────────────────────────────────
+static Future<void> saveStationId(String StationId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('stationId', StationId);
+}
+
+static Future<String?> getStationId() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('stationId');
+}
+
 
 // ── PASSWORD ──────────────────────────────────────
 static Future<void> savePassword(String password) async {

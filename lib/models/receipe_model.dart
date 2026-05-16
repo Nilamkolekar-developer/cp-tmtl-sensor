@@ -154,6 +154,7 @@ class SensorConfig {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class Recipe {
+  String? recipeId; 
   String? sr;
   String? model;
   String? type;
@@ -161,12 +162,14 @@ class Recipe {
 
   Recipe({
     this.sr,
+     this.recipeId,
     this.model,
     this.type,
     List<SensorConfig>? sensors,
   }) : sensors = sensors ?? [];
 
   Map<String, dynamic> toJson() => {
+    'recipeId': recipeId,
         'sr': sr,
         'model': model,
         'type': type,
