@@ -162,13 +162,21 @@ class TestingScreen extends StatelessWidget {
                               controller.modelNumber.value,
                               labelFontSize,
                               valueFontSize)),
+<<<<<<< HEAD
                      Expanded(
+=======
+                       Expanded(
+>>>>>>> 0b838a9e58624b455d3aa96c18df05380fcabf45
                           child: _buildReadOnlyInfo(
                               "Test ID",
                               controller.testId.value,
                               labelFontSize,
+<<<<<<< HEAD
                               valueFontSize))
                               
+=======
+                              valueFontSize)),
+>>>>>>> 0b838a9e58624b455d3aa96c18df05380fcabf45
                     ],
                   )),
 

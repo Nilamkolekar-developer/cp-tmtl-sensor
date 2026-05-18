@@ -34,9 +34,13 @@ class ESNController extends GetxController {
   var serialNumber = "-".obs;
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
+<<<<<<< HEAD
   var recipeId = "-".obs;
   var stationId = "-".obs;
   var testCount = 0.obs;
+=======
+  var testId = "-".obs;
+>>>>>>> 0b838a9e58624b455d3aa96c18df05380fcabf45
   var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
