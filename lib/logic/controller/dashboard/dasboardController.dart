@@ -232,7 +232,6 @@
 //            selectedModel.assignAll(engineModels.first);
 //           }
 
-
 //           Get.snackbar(
 //             "Success",
 //             "Dashboard data loaded successfully",
@@ -306,9 +305,6 @@
 //   }
 // }
 
-
-
-
 //sunday//
 import 'dart:convert';
 import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
@@ -318,7 +314,6 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DashboardController extends GetxController {
-
   // =====================================================
   // APP INFO
   // =====================================================
@@ -339,8 +334,7 @@ class DashboardController extends GetxController {
 
   RxInt selectedModelIndex = 0.obs;
 
-  final RxMap<String, dynamic> selectedModel =
-      <String, dynamic>{}.obs;
+  final RxMap<String, dynamic> selectedModel = <String, dynamic>{}.obs;
 
   // =====================================================
   // API URL
@@ -361,7 +355,6 @@ class DashboardController extends GetxController {
   // =====================================================
 
   final List<String> modelNos = [
-
     "TD 2.2 L3",
     "TCD 2.2 L4",
     "TCD 2.9 L4",
@@ -374,7 +367,6 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Map<String, dynamic> get currentModel {
-
     if (engineModels.isEmpty) {
       return {};
     }
@@ -388,7 +380,6 @@ class DashboardController extends GetxController {
 
   @override
   void onInit() {
-
     super.onInit();
 
     loadAppInfo();
@@ -401,17 +392,13 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Future<void> loadAppInfo() async {
-
     try {
-
       final info = await PackageInfo.fromPlatform();
 
       appName.value = info.appName;
       version.value = info.version;
       buildNumber.value = info.buildNumber;
-
     } catch (e) {
-
       appName.value = "ATPL Tool";
     }
   }
@@ -421,7 +408,6 @@ class DashboardController extends GetxController {
   // =====================================================
 
   void selectModel(int index) {
-
     selectedModelIndex.value = index;
 
     selectedModel.assignAll(
@@ -434,13 +420,10 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Future<void> fetchDashboardData() async {
-
     try {
-
       isLoading.value = true;
 
-      String? token =
-          await AppPreferences.getToken();
+      String? token = await AppPreferences.getToken();
 
       // =================================================
       // DATE RANGE
@@ -448,25 +431,19 @@ class DashboardController extends GetxController {
 
       final DateTime now = DateTime.now();
 
-      final DateTime fromDate =
-          now.subtract(const Duration(days: 30));
+      final DateTime fromDate = now.subtract(const Duration(days: 30));
 
       // =================================================
       // REQUEST BODY
       // =================================================
 
       final Map<String, dynamic> requestBody = {
-
         "type": "SENSOR_TEST",
-
         "stationId": "sensortesting_1",
-
         "fromDate":
             "${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}",
-
         "toDate":
             "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}",
-
         "modelNo": modelNos,
       };
 
@@ -480,27 +457,19 @@ class DashboardController extends GetxController {
       // API CALL
       // =================================================
 
-      final response = await http.post(
-
+      final response = await http
+          .post(
         Uri.parse(dashboardApiUrl),
-
         headers: {
-
           "Content-Type": "application/json",
-
           "Accept": "application/json",
-
           "Authorization": "Bearer $token",
         },
-
         body: jsonEncode(requestBody),
-
-      ).timeout(
-
+      )
+          .timeout(
         const Duration(seconds: 15),
-
         onTimeout: () {
-
           throw Exception(
             "Request timed out. Please check network.",
           );
@@ -511,8 +480,7 @@ class DashboardController extends GetxController {
       // RESPONSE BODY
       // =================================================
 
-      final Map<String, dynamic> responseBody =
-          jsonDecode(response.body);
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
       print("=================================================");
       print("📥 DASHBOARD API RESPONSE");
@@ -525,20 +493,12 @@ class DashboardController extends GetxController {
       // =================================================
 
       DevService.instance.insertAPICall(
-
         AppAPIsCall(
-
-          id:
-              "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-
+          id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
           type: "POST ${response.statusCode}",
-
           path: dashboardApiUrl,
-
           dateTime: DateTime.now(),
-
           data: requestBody,
-
           response: responseBody,
         ),
       );
@@ -548,64 +508,81 @@ class DashboardController extends GetxController {
       // =================================================
 
       if (response.statusCode == 200) {
-
-        if (responseBody["responseStatus"] ==
-            "SUCCESS") {
-
+        if (responseBody["responseStatus"] == "SUCCESS") {
           // =============================================
           // CLEAR OLD LIST
           // =============================================
 
-          engineModels.clear();
+        engineModels.clear();
 
-          // =============================================
-          // GET DATA LIST
-          // =============================================
+final List<dynamic> dashboardList =
+    responseBody["data"]["data"] ?? [];
 
-          final List<dynamic> dashboardList =
-              responseBody["data"] ?? [];
+print("DASHBOARD LIST : $dashboardList");
 
-          // =============================================
-          // MAP API DATA
-          // =============================================
+for (var item in dashboardList) {
 
-          for (var item in dashboardList) {
+  engineModels.add({
 
-            engineModels.add({
+    "name":
+        item["modelId"]?.toString() ?? "-",
 
-              "name":
-                  item["modelId"] ?? "-",
+    "total":
+        int.tryParse(
+              item["totalTested"].toString(),
+            ) ??
+            0,
 
-              "total":
-                  item["totalTested"] ?? 0,
+    "today":
+        int.tryParse(
+              item["todayTested"].toString(),
+            ) ??
+            0,
 
-              "today":
-                  item["todayTested"] ?? 0,
+    "pass":
+        int.tryParse(
+              item["totalTestPass"].toString(),
+            ) ??
+            0,
 
-              "pass":
-                  item["totalTestPass"] ?? 0,
+    "fail":
+        int.tryParse(
+              item["totalTestFail"].toString(),
+            ) ??
+            0,
 
-              "fail":
-                  item["totalTestFail"] ?? 0,
+    "todayPass":
+        int.tryParse(
+              item["todayPassTest"].toString(),
+            ) ??
+            0,
 
-              "todayPass":
-                  item["todayPasstest"] ?? 0,
+    "todayFail":
+        int.tryParse(
+              item["todayFailedTest"].toString(),
+            ) ??
+            0,
+  });
 
-              "todayFail":
-                  item["todayFailedTest"] ?? 0,
-            });
+  print("MODEL : ${engineModels.last}");
+}
 
-            print(
-              "✅ MODEL LOADED : ${item["modelId"]}",
-            );
-          }
+if (engineModels.isNotEmpty) {
+
+  selectedModelIndex.value = 0;
+
+  selectedModel.value =
+      Map<String, dynamic>.from(
+          engineModels.first);
+
+  print("SELECTED MODEL : $selectedModel");
+}
 
           // =============================================
           // SELECT FIRST MODEL
           // =============================================
 
           if (engineModels.isNotEmpty) {
-
             selectedModel.assignAll(
               engineModels.first,
             );
@@ -622,13 +599,9 @@ class DashboardController extends GetxController {
         // =============================================
 
         else {
-
           Get.snackbar(
-
             "Error",
-
-            responseBody[
-                    "responseStatusDetails"] ??
+            responseBody["responseStatusDetails"] ??
                 "Failed to fetch dashboard data",
           );
         }
@@ -639,7 +612,6 @@ class DashboardController extends GetxController {
       // =================================================
 
       else if (response.statusCode == 401) {
-
         Get.snackbar(
           "Unauthorized",
           "Session expired. Please login again.",
@@ -651,7 +623,6 @@ class DashboardController extends GetxController {
       // =================================================
 
       else {
-
         Get.snackbar(
           "Server Error",
           "Status Code: ${response.statusCode}",
@@ -664,27 +635,17 @@ class DashboardController extends GetxController {
     // ===================================================
 
     catch (e) {
-
       print("❌ DASHBOARD ERROR: $e");
 
       if (e.toString().contains("SocketException") ||
-
           e.toString().contains("semaphore") ||
-
           e.toString().contains("timeout")) {
-
         Get.snackbar(
-
           "Network Error",
-
           "Cannot reach server. Check your network connection.",
-
           duration: const Duration(seconds: 4),
         );
-      }
-
-      else {
-
+      } else {
         Get.snackbar(
           "Error",
           "Failed to load dashboard data",
@@ -697,7 +658,6 @@ class DashboardController extends GetxController {
     // ===================================================
 
     finally {
-
       isLoading.value = false;
     }
   }
@@ -707,7 +667,6 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Future<void> refreshDashboard() async {
-
     await fetchDashboardData();
   }
 }

@@ -54,7 +54,7 @@ class RecipeAdditionScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildResponsiveGrid(isDesktop, [
-                      _buildInputField("Engine Model Number", "e.g. 6BT-5.9",
+                      _buildInputField(" Recipe Id", "e.g. 6BT-5.9",
                           labelSize: labelFontSize,
                           textSize: inputFontSize,
                           controller: controller.modelController.value),

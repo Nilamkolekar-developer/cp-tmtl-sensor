@@ -19,7 +19,6 @@ import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
 import 'package:zxing_lib/zxing.dart';
 import 'package:zxing_lib/common.dart';
 
@@ -31,10 +30,13 @@ class ESNController extends GetxController {
   var isValidated = false.obs;
   var isTesting = false.obs;
   var isScanning = false.obs;
-
+  var testId = "".obs;
   var serialNumber = "-".obs;
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
+  var recipeId = "-".obs;
+  var stationId = "-".obs;
+  var testCount = 0.obs;
   var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
@@ -58,52 +60,6 @@ class ESNController extends GetxController {
 // add this line to existing onInit
   }
 
-  // loadSensorsFromRecipe() {
-  //   final testCtrl = Get.find<TestRecipeController>();
-
-  //   print("🔍 [LOAD] Requested model: ${modelNumber.value}");
-  //   print("📦 [AVAILABLE RECIPES]: ${testCtrl.recipeList.length}");
-
-  //   final recipe = testCtrl.recipeList.firstWhereOrNull(
-  //     (r) => r.model == modelNumber.value,
-  //   );
-
-  //   if (recipe == null) {
-  //     print("❌ [LOAD FAILED] No recipe found for model: ${modelNumber.value}");
-  //     Get.snackbar("Error", "No matching recipe found for model");
-  //     return;
-  //   }
-
-  //   selectedRecipe.value = recipe;
-
-  //   print("✅ [RECIPE FOUND]");
-  //   print("➡️ Model: ${recipe.model}");
-  //   print("➡️ Sensor count: ${recipe.sensors.length}");
-
-  //   sensorResults.assignAll(
-  //     recipe.sensors.map((s) {
-  //       final map = {
-  //         "reg": s.registerNumber,
-  //         "part": s.sensorName,
-  //         "type": s.sensorType,
-  //         //"reg": s.registerNumber,
-  //         "m": s.multiplier,
-  //         "c": s.offset,
-  //         "min": s.min,
-  //         "max": s.max,
-  //         "unit": s.unit,
-  //         "val": "-",
-  //         "status": "PENDING"
-  //       };
-
-  //       print("📡 [SENSOR LOADED] $map"); // 👈 important debug per sensor
-  //       return map;
-  //     }).toList(),
-  //   );
-
-  //   print("🎯 [FINAL] Total sensors mapped: ${sensorResults.length}");
-  //   print("🚀 Sensors successfully loaded for model: ${recipe.model}");
-  // }
   loadSensorsFromRecipe() {
     final testCtrl = Get.find<TestRecipeController>();
 
@@ -152,553 +108,307 @@ class ESNController extends GetxController {
     print("🚀 Sensors successfully loaded for model: ${recipe.model}");
   }
 
-  // void validateESN() {
-  //   String esn = esnTextFieldController.text.trim();
-  //   if (esn.isEmpty) return;
-
-  //   serialNumber.value = "SN-$esn";
-
-  //   // Logic to determine model based on ESN content
-  //   if (esn.contains("9780070602205")) {
-  //     modelNumber.value = "TD 2.2 L3";
-  //     variantCode.value = "V-B8_DIESEL";
-  //   } else if (esn.contains("STATHNL000002088")) {
-  //     modelNumber.value = "TCD 2.2 L4";
-  //     variantCode.value = "V-C1_DIESEL";
-  //   } else if (esn.startsWith("9781119550822")) {
-  //     modelNumber.value = "TCD 2.9 L4";
-  //     variantCode.value = "V-IND_99";
-  //   } else {
-  //     modelNumber.value = "Default Model";
-  //     variantCode.value = "V-GENERIC";
-  //   }
-
-  //   loadSensorsFromRecipe(); // This will now load based on the updated model/variant
-  //   isValidated.value = true;
-  // }
   RxBool isLoading = false.obs;
-  // Future<void> validateESN() async {
-  //   String esn = esnTextFieldController.text.trim();
-  //   if (esn.isEmpty) {
-  //     Get.snackbar("Error", "Please enter an ESN",
-  //         backgroundColor: Colors.redAccent, colorText: Colors.white);
-  //     return;
-  //   }
-
-  //   final String formattedEsn = "SN-$esn";
-
-  //   try {
-  //     isLoading.value = true;
-  //     print("📡 [ESN VALIDATION] Sending: $formattedEsn");
-
-  //     String? savedToken = await AppPreferences.getToken();
-  //     final String baseUrl = AppEnvironment.baseUrl;
-  //     final String validateUrl = "$baseUrl${AppURLs.engineNumberCheck}";
-  //     final response = await http.post(
-  //       Uri.parse(validateUrl),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         // Prefix must be exactly "JWT " followed by your token
-  //         "Authorization": "JWT $savedToken",
-  //       },
-  //       body: jsonEncode({"engine_serial_no": formattedEsn}),
-  //     );
-
-  //     print("📡 [RESPONSE] Status: ${response.statusCode}");
-  //     print("📡 [RESPONSE] Body: ${response.body}");
-
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> responseData = jsonDecode(response.body);
-
-  //       if (responseData['success'] == true && responseData['data'] != null) {
-  //         final data = responseData['data'];
-
-  //         serialNumber.value = formattedEsn;
-
-  //         // ✅ Updated keys to match typical Autopeepal API patterns
-  //         // Ensure these keys match exactly what the /validate/ ESN response returns
-  //         modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
-  //         variantCode.value =
-  //             data['variant_code']?.toString() ?? "Unknown Variant";
-  //         modelValidationId.value = responseData['data']['id'].toString();
-
-  //         print(
-  //             "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
-
-  //         await loadSensorsFromRecipe();
-  //         isValidated.value = true;
-
-  //         Get.snackbar("Success", "ESN Validated",
-  //             backgroundColor: Colors.green, colorText: Colors.white);
-  //       } else {
-  //         Get.snackbar("Invalid ESN",
-  //             responseData['message'] ?? "No data found for this ESN",
-  //             backgroundColor: Colors.orange);
-  //       }
-  //     } else if (response.statusCode == 401) {
-  //       // ⚠️ Handle Session Expired
-  //       print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
-  //       Get.snackbar("Session Expired", "Please login again",
-  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
-
-  //       // Clear token and redirect to login
-  //       await AppPreferences.clearToken();
-  //       Get.offAllNamed(Routes.loginScreen);
-  //     } else {
-  //       Get.snackbar(
-  //           "Server Error", "Something went wrong (${response.statusCode})",
-  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
-  //     }
-  //   } catch (e) {
-  //     print("❌ [ESN VALIDATION ERROR] $e");
-  //     Get.snackbar("Error", "Failed to connect to server");
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
 
   Future<void> validateESN() async {
+    // ==========================================
+    // GET ESN
+    // ==========================================
+    String esn = esnTextFieldController.text.trim();
 
-  // ==========================================
-  // GET ESN
-  // ==========================================
-  String esn =
-      esnTextFieldController.text.trim();
+    // String? stationId = await AppPreferences.getStationId();
 
-  String? stationId =
-      await AppPreferences.getStationId();
+    // ==========================================
+    // EMPTY CHECK
+    // ==========================================
+    if (esn.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter an ESN",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
 
-  // ==========================================
-  // EMPTY CHECK
-  // ==========================================
-  if (esn.isEmpty) {
-
-    Get.snackbar(
-      "Error",
-      "Please enter an ESN",
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-    );
-
-    return;
-  }
-
-  final String formattedEsn = "$esn";
-
-  // ==========================================
-  // REQUEST BODY
-  // ==========================================
-  final Map<String, dynamic> requestBody = {
-
-    "type": "SENSOR_TEST",
-
-    "stationID":
-        stationId ?? "SENSOR_1",
-
-    "requestParameters": {
-
-      "engineSerialNumber":
-          formattedEsn,
+      return;
     }
-  };
 
-  try {
-
-    isLoading.value = true;
-
-    print("📤 =========================");
-    print("📤 ESN VALIDATION REQUEST");
-    print("📤 BODY : ${jsonEncode(requestBody)}");
-    print("📤 =========================");
+    final String formattedEsn = "$esn";
 
     // ==========================================
-    // TOKEN
+    // REQUEST BODY
     // ==========================================
-    String? savedToken =
-        await AppPreferences.getToken();
-
-    // ==========================================
-    // URL
-    // ==========================================
-    final String validateUrl =
-        "${AppEnvironment.baseUrl}${AppURLs.engineNumberCheck}";
-
-    // ==========================================
-    // API CALL
-    // ==========================================
-    final response = await http.post(
-
-      Uri.parse(validateUrl),
-
-      headers: {
-
-        "Content-Type":
-            "application/json",
-
-        "Accept":
-            "application/json",
-
-        "Authorization":
-            "Bearer $savedToken",
-      },
-
-      body: jsonEncode(requestBody),
-    );
-
-    print("📥 =========================");
-    print("📥 STATUS : ${response.statusCode}");
-    print("📥 RESPONSE : ${response.body}");
-    print("📥 =========================");
-
-    // ==========================================
-    // RESPONSE PARSE
-    // ==========================================
-    Map<String, dynamic> responseData = {};
+    final Map<String, dynamic> requestBody = {
+      "type": "SENSOR_TEST",
+      "stationID": "SENSOR_1",
+      "requestParameters": {
+        "engineSerialNumber": formattedEsn,
+      }
+    };
 
     try {
+      isLoading.value = true;
 
-      responseData =
-          jsonDecode(response.body);
-
-    } catch (e) {
-
-      print("❌ JSON PARSE ERROR : $e");
-    }
-
-    // ==========================================
-    // DEV LOG
-    // ==========================================
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST ${response.statusCode}",
-
-        path:
-            AppURLs.engineNumberCheck,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response:
-            responseData,
-      ),
-    );
-
-    // ==========================================
-    // SUCCESS
-    // ==========================================
-    if (response.statusCode == 200) {
+      print("📤 =========================");
+      print("📤 ESN VALIDATION REQUEST");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =========================");
 
       // ==========================================
-      // RESPONSE STATUS CHECK
+      // TOKEN
       // ==========================================
-      if (responseData['responseStatus']
-              ?.toString()
-              .toUpperCase() ==
-          "SUCCESS") {
+      String? savedToken = await AppPreferences.getToken();
 
-        final data =
-            responseData['data'] ?? {};
+      // ==========================================
+      // URL
+      // ==========================================
+      final String validateUrl =
+          "${AppEnvironment.baseUrl}${AppURLs.engineNumberCheck}";
 
-        final responseParameter =
-            data['responseParameter'] ?? {};
+      // ==========================================
+      // API CALL
+      // ==========================================
+      final response = await http.post(
+        Uri.parse(validateUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $savedToken",
+        },
+        body: jsonEncode(requestBody),
+      );
 
+      print("📥 =========================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =========================");
+
+      // ==========================================
+      // RESPONSE PARSE
+      // ==========================================
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON PARSE ERROR : $e");
+      }
+
+      // ==========================================
+      // DEV LOG
+      // ==========================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: AppURLs.engineNumberCheck,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================
+      // SUCCESS
+      // ==========================================
+      if (response.statusCode == 200) {
         // ==========================================
-        // STORE VALUES
+        // RESPONSE STATUS CHECK
         // ==========================================
-        serialNumber.value =
+        if (responseData['responseStatus']?.toString().toUpperCase() ==
+            "SUCCESS") {
+          final data = responseData['data'] ?? {};
 
-            responseParameter[
-                    'engineSerialNumber']
-                ?.toString() ??
+          final responseParameter = data['responseParameter'] ?? {};
 
-            formattedEsn;
+          // ==========================================
+          // STORE VALUES
+          // ==========================================
+          serialNumber.value =
+              responseParameter['engineSerialNumber']?.toString() ??
+                  formattedEsn;
 
-        modelNumber.value =
+          modelNumber.value =
+              responseParameter['modelNo']?.toString() ?? "Unknown Model";
 
-            responseParameter['modelNo']
-                    ?.toString() ??
+          variantCode.value =
+              responseParameter['varientCode']?.toString() ?? "Unknown Variant";
 
-                "Unknown Model";
+          testId.value = data['testID']?.toString() ?? "";
 
-        variantCode.value =
+          recipeId.value = responseParameter['recipeId']?.toString() ?? "";
 
-            responseParameter['varientCode']
-                    ?.toString() ??
+          testCount.value = responseParameter['testCount'] ?? 0;
+          stationId.value = data['stationID'] ?? 0;
+          print(
+            "✅ TEST coutn : ${testCount.value}",
+          );
 
-                "Unknown Variant";
+           print(
+            "✅recipeId : ${recipeId.value}",
+          );
 
-        modelValidationId.value =
+          print(
+            "✅ TEST ID : ${modelValidationId.value}",
+          );
 
-            data['testID']
-                    ?.toString() ??
+          print(
+            "✅ MODEL : ${modelNumber.value}",
+          );
 
-                "";
+          print(
+            "✅ VARIANT : ${variantCode.value}",
+          );
 
-        print(
-          "✅ TEST ID : ${modelValidationId.value}",
-        );
+          // ==========================================
+          // LOAD SENSOR
+          // ==========================================
+          await loadSensorsFromRecipe();
 
-        print(
-          "✅ MODEL : ${modelNumber.value}",
-        );
+          isValidated.value = true;
 
-        print(
-          "✅ VARIANT : ${variantCode.value}",
-        );
+          // ==========================================
+          // SUCCESS MESSAGE
+          // ==========================================
+          Get.snackbar(
+            "Success",
+            responseData['messages']?[0]?['message'] ?? "ESN Validated",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          // ==========================================
+          // FAILED MESSAGE
+          // ==========================================
+          Get.snackbar(
+            "Invalid ESN",
+            responseData['responseStatusDetails']?.toString() ??
+                "No data found",
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+          );
+        }
+      }
 
-        // ==========================================
-        // LOAD SENSOR
-        // ==========================================
-        await loadSensorsFromRecipe();
+      // ==========================================
+      // TOKEN EXPIRED
+      // ==========================================
+      else if (response.statusCode == 401) {
+        print("🚨 TOKEN EXPIRED");
 
-        isValidated.value = true;
+        await AppPreferences.clearToken();
 
-        // ==========================================
-        // SUCCESS MESSAGE
-        // ==========================================
         Get.snackbar(
-
-          "Success",
-
-          responseData['messages']?[0]?['message'] ??
-
-              "ESN Validated",
-
-          backgroundColor: Colors.green,
-
+          "Session Expired",
+          "Please login again",
+          backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
 
-      } else {
+        Get.offAllNamed(
+          Routes.loginScreen,
+        );
+      }
 
-        // ==========================================
-        // FAILED MESSAGE
-        // ==========================================
+      // ==========================================
+      // SERVER ERROR
+      // ==========================================
+      else {
         Get.snackbar(
-
-          "Invalid ESN",
-
-          responseData[
-                      'responseStatusDetails']
-                  ?.toString() ??
-
-              "No data found",
-
-          backgroundColor: Colors.orange,
-
+          "Server Error",
+          responseData['messages']?[0]?['message'] ??
+              "Something went wrong (${response.statusCode})",
+          backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
       }
     }
 
     // ==========================================
-    // TOKEN EXPIRED
+    // INTERNET ERROR
     // ==========================================
-    else if (response.statusCode == 401) {
-
-      print("🚨 TOKEN EXPIRED");
-
-      await AppPreferences.clearToken();
-
-      Get.snackbar(
-
-        "Session Expired",
-
-        "Please login again",
-
-        backgroundColor: Colors.redAccent,
-
-        colorText: Colors.white,
+    on SocketException {
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ERROR",
+          path: AppURLs.engineNumberCheck,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: {
+            "error": "SocketException",
+            "message": "No internet connection"
+          },
+        ),
       );
 
-      Get.offAllNamed(
-        Routes.loginScreen,
+      Get.snackbar(
+        "No Connection",
+        "Check your internet and try again",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================
+    // TIMEOUT
+    // ==========================================
+    on TimeoutException {
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST TIMEOUT",
+          path: AppURLs.engineNumberCheck,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: {
+            "error": "TimeoutException",
+            "message": "Request timed out"
+          },
+        ),
+      );
+
+      Get.snackbar(
+        "Timeout",
+        "Server took too long to respond",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
       );
     }
 
     // ==========================================
-    // SERVER ERROR
+    // EXCEPTION
     // ==========================================
-    else {
+    catch (e) {
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST EXCEPTION",
+          path: AppURLs.engineNumberCheck,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: {"error": "Exception", "message": e.toString()},
+        ),
+      );
+
+      print(
+        "❌ VALIDATE ESN ERROR : $e",
+      );
 
       Get.snackbar(
-
-        "Server Error",
-
-        responseData['messages']?[0]?['message'] ??
-
-            "Something went wrong (${response.statusCode})",
-
+        "Error",
+        "Failed to connect to server",
         backgroundColor: Colors.redAccent,
-
         colorText: Colors.white,
       );
     }
+
+    // ==========================================
+    // FINALLY
+    // ==========================================
+    finally {
+      isLoading.value = false;
+    }
   }
-
-  // ==========================================
-  // INTERNET ERROR
-  // ==========================================
-  on SocketException {
-
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST ERROR",
-
-        path:
-            AppURLs.engineNumberCheck,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response: {
-
-          "error":
-              "SocketException",
-
-          "message":
-              "No internet connection"
-        },
-      ),
-    );
-
-    Get.snackbar(
-
-      "No Connection",
-
-      "Check your internet and try again",
-
-      backgroundColor: Colors.redAccent,
-
-      colorText: Colors.white,
-    );
-  }
-
-  // ==========================================
-  // TIMEOUT
-  // ==========================================
-  on TimeoutException {
-
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST TIMEOUT",
-
-        path:
-            AppURLs.engineNumberCheck,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response: {
-
-          "error":
-              "TimeoutException",
-
-          "message":
-              "Request timed out"
-        },
-      ),
-    );
-
-    Get.snackbar(
-
-      "Timeout",
-
-      "Server took too long to respond",
-
-      backgroundColor: Colors.orange,
-
-      colorText: Colors.white,
-    );
-  }
-
-  // ==========================================
-  // EXCEPTION
-  // ==========================================
-  catch (e) {
-
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST EXCEPTION",
-
-        path:
-            AppURLs.engineNumberCheck,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response: {
-
-          "error":
-              "Exception",
-
-          "message":
-              e.toString()
-        },
-      ),
-    );
-
-    print(
-      "❌ VALIDATE ESN ERROR : $e",
-    );
-
-    Get.snackbar(
-
-      "Error",
-
-      "Failed to connect to server",
-
-      backgroundColor: Colors.redAccent,
-
-      colorText: Colors.white,
-    );
-  }
-
-  // ==========================================
-  // FINALLY
-  // ==========================================
-  finally {
-
-    isLoading.value = false;
-  }
-}
 
   // --- 1. THE DECODING ENGINE (Pure Dart) ---
   bool _decodeFromBytes(Uint8List bytes) {
@@ -1474,400 +1184,262 @@ class ESNController extends GetxController {
 //old code //
 
   //sunday new code //
-Future<void> sendTestResultAPI() async {
-
-  if (sensorResults.isEmpty) {
-
-    Get.snackbar(
-
-      "No Data",
-
-      "No sensor data available",
-
-      backgroundColor: Colors.orange,
-
-      colorText: Colors.white,
-    );
-
-    return;
-  }
-
-  try {
-
-    isLoading.value = true;
-
-    // ==========================================================
-    // TOKEN
-    // ==========================================================
-    String? token =
-        await AppPreferences.getToken();
-
-    // ==========================================================
-    // STATION ID
-    // ==========================================================
-    String? stationId =
-        await AppPreferences.getStationId();
-
-    // ==========================================================
-    // URL
-    // ==========================================================
-    final String url =
-        "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
-
-    // ==========================================================
-    // SENSOR LIST
-    // ==========================================================
-    List<Map<String, dynamic>> sensors = sensorResults.map((s) {
-
-      return {
-
-        "sensorName":
-            s['part'].toString(),
-
-        "value":
-            s['val'].toString(),
-
-        "test":
-            s['status'].toString(),
-
-        "min":
-            double.tryParse(
-                  s['min'].toString(),
-                ) ??
-                0,
-
-        "max":
-            double.tryParse(
-                  s['max'].toString(),
-                ) ??
-                0,
-
-        "unit":
-            s['unit']?.toString() ?? "",
-      };
-
-    }).toList();
-
-    // ==========================================================
-    // OVERALL RESULT
-    // ==========================================================
-    bool isPass = sensorResults.every(
-
-      (s) => s['status'] == "OK",
-    );
-
-    // ==========================================================
-    // DATE TIME
-    // ==========================================================
-    final now = DateTime.now();
-
-    final String currentDate =
-
-        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-
-    final String currentTime =
-
-        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
-
-    // ==========================================================
-    // RECIPE ID
-    // ==========================================================
-    String recipeId = "";
-
-    try {
-
-      recipeId =
-          selectedRecipe.value?.recipeId?.toString() ?? "";
-
-    } catch (e) {
-
-      print("❌ Recipe ID Error : $e");
-    }
-
-    // ==========================================================
-    // REQUEST BODY
-    // ==========================================================
-    final Map<String, dynamic> requestBody = {
-
-      "type": "SENSOR_TEST",
-
-      "testtype": "Live",
-
-      "stationId":
-          stationId ?? "SENSOR_1",
-
-      "testNotStarted": "false",
-
-      "payload": {
-
-        "date":
-            currentDate,
-
-        "time":
-            currentTime,
-
-        "testCount": 1,
-
-        "engineSerialNumber":
-            serialNumber.value,
-
-        "recipeID":
-            recipeId,
-
-        "modelNo":
-            modelNumber.value,
-
-        "variantCode":
-            variantCode.value,
-
-        "numberOfTestAttempts": 1,
-
-        "test_payload": [
-
-          {
-
-            "testattemptId":
-                "TEST-${DateTime.now().millisecondsSinceEpoch}",
-
-            "testResult":
-                isPass ? "Pass" : "Failed",
-
-            "sensors":
-                sensors,
-          }
-        ]
-      }
-    };
-
-    print("📤 =========================");
-    print("📤 RESULT API REQUEST");
-    print("📤 URL : $url");
-    print("📤 BODY : ${jsonEncode(requestBody)}");
-    print("📤 =========================");
-
-    // ==========================================================
-    // API CALL
-    // ==========================================================
-    final response = await http.post(
-
-      Uri.parse(url),
-
-      headers: {
-
-        "Content-Type":
-            "application/json",
-
-        "Accept":
-            "application/json",
-
-        "Authorization":
-            "Bearer $token",
-      },
-
-      body:
-          jsonEncode(requestBody),
-    );
-
-    print("📥 =========================");
-    print("📥 STATUS : ${response.statusCode}");
-    print("📥 RESPONSE : ${response.body}");
-    print("📥 =========================");
-
-    // ==========================================================
-    // RESPONSE PARSE
-    // ==========================================================
-    Map<String, dynamic> responseData = {};
-
-    try {
-
-      responseData =
-          jsonDecode(response.body);
-
-    } catch (e) {
-
-      print("❌ JSON ERROR : $e");
-    }
-
-    // ==========================================================
-    // DEV LOG
-    // ==========================================================
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST ${response.statusCode}",
-
-        path:
-            AppURLs.receipeData,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response:
-            responseData,
-      ),
-    );
-
-    // ==========================================================
-    // SESSION EXPIRED
-    // ==========================================================
-    if (response.statusCode == 401) {
-
-      await AppPreferences.clearToken();
-
+  Future<void> sendTestResultAPI() async {
+    if (sensorResults.isEmpty) {
       Get.snackbar(
-
-        "Session Expired",
-
-        "Please login again",
-
-        backgroundColor: Colors.redAccent,
-
+        "No Data",
+        "No sensor data available",
+        backgroundColor: Colors.orange,
         colorText: Colors.white,
-      );
-
-      Future.delayed(
-        const Duration(seconds: 1),
-        () {
-
-          Get.offAllNamed(
-            Routes.loginScreen,
-          );
-        },
       );
 
       return;
     }
 
-    // ==========================================================
-    // SUCCESS / FAILED
-    // ==========================================================
-    if (response.statusCode == 200 ||
-        response.statusCode == 201) {
+    try {
+      isLoading.value = true;
 
-      final responseStatus =
+      // ==========================================================
+      // TOKEN
+      // ==========================================================
+      String? token = await AppPreferences.getToken();
 
-          responseData['responseStatus']
-              ?.toString()
-              .toUpperCase();
+      // ==========================================================
+      // STATION ID
+      // ==========================================================
+      String? stationId = await AppPreferences.getStationId();
 
-      if (responseStatus == "SUCCESS") {
+      // ==========================================================
+      // URL
+      // ==========================================================
+      final String url = "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
+
+      // ==========================================================
+      // SENSOR LIST
+      // ==========================================================
+      List<Map<String, dynamic>> sensors = sensorResults.map((s) {
+        return {
+          "sensorName": s['part'].toString(),
+          "value": s['val'].toString(),
+          "test": s['status'].toString(),
+          "min": double.tryParse(
+                s['min'].toString(),
+              ) ??
+              0,
+          "max": double.tryParse(
+                s['max'].toString(),
+              ) ??
+              0,
+          "unit": s['unit']?.toString() ?? "",
+        };
+      }).toList();
+
+      // ==========================================================
+      // OVERALL RESULT
+      // ==========================================================
+      bool isPass = sensorResults.every(
+        (s) => s['status'] == "OK",
+      );
+
+      // ==========================================================
+      // DATE TIME
+      // ==========================================================
+      final now = DateTime.now();
+
+      final String currentDate =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+      final String currentTime =
+          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+      // ==========================================================
+      // RECIPE ID
+      // ==========================================================
+
+      try {
+        recipeId.value = selectedRecipe.value?.recipeId?.toString() ?? "";
+      } catch (e) {
+        print("❌ Recipe ID Error : $e");
+      }
+
+      // ==========================================================
+      // REQUEST BODY
+      // ==========================================================
+      final Map<String, dynamic> requestBody = {
+        "type": "SENSOR_TEST",
+        "testtype": "Live",
+        "stationId": stationId ?? "SENSOR_1",
+        "testNotStarted": "false",
+        "payload": {
+          "date": currentDate,
+          "time": currentTime,
+          "testCount": testCount.value,
+          "engineSerialNumber": serialNumber.value,
+          "recipeID": recipeId.value,
+          "modelNo": modelNumber.value,
+          "variantCode": variantCode.value,
+          "testId": testId.value,
+          "numberOfTestAttempts": 1,
+          "test_payload": [
+            {
+              "testattemptId": "TEST-${DateTime.now().millisecondsSinceEpoch}",
+              "testResult": isPass ? "Pass" : "Failed",
+              "sensors": sensors,
+            }
+          ]
+        }
+      };
+
+      print("📤 =========================");
+      print("📤 RESULT API REQUEST");
+      print("📤 URL : $url");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =========================");
+
+      // ==========================================================
+      // API CALL
+      // ==========================================================
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("📥 =========================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =========================");
+
+      // ==========================================================
+      // RESPONSE PARSE
+      // ==========================================================
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON ERROR : $e");
+      }
+
+      // ==========================================================
+      // DEV LOG
+      // ==========================================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: AppURLs.receipeData,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================================
+      // SESSION EXPIRED
+      // ==========================================================
+      if (response.statusCode == 401) {
+        await AppPreferences.clearToken();
 
         Get.snackbar(
-
-          "Success",
-
-          responseData['messages']?[0]?['message'] ??
-              "Test Result Uploaded Successfully",
-
-          backgroundColor: Colors.green,
-
+          "Session Expired",
+          "Please login again",
+          backgroundColor: Colors.redAccent,
           colorText: Colors.white,
         );
 
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            Get.offAllNamed(
+              Routes.loginScreen,
+            );
+          },
+        );
+
+        return;
+      }
+
+      // ==========================================================
+      // SUCCESS / FAILED
+      // ==========================================================
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseStatus =
+            responseData['responseStatus']?.toString().toUpperCase();
+
+        if (responseStatus == "SUCCESS") {
+          Get.snackbar(
+            "Success",
+            responseData['messages']?[0]?['message'] ??
+                "Test Result Uploaded Successfully",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            "Error",
+            responseData['responseStatusDetails']?.toString() ??
+                "MES Processing Failed",
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
       } else {
-
         Get.snackbar(
-
           "Error",
-
-          responseData['responseStatusDetails']
-                  ?.toString() ??
-              "MES Processing Failed",
-
+          responseData['messages']?[0]?['message'] ?? "Result Upload Failed",
           backgroundColor: Colors.red,
-
           colorText: Colors.white,
         );
       }
+    }
 
-    } else {
-
+    // ==========================================================
+    // INTERNET ERROR
+    // ==========================================================
+    on SocketException {
       Get.snackbar(
-
-        "Error",
-
-        responseData['messages']?[0]?['message'] ??
-            "Result Upload Failed",
-
+        "No Internet",
+        "Check internet connection",
         backgroundColor: Colors.red,
-
         colorText: Colors.white,
       );
     }
 
+    // ==========================================================
+    // TIMEOUT
+    // ==========================================================
+    on TimeoutException {
+      Get.snackbar(
+        "Timeout",
+        "Server timeout",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // EXCEPTION
+    // ==========================================================
+    catch (e) {
+      print("❌ RESULT API ERROR : $e");
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  // ==========================================================
-  // INTERNET ERROR
-  // ==========================================================
-  on SocketException {
-
-    Get.snackbar(
-
-      "No Internet",
-
-      "Check internet connection",
-
-      backgroundColor: Colors.red,
-
-      colorText: Colors.white,
-    );
-  }
-
-  // ==========================================================
-  // TIMEOUT
-  // ==========================================================
-  on TimeoutException {
-
-    Get.snackbar(
-
-      "Timeout",
-
-      "Server timeout",
-
-      backgroundColor: Colors.orange,
-
-      colorText: Colors.white,
-    );
-  }
-
-  // ==========================================================
-  // EXCEPTION
-  // ==========================================================
-  catch (e) {
-
-    print("❌ RESULT API ERROR : $e");
-
-    Get.snackbar(
-
-      "Error",
-
-      e.toString(),
-
-      backgroundColor: Colors.red,
-
-      colorText: Colors.white,
-    );
-  }
-
-  finally {
-
-    isLoading.value = false;
-  }
-}
-
- //sunday code //
-
-
-
+  //sunday code //
 
 //   // Future<void> sendResultsToServer() async {
 //   //   if (sensorResults.isEmpty) return;
@@ -2191,821 +1763,803 @@ Future<void> sendTestResultAPI() async {
 // USING RESULT API
 // ===============================================
 
-
 //old code //
 
-  // Future<void> startTestingSequence() async {
-  //   final plcCtrl = Get.find<PLCController>();
+  Future<void> startTestingSequence() async {
+    final plcCtrl = Get.find<PLCController>();
 
-  //   // ==========================================
-  //   // PLC CHECK
-  //   // ==========================================
-  //   if (!plcCtrl.isConnected.value) {
-  //     _showPopup(
-  //       "Hardware Offline",
-  //       "Connect PLC first",
-  //       true,
-  //     );
-  //     return;
-  //   }
+    if (!plcCtrl.isConnected.value) {
+      _showPopup("Hardware Offline", "Connect PLC first", true);
 
-  //   if (isTesting.value) return;
+      return;
+    }
 
-  //   try {
-  //     isTesting.value = true;
-  //     isLoading.value = true;
-
-  //     // ==========================================
-  //     // RESULT API URL
-  //     // ==========================================
-  //     final String url =
-  //         "http://192.168.50.200:7102/itracex-runtimeservice/v1/api/runtime/test/result";
-
-  //     String? token = await AppPreferences.getToken();
-
-  //     // ==========================================
-  //     // REQUEST BODY AS PER API DOC
-  //     // ==========================================
-  //     final Map<String, dynamic> requestBody = {
-  //       "type": "SENSOR_TEST",
-  //       "stationID": "OP10",
-  //       "requestParameters": {
-  //         "engineSerialNumber": serialNumber.value,
-  //       }
-  //     };
-
-  //     print("📤 =============================");
-  //     print("📤 SCHEDULE API REQUEST");
-  //     print("📤 URL : $url");
-  //     print("📤 BODY : ${jsonEncode(requestBody)}");
-  //     print("📤 =============================");
-
-  //     final response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         "Authorization": "JWT $token",
-  //       },
-  //       body: jsonEncode(requestBody),
-  //     );
-
-  //     print("📥 =============================");
-  //     print("📥 STATUS : ${response.statusCode}");
-  //     print("📥 RESPONSE : ${response.body}");
-  //     print("📥 =============================");
-
-  //     Map<String, dynamic> responseData = {};
-
-  //     try {
-  //       responseData = jsonDecode(response.body);
-  //     } catch (e) {
-  //       print("❌ JSON PARSE ERROR : $e");
-  //     }
-
-  //     // ==========================================
-  //     // DEV LOG
-  //     // ==========================================
-  //     DevService.instance.insertAPICall(
-  //       AppAPIsCall(
-  //         id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-  //         type: "POST ${response.statusCode}",
-  //         path: "/runtime/test/schedule",
-  //         dateTime: DateTime.now(),
-  //         data: requestBody,
-  //         response: responseData,
-  //       ),
-  //     );
-
-  //     // ==========================================
-  //     // API FAILED
-  //     // ==========================================
-  //     if (response.statusCode != 200 && response.statusCode != 201) {
-  //       Get.snackbar(
-  //         "Error",
-  //         responseData['messages']?[0]?['message'] ?? "Schedule API Failed",
-  //         backgroundColor: Colors.red,
-  //         colorText: Colors.white,
-  //       );
-
-  //       isTesting.value = false;
-  //       return;
-  //     }
-
-  //     // ==========================================
-  //     // RESPONSE VALIDATION
-  //     // ==========================================
-  //     final responseStatus =
-  //         responseData['responseStatus']?.toString().toUpperCase();
-
-  //     if (responseStatus != "SUCCESS") {
-  //       Get.snackbar(
-  //         "Error",
-  //         responseData['responseStatusDetails']?.toString() ??
-  //             "MES Rejected Request",
-  //         backgroundColor: Colors.red,
-  //         colorText: Colors.white,
-  //       );
-
-  //       isTesting.value = false;
-  //       return;
-  //     }
-
-  //     // ==========================================
-  //     // RESPONSE DATA
-  //     // ==========================================
-  //     final data = responseData['data'] ?? {};
-
-  //     final responseParameter = data['responseParameter'] ?? {};
-
-  //     final String testID = data['testID']?.toString() ?? "";
-
-  //     final String recipeId = responseParameter['recipeid']?.toString() ?? "";
-
-  //     final String modelNo = responseParameter['modelno']?.toString() ?? "";
-
-  //     final String varientCode =
-  //         responseParameter['varientCode']?.toString() ?? "";
-
-  //     print("✅ TEST ID : $testID");
-  //     print("✅ RECIPE ID : $recipeId");
-  //     print("✅ MODEL : $modelNo");
-  //     print("✅ VARIANT : $varientCode");
-
-  //     // ==========================================
-  //     // UPDATE VALUES
-  //     // ==========================================
-  //     modelNumber.value = modelNo;
-  //     variantCode.value = varientCode;
-
-  //     print("✅ RESULT API SUCCESS");
-
-  //     // ==========================================
-  //     // START SENSOR TESTING
-  //     // ==========================================
-  //     for (var sensor in sensorResults) {
-  //       List operations = sensor['operations'] ?? [];
-
-  //       print("\n🚀 [SENSOR START] ${sensor['part']}");
-
-  //       final int originalPrimaryReg = sensor['reg'] ?? 0;
-
-  //       bool sensorPassed = true;
-
-  //       for (int i = 0; i < operations.length; i++) {
-  //         var op = operations[i];
-
-  //         String operation = op.operation.toString();
-
-  //         int currentStepReg = int.tryParse(
-  //               op.registerAddress.toString(),
-  //             ) ??
-  //             originalPrimaryReg;
-
-  //         int value = int.tryParse(
-  //               op.value.toString(),
-  //             ) ??
-  //             0;
-
-  //         print(
-  //           "▶️ Step ${i + 1}: "
-  //           "$operation | "
-  //           "Reg: $currentStepReg | "
-  //           "Value: $value",
-  //         );
-
-  //         sensor['status'] = "TESTING...";
-  //         sensorResults.refresh();
-
-  //         // ======================================
-  //         // WRITE
-  //         // ======================================
-  //         if (operation == "WRITE") {
-  //           writeGeneratorDataRequest(
-  //             currentStepReg,
-  //             value,
-  //           );
-
-  //           await Future.delayed(
-  //             const Duration(milliseconds: 600),
-  //           );
-  //         }
-
-  //         // ======================================
-  //         // READ
-  //         // ======================================
-  //         else if (operation == "READ") {
-  //           sensor['reg'] = currentStepReg;
-  //           sensor['val'] = "-";
-
-  //           sensorResults.refresh();
-
-  //           bool received = await _readWithTimeout(
-  //             currentStepReg,
-  //           );
-
-  //           if (!received) {
-  //             sensor['reg'] = originalPrimaryReg;
-
-  //             sensor['status'] = "TIMEOUT";
-
-  //             sensorResults.refresh();
-
-  //             _handleAbort(
-  //               "Timeout at register "
-  //               "$currentStepReg",
-  //             );
-
-  //             return;
-  //           }
-
-  //           double? actual = double.tryParse(
-  //             sensor['val'].toString(),
-  //           );
-
-  //           double? min = (sensor['min'] as num?)?.toDouble();
-
-  //           double? max = (sensor['max'] as num?)?.toDouble();
-
-  //           if (actual != null && min != null && max != null) {
-  //             if (actual < min || actual > max) {
-  //               sensorPassed = false;
-  //             }
-  //           }
-  //         }
-
-  //         await Future.delayed(
-  //           const Duration(milliseconds: 300),
-  //         );
-  //       }
-
-  //       sensor['reg'] = originalPrimaryReg;
-
-  //       sensor['status'] = sensorPassed ? "OK" : "NOT OK";
-
-  //       sensorResults.refresh();
-
-  //       print(
-  //         "🏁 [SENSOR DONE] "
-  //         "${sensor['part']} "
-  //         "-> ${sensor['status']}",
-  //       );
-  //     }
-
-  //     // ==========================================
-  //     // TEST COMPLETE
-  //     // ==========================================
-  //     isTesting.value = false;
-
-  //     print("📡 AUTO RESULT API CALL");
-
-  //     await sendTestResultAPI();
-
-  //     _showPopup(
-  //       "Complete",
-  //       "Sequence executed successfully",
-  //       false,
-  //     );
-  //   } on SocketException {
-  //     Get.snackbar(
-  //       "No Internet",
-  //       "Check internet connection",
-  //       backgroundColor: Colors.red,
-  //       colorText: Colors.white,
-  //     );
-  //   } on TimeoutException {
-  //     Get.snackbar(
-  //       "Timeout",
-  //       "Server timeout",
-  //       backgroundColor: Colors.orange,
-  //       colorText: Colors.white,
-  //     );
-  //   } catch (e) {
-  //     print(
-  //       "❌ startTestingSequence ERROR : $e",
-  //     );
-
-  //     Get.snackbar(
-  //       "Error",
-  //       e.toString(),
-  //       backgroundColor: Colors.red,
-  //       colorText: Colors.white,
-  //     );
-  //   } finally {
-  //     isLoading.value = false;
-  //     isTesting.value = false;
-  //   }
-  // }
-
-  //old code end//
-
-
-  
-  //sunday code//
-
-Future<void> startTestingSequence() async {
-
-  final plcCtrl = Get.find<PLCController>();
-
-  // ==========================================================
-  // PLC CONNECTION CHECK
-  // ==========================================================
-  if (!plcCtrl.isConnected.value) {
-
-    _showPopup(
-      "Hardware Offline",
-      "Connect PLC first",
-      true,
-    );
-
-    return;
-  }
-
-  if (isTesting.value) return;
-
-  try {
+    if (isTesting.value) return;
 
     isTesting.value = true;
-    isLoading.value = true;
 
-    // ==========================================================
-    // STATION ID
-    // ==========================================================
-    String? stationId =
-        await AppPreferences.getStationId();
-
-    // ==========================================================
-    // TOKEN
-    // ==========================================================
-    String? token =
-        await AppPreferences.getToken();
-
-    // ==========================================================
-    // URL
-    // ==========================================================
-    final String url =
-        "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
-
-    // ==========================================================
-    // REQUEST BODY
-    // ==========================================================
-    final Map<String, dynamic> requestBody = {
-
-      "type": "SENSOR_TEST",
-
-      "stationID":
-          stationId ?? "SENSOR_1",
-
-      "requestParameters": {
-
-        "engineSerialNumber":
-            serialNumber.value,
-      }
-    };
-
-    print("📤 =============================");
-    print("📤 SCHEDULE API REQUEST");
-    print("📤 URL : $url");
-    print("📤 BODY : ${jsonEncode(requestBody)}");
-    print("📤 =============================");
-
-    // ==========================================================
-    // API CALL
-    // ==========================================================
-    final response = await http.post(
-
-      Uri.parse(url),
-
-      headers: {
-
-        "Content-Type":
-            "application/json",
-
-        "Accept":
-            "application/json",
-
-        "Authorization":
-            "Bearer $token",
-      },
-
-      body: jsonEncode(requestBody),
-    );
-
-    print("📥 =============================");
-    print("📥 STATUS : ${response.statusCode}");
-    print("📥 RESPONSE : ${response.body}");
-    print("📥 =============================");
-
-    // ==========================================================
-    // RESPONSE PARSE
-    // ==========================================================
-    Map<String, dynamic> responseData = {};
-
-    try {
-
-      responseData =
-          jsonDecode(response.body);
-
-    } catch (e) {
-
-      print("❌ JSON PARSE ERROR : $e");
-    }
-
-    // ==========================================================
-    // DEV LOG
-    // ==========================================================
-    DevService.instance.insertAPICall(
-
-      AppAPIsCall(
-
-        id:
-            "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
-
-        type:
-            "POST ${response.statusCode}",
-
-        path:
-            AppURLs.receipeData,
-
-        dateTime:
-            DateTime.now(),
-
-        data:
-            requestBody,
-
-        response:
-            responseData,
-      ),
-    );
-
-    // ==========================================================
-    // SESSION EXPIRED
-    // ==========================================================
-    if (response.statusCode == 401) {
-
-      print("🚨 TOKEN EXPIRED");
-
-      await AppPreferences.clearToken();
-
-      Get.snackbar(
-
-        "Session Expired",
-
-        "Please login again",
-
-        backgroundColor: Colors.redAccent,
-
-        colorText: Colors.white,
-      );
-
-      Future.delayed(
-        const Duration(seconds: 1),
-        () {
-
-          Get.offAllNamed(
-            Routes.loginScreen,
-          );
-        },
-      );
-
-      return;
-    }
-
-    // ==========================================================
-    // API FAILED
-    // ==========================================================
-    if (response.statusCode != 200 &&
-        response.statusCode != 201) {
-
-      Get.snackbar(
-
-        "Error",
-
-        responseData['messages']?[0]?['message'] ??
-            "Schedule API Failed",
-
-        backgroundColor: Colors.red,
-
-        colorText: Colors.white,
-      );
-
-      isTesting.value = false;
-
-      return;
-    }
-
-    // ==========================================================
-    // RESPONSE VALIDATION
-    // ==========================================================
-    final responseStatus =
-
-        responseData['responseStatus']
-            ?.toString()
-            .toUpperCase();
-
-    if (responseStatus != "SUCCESS") {
-
-      Get.snackbar(
-
-        "Error",
-
-        responseData['responseStatusDetails']
-                ?.toString() ??
-            "MES Rejected Request",
-
-        backgroundColor: Colors.red,
-
-        colorText: Colors.white,
-      );
-
-      isTesting.value = false;
-
-      return;
-    }
-
-    // ==========================================================
-    // RESPONSE DATA
-    // ==========================================================
-    final data =
-        responseData['data'] ?? {};
-
-    final responseParameter =
-        data['responseParameter'] ?? {};
-
-    final String testID =
-        data['testID']?.toString() ?? "";
-
-    final String recipeId =
-        responseParameter['recipeid']
-                ?.toString() ??
-            "";
-
-    final String modelNo =
-        responseParameter['modelno']
-                ?.toString() ??
-            "";
-
-    final String varientCode =
-        responseParameter['varientCode']
-                ?.toString() ??
-            "";
-
-    print("✅ TEST ID : $testID");
-    print("✅ RECIPE ID : $recipeId");
-    print("✅ MODEL : $modelNo");
-    print("✅ VARIANT : $varientCode");
-
-    // ==========================================================
-    // UPDATE VALUES
-    // ==========================================================
-    modelNumber.value =
-        modelNo;
-
-    variantCode.value =
-        varientCode;
-
-    selectedRecipe.value?.recipeId =
-        recipeId;
-
-    print("✅ SCHEDULE API SUCCESS");
-
-    // ==========================================================
-    // START SENSOR TESTING
-    // ==========================================================
     for (var sensor in sensorResults) {
+      List operations = sensor['operations'] ?? [];
 
-      List operations =
-          sensor['operations'] ?? [];
+      print("\n🚀 [SENSOR START] ${sensor['part']}");
 
-      print(
-        "\n🚀 [SENSOR START] ${sensor['part']}",
-      );
+      // ✅ Store the original primary register to restore it later
 
-      final int originalPrimaryReg =
-          sensor['reg'] ?? 0;
+      final int originalPrimaryReg = sensor['reg'] ?? 0;
 
       bool sensorPassed = true;
 
-      for (int i = 0;
-          i < operations.length;
-          i++) {
-
+      for (int i = 0; i < operations.length; i++) {
         var op = operations[i];
 
-        String operation =
-            op.operation.toString();
+        String operation = op.operation;
 
         int currentStepReg =
-            int.tryParse(
-                  op.registerAddress.toString(),
-                ) ??
-                originalPrimaryReg;
+            int.tryParse(op.registerAddress) ?? originalPrimaryReg;
+        int value = int.tryParse(op.value) ?? 0;
 
-        int value =
-            int.tryParse(
-                  op.value.toString(),
-                ) ??
-                0;
+        print("▶️ Step ${i + 1}: $operation | Reg: $currentStepReg");
 
-        print(
-          "▶️ Step ${i + 1}: "
-          "$operation | "
-          "Reg: $currentStepReg | "
-          "Value: $value",
-        );
-
-        sensor['status'] =
-            "TESTING...";
+        sensor['status'] = "TESTING...";
 
         sensorResults.refresh();
 
-        // ======================================================
-        // WRITE OPERATION
-        // ======================================================
+        // --- WRITE OPERATION ---
+
         if (operation == "WRITE") {
+          writeGeneratorDataRequest(currentStepReg, value);
 
-          writeGeneratorDataRequest(
-            currentStepReg,
-            value,
-          );
-
-          await Future.delayed(
-            const Duration(
-              milliseconds: 600,
-            ),
-          );
+          await Future.delayed(const Duration(milliseconds: 600));
         }
 
-        // ======================================================
-        // READ OPERATION
-        // ======================================================
-        else if (operation == "READ") {
+        // --- READ OPERATION ---
 
-          sensor['reg'] =
-              currentStepReg;
+        else if (operation == "READ") {
+          // 🛡️ TRICK: Temporarily set the sensor's main reg to the step's reg
+
+          // This allows 'handlePlcData' to find this sensor in the list.
+
+          sensor['reg'] = currentStepReg;
 
           sensor['val'] = "-";
 
           sensorResults.refresh();
 
-          bool received =
-              await _readWithTimeout(
-            currentStepReg,
-          );
+          bool received = await _readWithTimeout(currentStepReg);
 
           if (!received) {
+            // Restore original reg before aborting
 
-            sensor['reg'] =
-                originalPrimaryReg;
-
-            sensor['status'] =
-                "TIMEOUT";
+            sensor['reg'] = originalPrimaryReg;
+            sensor['status'] = "TIMEOUT";
 
             sensorResults.refresh();
 
-            _handleAbort(
-              "Timeout at register "
-              "$currentStepReg",
-            );
+            _handleAbort("Timeout at register $currentStepReg");
 
             return;
           }
 
-          double? actual =
-              double.tryParse(
-            sensor['val'].toString(),
-          );
+          // Logic Comparison (Pass/Fail check)
 
-          double? min =
-              (sensor['min'] as num?)
-                  ?.toDouble();
+          double? actual = double.tryParse(sensor['val'].toString());
 
-          double? max =
-              (sensor['max'] as num?)
-                  ?.toDouble();
+          double? min = (sensor['min'] as num?)?.toDouble();
 
-          if (actual != null &&
-              min != null &&
-              max != null) {
+          double? max = (sensor['max'] as num?)?.toDouble();
 
-            if (actual < min ||
-                actual > max) {
-
+          if (actual != null && min != null && max != null) {
+            if (actual < min || actual > max) {
               sensorPassed = false;
             }
           }
         }
 
-        await Future.delayed(
-          const Duration(
-            milliseconds: 300,
-          ),
-        );
+        await Future.delayed(const Duration(milliseconds: 300));
       }
 
-      sensor['reg'] =
-          originalPrimaryReg;
+      // ✅ CRITICAL: Restore the original primary register after all steps are done
 
-      sensor['status'] =
-          sensorPassed
-              ? "OK"
-              : "NOT OK";
+      sensor['reg'] = originalPrimaryReg;
+
+      // Final result for this sensor
+
+      sensor['status'] = sensorPassed ? "OK" : "NOT OK";
 
       sensorResults.refresh();
 
-      print(
-        "🏁 [SENSOR DONE] "
-        "${sensor['part']} "
-        "-> ${sensor['status']}",
-      );
+      print("🏁 [SENSOR DONE] ${sensor['part']} -> ${sensor['status']}");
     }
 
-    // ==========================================================
-    // TEST COMPLETE
-    // ==========================================================
     isTesting.value = false;
-
-    print("📡 AUTO RESULT API CALL");
 
     await sendTestResultAPI();
 
     _showPopup(
-
-      "Complete",
-
-      "Sequence executed successfully",
-
-      false,
-    );
-
+        "Complete", "Sequence executed and data saved successfully", false);
   }
 
-  // ==========================================================
-  // INTERNET ERROR
-  // ==========================================================
-  on SocketException {
+  Future<void> startTestingSequence3() async {
+    final plcCtrl = Get.find<PLCController>();
 
-    Get.snackbar(
+    // ==========================================
+    // PLC CHECK
+    // ==========================================
+    if (!plcCtrl.isConnected.value) {
+      _showPopup(
+        "Hardware Offline",
+        "Connect PLC first",
+        true,
+      );
+      return;
+    }
 
-      "No Internet",
+    if (isTesting.value) return;
 
-      "Check internet connection",
+    try {
+      isTesting.value = true;
+      isLoading.value = true;
 
-      backgroundColor: Colors.red,
+      // ==========================================
+      // RESULT API URL
+      // ==========================================
+      final String url =
+          "http://192.168.50.200:7102/itracex-runtimeservice/v1/api/runtime/test/result";
 
-      colorText: Colors.white,
-    );
+      String? token = await AppPreferences.getToken();
+
+      // ==========================================
+      // REQUEST BODY AS PER API DOC
+      // ==========================================
+      final Map<String, dynamic> requestBody = {
+        "type": "SENSOR_TEST",
+        "stationID": "OP10",
+        "requestParameters": {
+          "engineSerialNumber": serialNumber.value,
+        }
+      };
+
+      print("📤 =============================");
+      print("📤 SCHEDULE API REQUEST");
+      print("📤 URL : $url");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =============================");
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "JWT $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("📥 =============================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =============================");
+
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON PARSE ERROR : $e");
+      }
+
+      // ==========================================
+      // DEV LOG
+      // ==========================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: "/runtime/test/schedule",
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================
+      // API FAILED
+      // ==========================================
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        Get.snackbar(
+          "Error",
+          responseData['messages']?[0]?['message'] ?? "Schedule API Failed",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+        return;
+      }
+
+      // ==========================================
+      // RESPONSE VALIDATION
+      // ==========================================
+      final responseStatus =
+          responseData['responseStatus']?.toString().toUpperCase();
+
+      if (responseStatus != "SUCCESS") {
+        Get.snackbar(
+          "Error",
+          responseData['responseStatusDetails']?.toString() ??
+              "MES Rejected Request",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+        return;
+      }
+
+      // ==========================================
+      // RESPONSE DATA
+      // ==========================================
+      final data = responseData['data'] ?? {};
+
+      final responseParameter = data['responseParameter'] ?? {};
+
+      final String testID = data['testID']?.toString() ?? "";
+
+      final String recipeId = responseParameter['recipeid']?.toString() ?? "";
+
+      final String modelNo = responseParameter['modelno']?.toString() ?? "";
+
+      final String varientCode =
+          responseParameter['varientCode']?.toString() ?? "";
+
+      print("✅ TEST ID : $testID");
+      print("✅ RECIPE ID : $recipeId");
+      print("✅ MODEL : $modelNo");
+      print("✅ VARIANT : $varientCode");
+
+      // ==========================================
+      // UPDATE VALUES
+      // ==========================================
+      modelNumber.value = modelNo;
+      variantCode.value = varientCode;
+
+      print("✅ RESULT API SUCCESS");
+
+      // ==========================================
+      // START SENSOR TESTING
+      // ==========================================
+      for (var sensor in sensorResults) {
+        List operations = sensor['operations'] ?? [];
+
+        print("\n🚀 [SENSOR START] ${sensor['part']}");
+
+        final int originalPrimaryReg = sensor['reg'] ?? 0;
+
+        bool sensorPassed = true;
+
+        for (int i = 0; i < operations.length; i++) {
+          var op = operations[i];
+
+          String operation = op.operation.toString();
+
+          int currentStepReg = int.tryParse(
+                op.registerAddress.toString(),
+              ) ??
+              originalPrimaryReg;
+
+          int value = int.tryParse(
+                op.value.toString(),
+              ) ??
+              0;
+
+          print(
+            "▶️ Step ${i + 1}: "
+            "$operation | "
+            "Reg: $currentStepReg | "
+            "Value: $value",
+          );
+
+          sensor['status'] = "TESTING...";
+          sensorResults.refresh();
+
+          // ======================================
+          // WRITE
+          // ======================================
+          if (operation == "WRITE") {
+            writeGeneratorDataRequest(
+              currentStepReg,
+              value,
+            );
+
+            await Future.delayed(
+              const Duration(milliseconds: 600),
+            );
+          }
+
+          // ======================================
+          // READ
+          // ======================================
+          else if (operation == "READ") {
+            sensor['reg'] = currentStepReg;
+            sensor['val'] = "-";
+
+            sensorResults.refresh();
+
+            bool received = await _readWithTimeout(
+              currentStepReg,
+            );
+
+            if (!received) {
+              sensor['reg'] = originalPrimaryReg;
+
+              sensor['status'] = "TIMEOUT";
+
+              sensorResults.refresh();
+
+              _handleAbort(
+                "Timeout at register "
+                "$currentStepReg",
+              );
+
+              return;
+            }
+
+            double? actual = double.tryParse(
+              sensor['val'].toString(),
+            );
+
+            double? min = (sensor['min'] as num?)?.toDouble();
+
+            double? max = (sensor['max'] as num?)?.toDouble();
+
+            if (actual != null && min != null && max != null) {
+              if (actual < min || actual > max) {
+                sensorPassed = false;
+              }
+            }
+          }
+
+          await Future.delayed(
+            const Duration(milliseconds: 300),
+          );
+        }
+
+        sensor['reg'] = originalPrimaryReg;
+
+        sensor['status'] = sensorPassed ? "OK" : "NOT OK";
+
+        sensorResults.refresh();
+
+        print(
+          "🏁 [SENSOR DONE] "
+          "${sensor['part']} "
+          "-> ${sensor['status']}",
+        );
+      }
+
+      // ==========================================
+      // TEST COMPLETE
+      // ==========================================
+      isTesting.value = false;
+
+      print("📡 AUTO RESULT API CALL");
+
+      await sendTestResultAPI();
+
+      _showPopup(
+        "Complete",
+        "Sequence executed successfully",
+        false,
+      );
+    } on SocketException {
+      Get.snackbar(
+        "No Internet",
+        "Check internet connection",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } on TimeoutException {
+      Get.snackbar(
+        "Timeout",
+        "Server timeout",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print(
+        "❌ startTestingSequence ERROR : $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+      isTesting.value = false;
+    }
   }
 
-  // ==========================================================
-  // TIMEOUT
-  // ==========================================================
-  on TimeoutException {
+  //old code end//
 
-    Get.snackbar(
+  //sunday code//
 
-      "Timeout",
+  Future<void> startTestingSequence1() async {
+    final plcCtrl = Get.find<PLCController>();
 
-      "Server timeout",
+    // ==========================================================
+    // PLC CONNECTION CHECK
+    // ==========================================================
+    if (!plcCtrl.isConnected.value) {
+      _showPopup(
+        "Hardware Offline",
+        "Connect PLC first",
+        true,
+      );
 
-      backgroundColor: Colors.orange,
+      return;
+    }
 
-      colorText: Colors.white,
-    );
+    if (isTesting.value) return;
+
+    try {
+      isTesting.value = true;
+      isLoading.value = true;
+
+      // ==========================================================
+      // STATION ID
+      // ==========================================================
+      String? stationId = await AppPreferences.getStationId();
+
+      // ==========================================================
+      // TOKEN
+      // ==========================================================
+      String? token = await AppPreferences.getToken();
+
+      // ==========================================================
+      // URL
+      // ==========================================================
+      final String url = "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
+
+      // ==========================================================
+      // REQUEST BODY
+      // ==========================================================
+      final Map<String, dynamic> requestBody = {
+        "type": "SENSOR_TEST",
+        "stationID": stationId ?? "SENSOR_1",
+        "requestParameters": {
+          "engineSerialNumber": serialNumber.value,
+        }
+      };
+
+      print("📤 =============================");
+      print("📤 SCHEDULE API REQUEST");
+      print("📤 URL : $url");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =============================");
+
+      // ==========================================================
+      // API CALL
+      // ==========================================================
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("📥 =============================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =============================");
+
+      // ==========================================================
+      // RESPONSE PARSE
+      // ==========================================================
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON PARSE ERROR : $e");
+      }
+
+      // ==========================================================
+      // DEV LOG
+      // ==========================================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: AppURLs.receipeData,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================================
+      // SESSION EXPIRED
+      // ==========================================================
+      if (response.statusCode == 401) {
+        print("🚨 TOKEN EXPIRED");
+
+        await AppPreferences.clearToken();
+
+        Get.snackbar(
+          "Session Expired",
+          "Please login again",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            Get.offAllNamed(
+              Routes.loginScreen,
+            );
+          },
+        );
+
+        return;
+      }
+
+      // ==========================================================
+      // API FAILED
+      // ==========================================================
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        Get.snackbar(
+          "Error",
+          responseData['messages']?[0]?['message'] ?? "Schedule API Failed",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+
+        return;
+      }
+
+      // ==========================================================
+      // RESPONSE VALIDATION
+      // ==========================================================
+      final responseStatus =
+          responseData['responseStatus']?.toString().toUpperCase();
+
+      if (responseStatus != "SUCCESS") {
+        Get.snackbar(
+          "Error",
+          responseData['responseStatusDetails']?.toString() ??
+              "MES Rejected Request",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+
+        return;
+      }
+
+      // ==========================================================
+      // RESPONSE DATA
+      // ==========================================================
+      final data = responseData['data'] ?? {};
+
+      final responseParameter = data['responseParameter'] ?? {};
+
+      testId.value = data['testID']?.toString() ?? "";
+
+      final String recipeId = responseParameter['recipeid']?.toString() ?? "";
+
+      final String modelNo = responseParameter['modelno']?.toString() ?? "";
+
+      final String varientCode =
+          responseParameter['varientCode']?.toString() ?? "";
+
+      print("✅ TEST ID : $testId");
+      print("✅ RECIPE ID : $recipeId");
+      print("✅ MODEL : $modelNo");
+      print("✅ VARIANT : $varientCode");
+
+      // ==========================================================
+      // UPDATE VALUES
+      // ==========================================================
+      modelNumber.value = modelNo;
+
+      variantCode.value = varientCode;
+
+      selectedRecipe.value?.recipeId = recipeId;
+
+      print("✅ SCHEDULE API SUCCESS");
+
+      // ==========================================================
+      // START SENSOR TESTING
+      // ==========================================================
+      for (var sensor in sensorResults) {
+        List operations = sensor['operations'] ?? [];
+
+        print(
+          "\n🚀 [SENSOR START] ${sensor['part']}",
+        );
+
+        final int originalPrimaryReg = sensor['reg'] ?? 0;
+
+        bool sensorPassed = true;
+
+        for (int i = 0; i < operations.length; i++) {
+          var op = operations[i];
+
+          String operation = op.operation.toString();
+
+          int currentStepReg = int.tryParse(
+                op.registerAddress.toString(),
+              ) ??
+              originalPrimaryReg;
+
+          int value = int.tryParse(
+                op.value.toString(),
+              ) ??
+              0;
+
+          print(
+            "▶️ Step ${i + 1}: "
+            "$operation | "
+            "Reg: $currentStepReg | "
+            "Value: $value",
+          );
+
+          sensor['status'] = "TESTING...";
+
+          sensorResults.refresh();
+
+          // ======================================================
+          // WRITE OPERATION
+          // ======================================================
+          if (operation == "WRITE") {
+            writeGeneratorDataRequest(
+              currentStepReg,
+              value,
+            );
+
+            await Future.delayed(
+              const Duration(
+                milliseconds: 600,
+              ),
+            );
+          }
+
+          // ======================================================
+          // READ OPERATION
+          // ======================================================
+          else if (operation == "READ") {
+            sensor['reg'] = currentStepReg;
+
+            sensor['val'] = "-";
+
+            sensorResults.refresh();
+
+            bool received = await _readWithTimeout(
+              currentStepReg,
+            );
+
+            if (!received) {
+              sensor['reg'] = originalPrimaryReg;
+
+              sensor['status'] = "TIMEOUT";
+
+              sensorResults.refresh();
+
+              _handleAbort(
+                "Timeout at register "
+                "$currentStepReg",
+              );
+
+              return;
+            }
+
+            double? actual = double.tryParse(
+              sensor['val'].toString(),
+            );
+
+            double? min = (sensor['min'] as num?)?.toDouble();
+
+            double? max = (sensor['max'] as num?)?.toDouble();
+
+            if (actual != null && min != null && max != null) {
+              if (actual < min || actual > max) {
+                sensorPassed = false;
+              }
+            }
+          }
+
+          await Future.delayed(
+            const Duration(
+              milliseconds: 300,
+            ),
+          );
+        }
+
+        sensor['reg'] = originalPrimaryReg;
+
+        sensor['status'] = sensorPassed ? "OK" : "NOT OK";
+
+        sensorResults.refresh();
+
+        print(
+          "🏁 [SENSOR DONE] "
+          "${sensor['part']} "
+          "-> ${sensor['status']}",
+        );
+      }
+
+      // ==========================================================
+      // TEST COMPLETE
+      // ==========================================================
+      isTesting.value = false;
+
+      print("📡 AUTO RESULT API CALL");
+
+      await sendTestResultAPI();
+
+      _showPopup(
+        "Complete",
+        "Sequence executed successfully",
+        false,
+      );
+    }
+
+    // ==========================================================
+    // INTERNET ERROR
+    // ==========================================================
+    on SocketException {
+      Get.snackbar(
+        "No Internet",
+        "Check internet connection",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // TIMEOUT
+    // ==========================================================
+    on TimeoutException {
+      Get.snackbar(
+        "Timeout",
+        "Server timeout",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // EXCEPTION
+    // ==========================================================
+    catch (e) {
+      print(
+        "❌ startTestingSequence ERROR : $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+
+      isTesting.value = false;
+    }
   }
-
-  // ==========================================================
-  // EXCEPTION
-  // ==========================================================
-  catch (e) {
-
-    print(
-      "❌ startTestingSequence ERROR : $e",
-    );
-
-    Get.snackbar(
-
-      "Error",
-
-      e.toString(),
-
-      backgroundColor: Colors.red,
-
-      colorText: Colors.white,
-    );
-  }
-
-  finally {
-
-    isLoading.value = false;
-
-    isTesting.value = false;
-  }
-}
 
 //sunday code end //
-
-
 
   // Future<void> startTestingSequence() async {
   //   final plcCtrl = Get.find<PLCController>();

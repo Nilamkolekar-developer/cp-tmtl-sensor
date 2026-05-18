@@ -161,6 +161,7 @@ class LoginController extends GetxController {
 
         final String userName = data['userName'];
         final String? stationId = data['stationId']?.toString();
+        
 
         /// =========================================
         /// PRINT USER INFO
@@ -189,6 +190,9 @@ class LoginController extends GetxController {
         await AppPreferences.setToken(
           accessToken,
         );
+         await AppPreferences.setActiveUser(user);
+
+ print("👤 [SESSION] Active User set: $user");
 
         if (stationId != null && stationId.isNotEmpty) {
           await AppPreferences.saveStationId(stationId);
