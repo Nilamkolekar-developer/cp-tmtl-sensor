@@ -162,7 +162,7 @@ class TestingScreen extends StatelessWidget {
                               controller.modelNumber.value,
                               labelFontSize,
                               valueFontSize)),
-                              Expanded(
+                       Expanded(
                           child: _buildReadOnlyInfo(
                               "Test ID",
                               controller.testId.value,
