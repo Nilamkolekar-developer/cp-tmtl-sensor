@@ -674,6 +674,7 @@ Widget build(BuildContext context) {
                         itemBuilder: (context, idx) {
                           final isSelected =
                               controller.selectedModelIndex.value == idx;
+                      
                           return GestureDetector(
                             onTap: () =>
                                 controller.selectModel(idx),
