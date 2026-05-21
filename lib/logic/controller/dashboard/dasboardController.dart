@@ -355,7 +355,7 @@ class DashboardController extends GetxController {
   // =====================================================
 
   final List<String> modelNos = [
-    "TD 2.2 L3",
+    "VC001",
     "TCD 2.2 L4",
     "TCD 2.9 L4",
     "D 2.9 L4",
@@ -439,7 +439,7 @@ class DashboardController extends GetxController {
 
       final Map<String, dynamic> requestBody = {
         "type": "SENSOR_TEST",
-        "stationId": "sensortesting_1",
+        "stationId": "SENSOR_1",
         "fromDate":
             "${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}",
         "toDate":
