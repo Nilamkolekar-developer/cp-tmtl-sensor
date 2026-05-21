@@ -547,7 +547,8 @@ for (var item in dashboardList) {
 
     "fail":
         int.tryParse(
-              item["totalTestFail"].toString(),
+              //item["totalTestFail"].toString(),
+               item["todayFailedTest"].toString(),
             ) ??
             0,
 

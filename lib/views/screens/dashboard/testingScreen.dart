@@ -244,8 +244,11 @@ class TestingScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             const SizedBox(width: 40), // expand icon space
-                            _buildHeaderCell("Register", tableCellFontSize,
+                            _buildHeaderCell("Sr.No", tableCellFontSize,
                                 flex: 1),
+
+                            _buildHeaderCell("Register", tableCellFontSize,
+                                flex: 2),
                             _buildHeaderCell("Component", tableCellFontSize,
                                 flex: 4),
                             _buildHeaderCell("Min", tableCellFontSize, flex: 2),
@@ -261,7 +264,12 @@ class TestingScreen extends StatelessWidget {
                       const Divider(height: 1, color: Colors.black12),
 
                       // ── ROWS ──
-                      ...controller.sensorResults.map((sensor) {
+                     ...controller.sensorResults
+                        .asMap()
+                           .entries
+                         .map((entry) {
+                        final int index = entry.key;
+                         final sensor = entry.value;
                         final String key = sensor['part'] ?? '';
                         final bool isExpanded =
                             controller.expandedSensors.contains(key);
@@ -292,6 +300,12 @@ class TestingScreen extends StatelessWidget {
                                                 .toggleSensorExpanded(key),
                                           ),
                                   ),
+                                   _buildFlexCell(
+                      "${index + 1}",
+                      tableCellFontSize,
+                      flex: 1,
+                    ),
+                        
                                   _buildFlexCell(sensor['reg'].toString(),
                                       tableCellFontSize,
                                       flex: 1),
