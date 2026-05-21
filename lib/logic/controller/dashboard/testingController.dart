@@ -2124,7 +2124,7 @@ class ESNController extends GetxController {
             );
 
             await Future.delayed(
-              const Duration(milliseconds: 600),
+              const Duration(milliseconds: 300),
             );
           }
 
@@ -2172,7 +2172,7 @@ class ESNController extends GetxController {
           }
 
           await Future.delayed(
-            const Duration(milliseconds: 300),
+            const Duration(milliseconds: 600),
           );
         }
 
@@ -2481,7 +2481,7 @@ class ESNController extends GetxController {
 
             await Future.delayed(
               const Duration(
-                milliseconds: 600,
+                milliseconds: 300,
               ),
             );
           }
