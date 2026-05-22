@@ -35,10 +35,9 @@ class ESNController extends GetxController {
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
   var recipeId = "-".obs;
-  var stationId = 
-  "-".obs;
-  var testCount = 0.obs; 
- 
+  var stationId = "-".obs;
+  var testCount = 0.obs;
+
   var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
@@ -245,7 +244,7 @@ class ESNController extends GetxController {
             "✅ TEST coutn : ${testCount.value}",
           );
 
-           print(
+          print(
             "✅recipeId : ${recipeId.value}",
           );
 
@@ -733,8 +732,10 @@ class ESNController extends GetxController {
     // =====================================================
     // ⚡ CURRENT SENSOR
     // =====================================================
-    if (typeStr.contains("current")) {
-      print("⚡ [MODE] CURRENT SENSOR");
+    if (typeStr.contains("current5A")) {
+      // Print typeStr
+      print("🧩 typeStr = $typeStr"); 
+      print("⚡ [MODE] CURRENT SENSOR 5A");
 
       // STEP 1: Raw Input
       print("🧩 STEP 1: Raw Input");
@@ -759,7 +760,62 @@ class ESNController extends GetxController {
       actualValue = (vout - offset) / 0.185;
 
       print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
+    } else if (typeStr.contains("current20A")) {
+      // Print typeStr
+      print("🧩 typeStr = $typeStr"); 
+      print("⚡ [MODE] CURRENT SENSOR 20 A");
+
+      // STEP 1: Raw Input
+      print("🧩 STEP 1: Raw Input");
+      print("   -> Raw PLC Value: $rawX");
+
+      // STEP 2: Voltage conversion
+      double vout = rawX.toDouble() / 1000.0;
+      print("🧩 STEP 2: Voltage Conversion");
+      print("   -> Vout = rawX / 1000 = $vout V");
+
+      // STEP 3: Offset
+      double offset = 2.5;
+      print("🧩 STEP 3: Offset Removal");
+      print("   -> Offset = $offset V");
+      print("   -> Vout - Offset = ${vout - offset}");
+
+      // STEP 4: Current Formula
+      print("🧩 STEP 4: Current Calculation");
+      print("   -> Formula: I = (Vout - 2.5) / 0.100"); //0.185
+      print("   -> Substitution: ($vout - $offset) / 0.100");
+
+      actualValue = (vout - offset) / 0.100;
+
+      print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
     }
+  //  else if (typeStr.contains("current")) {
+  //     print("⚡ [MODE] CURRENT SENSOR");
+
+  //     // STEP 1: Raw Input
+  //     print("🧩 STEP 1: Raw Input");
+  //     print("   -> Raw PLC Value: $rawX");
+
+  //     // STEP 2: Voltage conversion
+  //     double vout = rawX.toDouble() / 1000.0;
+  //     print("🧩 STEP 2: Voltage Conversion");
+  //     print("   -> Vout = rawX / 1000 = $vout V");
+
+  //     // STEP 3: Offset
+  //     double offset = 2.5;
+  //     print("🧩 STEP 3: Offset Removal");
+  //     print("   -> Offset = $offset V");
+  //     print("   -> Vout - Offset = ${vout - offset}");
+
+  //     // STEP 4: Current Formula
+  //     print("🧩 STEP 4: Current Calculation");
+  //     print("   -> Formula: I = (Vout - 2.5) / 0.185"); //0.185
+  //     print("   -> Substitution: ($vout - $offset) / 0.185");
+
+  //     actualValue = (vout - offset) / 0.185;
+
+  //     print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
+  //   }
 
     // =====================================================
     // 🔌 RESISTANCE SENSOR
@@ -793,62 +849,16 @@ class ESNController extends GetxController {
       double denominator = vin - vout;
       print("🧩 STEP 4: Denominator = $denominator");
 
-      actualValue = (r1 * vout) / denominator;
+      //actualValue = (r1 * vout) / denominator;
+      // STEP 5: Final Resistance Value without decimal
+       actualValue = ((r1 * vout) / denominator).round().toDouble();
 
       print("🧩 STEP 5: Resistance Result = $actualValue Ω");
     }
 
-    //new code
-//     else if (typeStr.contains("")) {
-//   print("⚙️ [MODE] RESISTANCE");
-
-//   double defaultR1 = 1000.0;
-
-//   if (typeStr.contains("resistance(2200)")) {
-//     defaultR1 = 2200.0;
-//   } else if (typeStr.contains("resistance(100)")) {
-//     defaultR1 = 100.0;
-//   }
-
-//   // STEP 1: R1
-//   double r1 = (s['multiplier'] as num?)?.toDouble() ?? defaultR1;
-//   print("🧩 STEP 1: R1 = $r1");
-
-//   // STEP 2: Vin
-//   double vin = (s['offset'] as num?)?.toDouble() ?? 5.0;
-//   print("🧩 STEP 2: Vin = $vin");
-
-//   // STEP 3: REMOVE LAST DIGIT FROM PLC VALUE
-//   int plcValue = rawX ~/ 10;
-
-//   // STEP 4: Vout
-//   double vout = (plcValue.toDouble() / 100.0) - 0.0001;
-
-//   print("🧩 STEP 3: PLC VALUE AFTER REMOVE LAST DIGIT = $plcValue");
-//   print("🧩 STEP 4: Vout = $vout");
-
-//   if (vout >= vin) vout = vin - 0.001;
-//   if (vout < 0) vout = 0;
-
-//   // STEP 5: Formula
-//   double denominator = vin - vout;
-//   print("🧩 STEP 5: Denominator = $denominator");
-
-//   actualValue = (r1 * vout) / denominator;
-
-//   print("🧩 STEP 6: Resistance Result = $actualValue Ω");
-// }
-
-
-
-
-
-
-
-
     // =====================================================
     // 📊 LINEAR SENSOR
-    // =================================
+     // =================================
     else {
       print("⚙️ [MODE] LINEAR");
 
@@ -1857,7 +1867,7 @@ class ESNController extends GetxController {
         // --- WRITE OPERATION ---
 
         if (operation == "WRITE") {
-           print("WRITE OPERATION : REG = $currentStepReg VALUE = $value");
+          print("WRITE OPERATION : REG = $currentStepReg VALUE = $value");
           writeGeneratorDataRequest(currentStepReg, value);
 
           await Future.delayed(const Duration(milliseconds: 3000));
@@ -1869,7 +1879,7 @@ class ESNController extends GetxController {
           // 🛡️ TRICK: Temporarily set the sensor's main reg to the step's reg
 
           // This allows 'handlePlcData' to find this sensor in the list.
-           print("READ OPERATION : REG = $currentStepReg");
+          print("READ OPERATION : REG = $currentStepReg");
 
           sensor['reg'] = currentStepReg;
 
@@ -2481,7 +2491,7 @@ class ESNController extends GetxController {
 
             await Future.delayed(
               const Duration(
-                milliseconds: 300,
+                milliseconds: 600,
               ),
             );
           }

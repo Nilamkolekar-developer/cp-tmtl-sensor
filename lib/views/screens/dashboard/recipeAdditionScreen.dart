@@ -449,6 +449,8 @@ class RecipeAdditionScreen extends StatelessWidget {
                                           "resistance(2200)",
                                           "resistance(100)",
                                           "current",
+                                          "current5A",
+                                          "current20A"
                                         ].contains(controller
                                             .sensorType.value.text
                                             .toLowerCase());
