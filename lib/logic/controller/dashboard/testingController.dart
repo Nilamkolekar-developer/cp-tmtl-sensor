@@ -202,7 +202,7 @@ void toggleSensorExpanded(String key) {
   //         "Authorization": "JWT $savedToken",
   //       },
   //       body: jsonEncode({"engine_serial_no": formattedEsn}),
-  //     );
+  //     );  
 
   //     print("📡 [RESPONSE] Status: ${response.statusCode}");
   //     print("📡 [RESPONSE] Body: ${response.body}");
@@ -277,7 +277,7 @@ void toggleSensorExpanded(String key) {
 
     final response = await http.post(
       Uri.parse(validateUrl),
-      headers: {
+      headers: { 
         "Content-Type": "application/json",
         "Accept": "application/json",
         "Authorization": "JWT $savedToken",
@@ -712,6 +712,8 @@ void toggleSensorExpanded(String key) {
     // =====================================================
     if (typeStr.contains("current")) {
       print("⚡ [MODE] CURRENT SENSOR");
+      // Print typeStr
+      print("🧩 typeStr = $typeStr");
 
       // STEP 1: Raw Input
       print("🧩 STEP 1: Raw Input");
@@ -744,6 +746,9 @@ void toggleSensorExpanded(String key) {
     else if (typeStr.contains("resistance")) {
       print("⚙️ [MODE] RESISTANCE");
 
+      // Print typeStr
+      print("🧩 typeStr = $typeStr"); 
+
       double defaultR1 = 1000.0;
       if (typeStr.contains("resistance(2200)")) {
         defaultR1 = 2200.0;
@@ -770,7 +775,11 @@ void toggleSensorExpanded(String key) {
       double denominator = vin - vout;
       print("🧩 STEP 4: Denominator = $denominator");
 
-      actualValue = (r1 * vout) / denominator;
+
+      //actualValue = (r1 * vout) / denominator;
+      // STEP 5: Final Resistance Value without decimal
+       actualValue = ((r1 * vout) / denominator).round().toDouble();
+      
 
       print("🧩 STEP 5: Resistance Result = $actualValue Ω");
     }
@@ -1533,6 +1542,7 @@ Future<void> startTestingSequence() async {
   print("📡 [AUTO-SAVE] Sequence complete. Sending to server...");
   await sendResultsToServer();
   _showPopup("Complete", "Sequence executed and data saved successfully", false);
+
 }
 
 
