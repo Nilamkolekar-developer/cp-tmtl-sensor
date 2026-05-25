@@ -740,6 +740,68 @@ void toggleSensorExpanded(String key) {
       print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
     }
 
+     // current  5A
+      else if (typeStr.contains("current5A")) {
+      print("⚡ [MODE] CURRENT SENSOR");
+      // Print typeStr
+      print("🧩 typeStr = $typeStr");
+
+      // STEP 1: Raw Input
+      print("🧩 STEP 1: Raw Input");
+      print("   -> Raw PLC Value: $rawX");
+
+      // STEP 2: Voltage conversion
+      double vout = rawX.toDouble() / 1000.0;
+      print("🧩 STEP 2: Voltage Conversion");
+      print("   -> Vout = rawX / 1000 = $vout V");
+
+      // STEP 3: Offset
+      double offset = 2.5;
+      print("🧩 STEP 3: Offset Removal");
+      print("   -> Offset = $offset V");
+      print("   -> Vout - Offset = ${vout - offset}");
+
+      // STEP 4: Current Formula
+      print("🧩 STEP 4: Current Calculation");
+      print("   -> Formula: I = (Vout - 2.5) / 0.185");
+      print("   -> Substitution: ($vout - $offset) / 0.185");
+
+      actualValue = (vout - offset) / 0.185;
+
+      print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
+    }
+
+   // cureent 20A
+    else if (typeStr.contains("current20A")) {
+      print("⚡ [MODE] CURRENT SENSOR");
+      // Print typeStr
+      print("🧩 typeStr = $typeStr");
+
+      // STEP 1: Raw Input
+      print("🧩 STEP 1: Raw Input");
+      print("   -> Raw PLC Value: $rawX");
+
+      // STEP 2: Voltage conversion
+      double vout = rawX.toDouble() / 1000.0;
+      print("🧩 STEP 2: Voltage Conversion");
+      print("   -> Vout = rawX / 1000 = $vout V");
+
+      // STEP 3: Offset
+      double offset = 2.5;
+      print("🧩 STEP 3: Offset Removal");
+      print("   -> Offset = $offset V");
+      print("   -> Vout - Offset = ${vout - offset}");
+
+      // STEP 4: Current Formula
+      print("🧩 STEP 4: Current Calculation");
+      print("   -> Formula: I = (Vout - 2.5) / 0.100");
+      print("   -> Substitution: ($vout - $offset) / 0.100");
+
+      actualValue = (vout - offset) / 0.100;
+
+      print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
+    }
+
     // =====================================================
     // 🔌 RESISTANCE SENSOR
     // =====================================================

@@ -194,7 +194,20 @@ class TestRecipeScreen extends StatelessWidget {
                                           onPressed: () => controller
                                               .exportSingleRecipe(item),
                                         ),
+                                        // DELETE
+       IconButton(
+        icon: Icon(
+          Icons.delete,
+          color: Colors.red,
+          size: isDesktop ? 22 : 18,
+        ),
+        onPressed: () {
+
+          controller.deleteRecipe(item);
+        }
+       )
                                       ],
+
                                     ),
                                   ),
                                 ],

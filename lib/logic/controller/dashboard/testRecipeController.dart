@@ -196,4 +196,54 @@ Future<void> loadStoredRecipes() async {
       );
     }
   }
+// ==========================================
+// DELETE RECIPE
+// ==========================================
+Future<void> deleteRecipe(
+  Recipe recipe,
+) async {
+
+  try {
+
+    // REMOVE FROM LIST
+    recipeList.remove(recipe);
+
+    // SAVE UPDATED LIST
+    // await AppPreferences.saveRecipesForCurrentUser(
+    //   recipeList,
+    // );
+
+    // REFRESH UI
+    recipeList.refresh();
+
+    print(
+      "🗑️ Recipe Deleted : ${recipe.model}",
+    );
+
+    Get.dialog(
+      CustomPopup(
+        title: "Delete Success",
+        message:
+            "Recipe deleted successfully.",
+      ),
+    );
+  }
+
+  catch (e) {
+
+    print(
+      "❌ DELETE ERROR : $e",
+    );
+
+    Get.dialog(
+      CustomPopup(
+        title: "Delete Failed",
+        message: "Error : $e",
+        isError: true,
+      ),
+    );
+  }
+}
+
+
 }
