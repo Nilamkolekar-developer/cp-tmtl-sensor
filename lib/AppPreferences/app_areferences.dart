@@ -123,6 +123,16 @@ static Future<String?> getSavedUsername() async {
   return prefs.getString('saved_username');
 }
 
+static Future<void> saveStationId(String StationId) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('stationId', StationId);
+}
+
+static Future<String?> getStationId() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('stationId');
+}
+
 // ── PASSWORD ──────────────────────────────────────
 static Future<void> savePassword(String password) async {
   final prefs = await SharedPreferences.getInstance();
