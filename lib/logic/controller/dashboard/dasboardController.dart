@@ -1,86 +1,3 @@
-// import 'package:get/get.dart';
-// import 'package:package_info_plus/package_info_plus.dart';
-
-// class DashboardController extends GetxController {
-//   RxString appName = ''.obs;
-//   RxString version = ''.obs;
-//   RxString buildNumber = ''.obs;
-//   RxInt selectedModelIndex = 0.obs;
-
-//   final RxList<Map<String, dynamic>> engineModels = [
-//     {
-//       "name": "TD 2.2 L3",
-//       "total": 120,
-//       "today": 45,
-//       "pass": 40,
-//       "fail": 3,
-//       "plan": 50
-//     },
-//     {
-//       "name": "TCD 2.2 L4",
-//       "total": 95,
-//       "today": 30,
-//       "pass": 25,
-//       "fail": 4,
-//       "plan": 40
-//     },
-//     {
-//       "name": "TCD 2.9 L4",
-//       "total": 150,
-//       "today": 60,
-//       "pass": 55,
-//       "fail": 2,
-//       "plan": 70
-//     },
-//     {
-//       "name": "D 2.9 L4",
-//       "total": 80,
-//       "today": 20,
-//       "pass": 15,
-//       "fail": 5,
-//       "plan": 30
-//     },
-//     {
-//       "name": "TD 2.9",
-//       "total": 60,
-//       "today": 15,
-//       "pass": 12,
-//       "fail": 1,
-//       "plan": 20
-//     },
-//   ].obs;
-
-//   // ✅ Add this — reactive selected model
-//   final selectedModel = <String, dynamic>{}.obs;
-
-//   // Keep your existing getter (still works for non-reactive use)
-//   Map<String, dynamic> get currentModel =>
-//       engineModels[selectedModelIndex.value];
-
-//   // ✅ Add this — call this from sidebar tap
-//   void selectModel(int index) {
-//     selectedModelIndex.value = index;
-//     selectedModel.value = engineModels[index]; // ✅ triggers Obx
-//   }
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     selectedModel.value = engineModels[0]; // ✅ set initial
-//     loadAppInfo();
-//   }
-
-//   Future<void> loadAppInfo() async {
-//     try {
-//       final info = await PackageInfo.fromPlatform();
-//       appName.value = info.appName;
-//       version.value = info.version;
-//       buildNumber.value = info.buildNumber;
-//     } catch (e) {
-//       appName.value = "ATPL Tool";
-//     }
-//   }
-// }
 // import 'dart:convert';
 // import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 // import 'package:cp_tmtl_sensor_zig/api/dev/dev_service.dart';
@@ -390,6 +307,7 @@
 
 //sunday//
 import 'dart:convert';
+
 import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 import 'package:cp_tmtl_sensor_zig/api/dev/dev_service.dart';
 import 'package:get/get.dart';
@@ -397,6 +315,7 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DashboardController extends GetxController {
+
   // =====================================================
   // APP INFO
   // =====================================================
@@ -417,14 +336,15 @@ class DashboardController extends GetxController {
 
   RxInt selectedModelIndex = 0.obs;
 
-  final RxMap<String, dynamic> selectedModel = <String, dynamic>{}.obs;
+  final RxMap<String, dynamic> selectedModel =
+      <String, dynamic>{}.obs;
 
   // =====================================================
   // API URL
   // =====================================================
 
   static const String dashboardApiUrl =
-      "http://139.59.76.174:8080//api/v1/support/traceability/test";
+      "http://139.59.76.174:8080/api/v1/support/traceability/test";
 
   // =====================================================
   // ENGINE MODELS
@@ -434,15 +354,11 @@ class DashboardController extends GetxController {
       <Map<String, dynamic>>[].obs;
 
   // =====================================================
-  // DEFAULT MODEL IDS
+  // MODEL IDS
   // =====================================================
 
   final List<String> modelNos = [
-    "VC001",
-    "TCD 2.2 L4",
-    "TCD 2.9 L4",
-    "D 2.9 L4",
-    "TD 2.9",
+    "MOD-2024",
   ];
 
   // =====================================================
@@ -450,6 +366,7 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Map<String, dynamic> get currentModel {
+
     if (engineModels.isEmpty) {
       return {};
     }
@@ -475,13 +392,19 @@ class DashboardController extends GetxController {
   // =====================================================
 
   Future<void> loadAppInfo() async {
+
     try {
+
       final info = await PackageInfo.fromPlatform();
 
       appName.value = info.appName;
       version.value = info.version;
       buildNumber.value = info.buildNumber;
+
     } catch (e) {
+
+      print("❌ APP INFO ERROR : $e");
+
       appName.value = "ATPL Tool";
     }
   }
@@ -491,6 +414,7 @@ class DashboardController extends GetxController {
   // =====================================================
 
   void selectModel(int index) {
+
     selectedModelIndex.value = index;
 
     selectedModel.assignAll(
@@ -499,14 +423,37 @@ class DashboardController extends GetxController {
   }
 
   // =====================================================
-  // FETCH DASHBOARD API
+  // FETCH DASHBOARD DATA
   // =====================================================
 
   Future<void> fetchDashboardData() async {
+
     try {
+
       isLoading.value = true;
 
-      String? token = await AppPreferences.getToken();
+      // =================================================
+      // GET TOKEN
+      // =================================================
+
+      String? token =
+          await AppPreferences.getToken();
+
+      print("🔑 STORED TOKEN : $token");
+
+      // =================================================
+      // CHECK TOKEN
+      // =================================================
+
+      if (token == null || token.isEmpty) {
+
+        Get.snackbar(
+          "Authentication Error",
+          "JWT Token not found. Please login again.",
+        );
+
+        return;
+      }
 
       // =================================================
       // DATE RANGE
@@ -514,45 +461,86 @@ class DashboardController extends GetxController {
 
       final DateTime now = DateTime.now();
 
-      final DateTime fromDate = now.subtract(const Duration(days: 30));
+      final DateTime fromDate =
+          now.subtract(const Duration(days: 30));
 
       // =================================================
       // REQUEST BODY
       // =================================================
 
       final Map<String, dynamic> requestBody = {
+
         "type": "SENSOR_TEST",
-        "stationId": "SENSOR_1",
+
+        "stationId": "OP 10",
+
         "fromDate":
             "${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}",
+
         "toDate":
             "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}",
+
         "modelNo": modelNos,
       };
 
+      // =================================================
+      // PRINT REQUEST
+      // =================================================
+
+      print("");
       print("=================================================");
       print("📡 DASHBOARD API REQUEST");
-      print("URL : $dashboardApiUrl");
-      print("BODY: ${jsonEncode(requestBody)}");
       print("=================================================");
+
+      print("URL :");
+      print(dashboardApiUrl);
+
+      print("");
+
+      print("HEADERS :");
+      print({
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      });
+
+      print("");
+
+      print("REQUEST BODY :");
+
+      print(
+        const JsonEncoder.withIndent('  ')
+            .convert(requestBody),
+      );
+
+      print("=================================================");
+      print("");
 
       // =================================================
       // API CALL
       // =================================================
 
-      final response = await http
-          .post(
+      final response = await http.post(
+
         Uri.parse(dashboardApiUrl),
+
         headers: {
+
           "Content-Type": "application/json",
+
           "Accept": "application/json",
-          "Authorization": "Bearer $token",
+
+          "Authorization": "JWT $token",
         },
+
         body: jsonEncode(requestBody),
-      )
-          .timeout(
+
+      ).timeout(
+
         const Duration(seconds: 15),
+
         onTimeout: () {
+
           throw Exception(
             "Request timed out. Please check network.",
           );
@@ -563,26 +551,57 @@ class DashboardController extends GetxController {
       // RESPONSE BODY
       // =================================================
 
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final Map<String, dynamic> responseBody =
+          jsonDecode(response.body);
 
+      // =================================================
+      // PRINT RESPONSE
+      // =================================================
+
+      print("");
       print("=================================================");
       print("📥 DASHBOARD API RESPONSE");
-      print("STATUS CODE : ${response.statusCode}");
-      print("BODY        : ${response.body}");
       print("=================================================");
+
+      print("STATUS CODE : ${response.statusCode}");
+
+      print("");
+
+      print("RESPONSE BODY :");
+
+      print(
+        const JsonEncoder.withIndent('  ')
+            .convert(responseBody),
+      );
+
+      print("=================================================");
+      print("");
 
       // =================================================
       // API LOG
       // =================================================
 
       DevService.instance.insertAPICall(
+
         AppAPIsCall(
-          id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-          type: "POST ${response.statusCode}",
-          path: dashboardApiUrl,
-          dateTime: DateTime.now(),
-          data: requestBody,
-          response: responseBody,
+
+          id:
+              "${DateTime.now().millisecondsSinceEpoch}",
+
+          type:
+              "POST ${response.statusCode}",
+
+          path:
+              dashboardApiUrl,
+
+          dateTime:
+              DateTime.now(),
+
+          data:
+              requestBody,
+
+          response:
+              responseBody,
         ),
       );
 
@@ -591,86 +610,108 @@ class DashboardController extends GetxController {
       // =================================================
 
       if (response.statusCode == 200) {
-        if (responseBody["responseStatus"] == "SUCCESS") {
+
+        if (responseBody["responseStatus"]
+                ?.toString() ==
+            "SUCCESS") {
+
           // =============================================
           // CLEAR OLD LIST
           // =============================================
 
-        engineModels.clear();
+          engineModels.clear();
 
-final List<dynamic> dashboardList =
-    responseBody["data"]["data"] ?? [];
+          // =============================================
+          // GET DATA LIST
+          // =============================================
 
-print("DASHBOARD LIST : $dashboardList");
+          final List<dynamic> dashboardList =
+              responseBody["data"] ?? [];
 
-for (var item in dashboardList) {
+          print("📦 DASHBOARD LIST :");
+          print(dashboardList);
 
-  engineModels.add({
+          // =============================================
+          // LOOP DATA
+          // =============================================
 
-    "name":
-        item["modelId"]?.toString() ?? "-",
+          for (var item in dashboardList) {
 
-    "total":
-        int.tryParse(
-              item["totalTested"].toString(),
-            ) ??
-            0,
+            engineModels.add({
 
-    "today":
-        int.tryParse(
-              item["todayTested"].toString(),
-            ) ??
-            0,
+              "name":
+                  item["modelId"]
+                          ?.toString() ??
+                      "-",
 
-    "pass":
-        int.tryParse(
-              item["totalTestPass"].toString(),
-            ) ??
-            0,
+              "total":
+                  int.tryParse(
+                        item["totalTested"]
+                            .toString(),
+                      ) ??
+                      0,
 
-    "fail":
-        int.tryParse(
-              //item["totalTestFail"].toString(),
-               item["todayFailedTest"].toString(),
-            ) ??
-            0,
+              "today":
+                  int.tryParse(
+                        item["todayTested"]
+                            .toString(),
+                      ) ??
+                      0,
 
-    "todayPass":
-        int.tryParse(
-              item["todayPassTest"].toString(),
-            ) ??
-            0,
+              "pass":
+                  int.tryParse(
+                        item["totalTestPass"]
+                            .toString(),
+                      ) ??
+                      0,
 
-    "todayFail":
-        int.tryParse(
-              item["todayFailedTest"].toString(),
-            ) ??
-            0,
-  });
+              "fail":
+                  int.tryParse(
+                        item["totalTestFail"]
+                            .toString(),
+                      ) ??
+                      0,
 
-  print("MODEL : ${engineModels.last}");
-}
+              "todayPass":
+                  int.tryParse(
+                        item["todayPasstest"]
+                            .toString(),
+                      ) ??
+                      0,
 
-if (engineModels.isNotEmpty) {
+              "todayFail":
+                  int.tryParse(
+                        item["todayFailedTest"]
+                            .toString(),
+                      ) ??
+                      0,
+            });
 
-  selectedModelIndex.value = 0;
-
-  selectedModel.value =
-      Map<String, dynamic>.from(
-          engineModels.first);
-
-  print("SELECTED MODEL : $selectedModel");
-}
+            print("✅ MODEL :");
+            print(engineModels.last);
+          }
 
           // =============================================
           // SELECT FIRST MODEL
           // =============================================
 
           if (engineModels.isNotEmpty) {
-            selectedModel.assignAll(
+
+            selectedModelIndex.value = 0;
+
+            selectedModel.value =
+                Map<String, dynamic>.from(
               engineModels.first,
             );
+
+            print("");
+            print("🎯 SELECTED MODEL :");
+            print(selectedModel);
           }
+
+          // =============================================
+          // SUCCESS MESSAGE
+          // =============================================
 
           Get.snackbar(
             "Success",
@@ -683,10 +724,20 @@ if (engineModels.isNotEmpty) {
         // =============================================
 
         else {
+
+          print("❌ API FAILURE");
+
+          String errorMessage =
+              responseBody[
+                      "responseStatusDetails"]
+                  ?.toString() ??
+              "Failed to fetch dashboard data";
+
           Get.snackbar(
             "Error",
-            responseBody["responseStatusDetails"] ??
-                "Failed to fetch dashboard data",
+            errorMessage,
+            duration:
+                const Duration(seconds: 4),
           );
         }
       }
@@ -696,6 +747,7 @@ if (engineModels.isNotEmpty) {
       // =================================================
 
       else if (response.statusCode == 401) {
+
         Get.snackbar(
           "Unauthorized",
           "Session expired. Please login again.",
@@ -707,9 +759,10 @@ if (engineModels.isNotEmpty) {
       // =================================================
 
       else {
+
         Get.snackbar(
           "Server Error",
-          "Status Code: ${response.statusCode}",
+          "Status Code : ${response.statusCode}",
         );
       }
     }
@@ -719,20 +772,28 @@ if (engineModels.isNotEmpty) {
     // ===================================================
 
     catch (e) {
-      print("❌ DASHBOARD ERROR: $e");
 
-      if (e.toString().contains("SocketException") ||
-          e.toString().contains("semaphore") ||
-          e.toString().contains("timeout")) {
+      print("❌ DASHBOARD ERROR : $e");
+
+      if (e.toString().contains(
+              "SocketException") ||
+          e.toString().contains(
+              "timeout")) {
+
         Get.snackbar(
           "Network Error",
           "Cannot reach server. Check your network connection.",
-          duration: const Duration(seconds: 4),
+          duration:
+              const Duration(seconds: 4),
         );
+
       } else {
+
         Get.snackbar(
           "Error",
-          "Failed to load dashboard data",
+          e.toString(),
+          duration:
+              const Duration(seconds: 4),
         );
       }
     }
@@ -742,16 +803,17 @@ if (engineModels.isNotEmpty) {
     // ===================================================
 
     finally {
+
       isLoading.value = false;
     }
   }
 
   // =====================================================
-  // REFRESH
+  // REFRESH DASHBOARD
   // =====================================================
 
   Future<void> refreshDashboard() async {
+
     await fetchDashboardData();
   }
 }
-

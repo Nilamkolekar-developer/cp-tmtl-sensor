@@ -31,10 +31,12 @@ class ESNController extends GetxController {
   var isValidated = false.obs;
   var isTesting = false.obs;
   var isScanning = false.obs;
-
+ var testCount = "-".obs;
   var serialNumber = "-".obs;
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
+  var recipeId = "-".obs;
+   var testId = "-".obs;
   var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
@@ -152,111 +154,9 @@ class ESNController extends GetxController {
     print("🚀 Sensors successfully loaded for model: ${recipe.model}");
   }
 
-  // void validateESN() {
-  //   String esn = esnTextFieldController.text.trim();
-  //   if (esn.isEmpty) return;
-
-  //   serialNumber.value = "SN-$esn";
-
-  //   // Logic to determine model based on ESN content
-  //   if (esn.contains("9780070602205")) {
-  //     modelNumber.value = "TD 2.2 L3";
-  //     variantCode.value = "V-B8_DIESEL";
-  //   } else if (esn.contains("STATHNL000002088")) {
-  //     modelNumber.value = "TCD 2.2 L4";
-  //     variantCode.value = "V-C1_DIESEL";
-  //   } else if (esn.startsWith("9781119550822")) {
-  //     modelNumber.value = "TCD 2.9 L4";
-  //     variantCode.value = "V-IND_99";
-  //   } else {
-  //     modelNumber.value = "Default Model";
-  //     variantCode.value = "V-GENERIC";
-  //   }
-
-  //   loadSensorsFromRecipe(); // This will now load based on the updated model/variant
-  //   isValidated.value = true;
-  // }
+  
   RxBool isLoading = false.obs;
-  // Future<void> validateESN() async {
-  //   String esn = esnTextFieldController.text.trim();
-  //   if (esn.isEmpty) {
-  //     Get.snackbar("Error", "Please enter an ESN",
-  //         backgroundColor: Colors.redAccent, colorText: Colors.white);
-  //     return;
-  //   }
-
-  //   final String formattedEsn = "SN-$esn";
-
-  //   try {
-  //     isLoading.value = true;
-  //     print("📡 [ESN VALIDATION] Sending: $formattedEsn");
-
-  //     String? savedToken = await AppPreferences.getToken();
-  //     final String baseUrl = AppEnvironment.baseUrl;
-  //     final String validateUrl = "$baseUrl${AppURLs.engineNumberCheck}";
-  //     final response = await http.post(
-  //       Uri.parse(validateUrl),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         // Prefix must be exactly "JWT " followed by your token
-  //         "Authorization": "JWT $savedToken",
-  //       },
-  //       body: jsonEncode({"engine_serial_no": formattedEsn}),
-  //     );
-
-  //     print("📡 [RESPONSE] Status: ${response.statusCode}");
-  //     print("📡 [RESPONSE] Body: ${response.body}");
-
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> responseData = jsonDecode(response.body);
-
-  //       if (responseData['success'] == true && responseData['data'] != null) {
-  //         final data = responseData['data'];
-
-  //         serialNumber.value = formattedEsn;
-
-  //         // ✅ Updated keys to match typical Autopeepal API patterns
-  //         // Ensure these keys match exactly what the /validate/ ESN response returns
-  //         modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
-  //         variantCode.value =
-  //             data['variant_code']?.toString() ?? "Unknown Variant";
-  //         modelValidationId.value = responseData['data']['id'].toString();
-
-  //         print(
-  //             "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
-
-  //         await loadSensorsFromRecipe();
-  //         isValidated.value = true;
-
-  //         Get.snackbar("Success", "ESN Validated",
-  //             backgroundColor: Colors.green, colorText: Colors.white);
-  //       } else {
-  //         Get.snackbar("Invalid ESN",
-  //             responseData['message'] ?? "No data found for this ESN",
-  //             backgroundColor: Colors.orange);
-  //       }
-  //     } else if (response.statusCode == 401) {
-  //       // ⚠️ Handle Session Expired
-  //       print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
-  //       Get.snackbar("Session Expired", "Please login again",
-  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
-
-  //       // Clear token and redirect to login
-  //       await AppPreferences.clearToken();
-  //       Get.offAllNamed(Routes.loginScreen);
-  //     } else {
-  //       Get.snackbar(
-  //           "Server Error", "Something went wrong (${response.statusCode})",
-  //           backgroundColor: Colors.redAccent, colorText: Colors.white);
-  //     }
-  //   } catch (e) {
-  //     print("❌ [ESN VALIDATION ERROR] $e");
-  //     Get.snackbar("Error", "Failed to connect to server");
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
+  
 
   Future<void> validateESN() async {
     String esn = esnTextFieldController.text.trim();
@@ -745,7 +645,7 @@ class ESNController extends GetxController {
     }
 
     // current  5A
-    else if (typeStr.contains("current5A")) {
+    else if (typeStr.contains("currentta")) {
       print("⚡ [MODE] CURRENT SENSOR");
       // Print typeStr
       print("🧩 typeStr = $typeStr");
@@ -776,7 +676,7 @@ class ESNController extends GetxController {
     }
 
     // cureent 20A
-    else if (typeStr.contains("current20A")) {
+    else if (typeStr.contains("currentfa")) {
       print("⚡ [MODE] CURRENT SENSOR");
       // Print typeStr
       print("🧩 typeStr = $typeStr");
@@ -1100,60 +1000,60 @@ class ESNController extends GetxController {
 //   }
 // }
 
-  Future<void> sendResultsToServer() async {
-    if (sensorResults.isEmpty) return;
+  // Future<void> sendResultsToServer() async {
+  //   if (sensorResults.isEmpty) return;
 
-    // 1. Prepare payload exactly like before
-    List<Map<String, dynamic>> payload = sensorResults
-        .map((s) => {
-              "register": int.tryParse(s['reg'].toString()) ?? 0,
-              "component": s['part'].toString(),
-              "min": double.tryParse(s['min'].toString()) ?? 0.0,
-              "max": double.tryParse(s['max'].toString()) ?? 0.0,
-              "value": double.tryParse(s['val'].toString()) ?? 0.0,
-              "result": s['status'].toString(),
-            })
-        .toList();
+  //   // 1. Prepare payload exactly like before
+  //   List<Map<String, dynamic>> payload = sensorResults
+  //       .map((s) => {
+  //             "register": int.tryParse(s['reg'].toString()) ?? 0,
+  //             "component": s['part'].toString(),
+  //             "min": double.tryParse(s['min'].toString()) ?? 0.0,
+  //             "max": double.tryParse(s['max'].toString()) ?? 0.0,
+  //             "value": double.tryParse(s['val'].toString()) ?? 0.0,
+  //             "result": s['status'].toString(),
+  //           })
+  //       .toList();
 
-    final String url =
-        "http://139.59.76.174:8080/api/v1/support/create/${modelValidationId.value}/model-validation-session/";
+  //   final String url =
+  //       "http://139.59.76.174:8080/api/v1/support/create/${modelValidationId.value}/model-validation-session/";
 
-    try {
-      isLoading.value = true;
-      String? token = await AppPreferences.getToken();
+  //   try {
+  //     isLoading.value = true;
+  //     String? token = await AppPreferences.getToken();
 
-      final response = await http
-          .post(
-            Uri.parse(url),
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "JWT $token"
-            },
-            body: jsonEncode(payload),
-          )
-          .timeout(const Duration(seconds: 10));
+  //     final response = await http
+  //         .post(
+  //           Uri.parse(url),
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             "Authorization": "JWT $token"
+  //           },
+  //           body: jsonEncode(payload),
+  //         )
+  //         .timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        Get.snackbar("Success", "Data synced to server",
-            backgroundColor: Colors.green);
-      } else {
-        throw HttpException("Server Error: ${response.statusCode}");
-      }
-    } catch (e) {
-      // 🔴 OFFLINE DETECTED or SERVER DOWN
-      print("📡 [OFFLINE] Saving to sync queue: $e");
-      await _saveToSyncQueue(url, payload);
+  //     if (response.statusCode == 201 || response.statusCode == 200) {
+  //       Get.snackbar("Success", "Data synced to server",
+  //           backgroundColor: Colors.green);
+  //     } else {
+  //       throw HttpException("Server Error: ${response.statusCode}");
+  //     }
+  //   } catch (e) {
+  //     // 🔴 OFFLINE DETECTED or SERVER DOWN
+  //     print("📡 [OFFLINE] Saving to sync queue: $e");
+  //     await _saveToSyncQueue(url, payload);
 
-      Get.snackbar(
-          "Offline Mode", "Results saved locally. Will sync when online.",
-          backgroundColor: Colors.orange, duration: const Duration(seconds: 5));
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  //     Get.snackbar(
+  //         "Offline Mode", "Results saved locally. Will sync when online.",
+  //         backgroundColor: Colors.orange, duration: const Duration(seconds: 5));
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
 // Save a failed request to a local file
-  Future<void> _saveToSyncQueue(
+  Future<void>saveToSyncQueue(
       String url, List<Map<String, dynamic>> payload) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -1223,6 +1123,263 @@ class ESNController extends GetxController {
       }
     } catch (e) {
       print("❌ [SYNC ERROR] $e");
+    }
+  }
+
+//
+
+  Future<void> sendTestResultAPI() async {
+    if (sensorResults.isEmpty) {
+      Get.snackbar(
+        "No Data",
+        "No sensor data available",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+
+      // ==========================================================
+      // TOKEN
+      // ==========================================================
+      String? token = await AppPreferences.getToken();
+
+      // ==========================================================
+      // STATION ID
+      // ==========================================================
+      String? stationId = await AppPreferences.getStationId();
+
+      // ==========================================================
+      // URL
+      // ==========================================================
+      final String url = "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
+
+      // ==========================================================
+      // SENSOR LIST
+      // ==========================================================
+      List<Map<String, dynamic>> sensors = sensorResults.map((s) {
+        return {
+          "sensorName": s['part'].toString(),
+          "value": s['val'].toString(),
+          "test": s['status'].toString(),
+          "min": double.tryParse(
+                s['min'].toString(),
+              ) ??
+              0,
+          "max": double.tryParse(
+                s['max'].toString(),
+              ) ??
+              0,
+          "unit": s['unit']?.toString() ?? "",
+        };
+      }).toList();
+
+      // ==========================================================
+      // OVERALL RESULT
+      // ==========================================================
+      bool isPass = sensorResults.every(
+        (s) => s['status'] == "OK",
+      );
+
+      // ==========================================================
+      // DATE TIME
+      // ==========================================================
+      final now = DateTime.now();
+
+      final String currentDate =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+      final String currentTime =
+          "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}";
+
+      // ==========================================================
+      // RECIPE ID
+      // ==========================================================
+
+      try {
+        recipeId.value = selectedRecipe.value?.model?.toString() ?? "";
+      } catch (e) {
+        print("❌ Recipe ID Error : $e");
+      }
+
+      // ==========================================================
+      // REQUEST BODY
+      // ==========================================================
+      final Map<String, dynamic> requestBody = {
+        "type": "SENSOR_TEST",
+        "testtype": "Live",
+        "stationId": stationId ?? "OP 10",
+        "testNotStarted": "false",
+        "payload": {
+          "date": currentDate,
+          "time": currentTime,
+          "testCount": testCount.value,
+          "engineSerialNumber": serialNumber.value,
+          "recipeID": recipeId.value,
+          "modelNo": modelNumber.value,
+          "variantCode": variantCode.value,
+          "testId": testId.value,
+          "numberOfTestAttempts": 1,
+          "test_attempt_info": [
+            {
+              "testattemptId": "TEST-${DateTime.now().millisecondsSinceEpoch}",
+              "testResult": isPass ? "Pass" : "Failed",
+              "sensors": sensors,
+            }
+          ]
+        }
+      };
+
+      print("📤 =========================");
+      print("📤 RESULT API REQUEST");
+      print("📤 URL : $url");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =========================");
+
+      // ==========================================================
+      // API CALL
+      // ==========================================================
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "JWT $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("📥 =========================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =========================");
+
+      // ==========================================================
+      // RESPONSE PARSE
+      // ==========================================================
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON ERROR : $e");
+      }
+
+      // ==========================================================
+      // DEV LOG
+      // ==========================================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: AppURLs.receipeData,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================================
+      // SESSION EXPIRED
+      // ==========================================================
+      if (response.statusCode == 401) {
+        await AppPreferences.clearToken();
+
+        Get.snackbar(
+          "Session Expired",
+          "Please login again",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            Get.offAllNamed(
+              Routes.loginScreen,
+            );
+          },
+        );
+
+        return;
+      }
+
+      // ==========================================================
+      // SUCCESS / FAILED
+      // ==========================================================
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseStatus =
+            responseData['responseStatus']?.toString().toUpperCase();
+
+        if (responseStatus == "SUCCESS") {
+          Get.snackbar(
+            "Success",
+            responseData['messages']?[0]?['message'] ??
+                "Test Result Uploaded Successfully",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            "Error",
+            responseData['responseStatusDetails']?.toString() ??
+                "MES Processing Failed",
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      } else {
+        Get.snackbar(
+          "Error",
+          responseData['messages']?[0]?['message'] ?? "Result Upload Failed",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    }
+
+    // ==========================================================
+    // INTERNET ERROR
+    // ==========================================================
+    on SocketException {
+      Get.snackbar(
+        "No Internet",
+        "Check internet connection",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // TIMEOUT
+    // ==========================================================
+    on TimeoutException {
+      Get.snackbar(
+        "Timeout",
+        "Server timeout",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // EXCEPTION
+    // ==========================================================
+    catch (e) {
+      print("❌ RESULT API ERROR : $e");
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -1417,6 +1574,8 @@ class ESNController extends GetxController {
   //       "Complete", "Sequence executed and data saved successfully", false);
   // }
 
+
+
   Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
 
@@ -1497,7 +1656,7 @@ class ESNController extends GetxController {
     }
 
     isTesting.value = false;
-    await sendResultsToServer();
+    await sendTestResultAPI();
     _showPopup(
         "Complete", "Sequence executed and data saved successfully", false);
   }
@@ -1564,7 +1723,7 @@ class ESNController extends GetxController {
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
-          "Authorization": "Bearer $token",
+          "Authorization": "JWT $token",
         },
         body: jsonEncode(requestBody),
       );
@@ -1678,7 +1837,7 @@ class ESNController extends GetxController {
       final String varientCode =
           responseParameter['varientCode']?.toString() ?? "";
 
-      print("✅ TEST ID : $");
+      print("✅ TEST ID : $testId");
       print("✅ RECIPE ID : $recipeId");
       print("✅ MODEL : $modelNo");
       print("✅ VARIANT : $varientCode");
@@ -1690,7 +1849,7 @@ class ESNController extends GetxController {
 
       variantCode.value = varientCode;
 
-      selectedRecipe.value?.recipeId = recipeId;
+      selectedRecipe.value?.model = recipeId;
 
       print("✅ SCHEDULE API SUCCESS");
 
