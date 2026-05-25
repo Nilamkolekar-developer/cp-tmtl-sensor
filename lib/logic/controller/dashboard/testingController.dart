@@ -42,15 +42,16 @@ class ESNController extends GetxController {
 
   // ✅ ADD these to TestRecipeController (where recipeList is defined)
 // In ESNController
-var expandedSensors = <String>{}.obs;
+  var expandedSensors = <String>{}.obs;
 
-void toggleSensorExpanded(String key) {
-  if (expandedSensors.contains(key)) {
-    expandedSensors.remove(key);
-  } else {
-    expandedSensors.add(key);
+  void toggleSensorExpanded(String key) {
+    if (expandedSensors.contains(key)) {
+      expandedSensors.remove(key);
+    } else {
+      expandedSensors.add(key);
+    }
   }
-}
+
   @override
   void onInit() {
     super.onInit();
@@ -202,7 +203,7 @@ void toggleSensorExpanded(String key) {
   //         "Authorization": "JWT $savedToken",
   //       },
   //       body: jsonEncode({"engine_serial_no": formattedEsn}),
-  //     );  
+  //     );
 
   //     print("📡 [RESPONSE] Status: ${response.statusCode}");
   //     print("📡 [RESPONSE] Body: ${response.body}");
@@ -258,135 +259,139 @@ void toggleSensorExpanded(String key) {
   // }
 
   Future<void> validateESN() async {
-  String esn = esnTextFieldController.text.trim();
-  if (esn.isEmpty) {
-    Get.snackbar("Error", "Please enter an ESN",
-        backgroundColor: Colors.redAccent, colorText: Colors.white);
-    return;
-  }
-
-  final String formattedEsn = "SN-$esn";
-  final requestBody = {"engine_serial_no": formattedEsn};
-
-  try {
-    isLoading.value = true;
-    print("📡 [ESN VALIDATION] Sending: $formattedEsn");
-
-    String? savedToken = await AppPreferences.getToken();
-    final String validateUrl = "${AppEnvironment.baseUrl}${AppURLs.engineNumberCheck}";
-
-    final response = await http.post(
-      Uri.parse(validateUrl),
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "JWT $savedToken",
-      },
-      body: jsonEncode(requestBody),
-    );
-
-    print("📡 [RESPONSE] Status: ${response.statusCode}");
-    print("📡 [RESPONSE] Body: ${response.body}");
-
-    // ✅ Log to DevScreen
-    Map<String, dynamic> parsedResponse = {};
-    try {
-      parsedResponse = jsonDecode(response.body);
-    } catch (_) {
-      parsedResponse = {"raw": response.body};
+    String esn = esnTextFieldController.text.trim();
+    if (esn.isEmpty) {
+      Get.snackbar("Error", "Please enter an ESN",
+          backgroundColor: Colors.redAccent, colorText: Colors.white);
+      return;
     }
-    parsedResponse['statusCode'] = response.statusCode;
 
-    DevService.instance.insertAPICall(AppAPIsCall(
-      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-      type: 'POST ${response.statusCode}',
-      path: AppURLs.engineNumberCheck,
-      dateTime: DateTime.now(),
-      data: requestBody,
-      response: parsedResponse,
-    ));
+    final String formattedEsn = "SN-$esn";
+    final requestBody = {"engine_serial_no": formattedEsn};
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = jsonDecode(response.body);
+    try {
+      isLoading.value = true;
+      print("📡 [ESN VALIDATION] Sending: $formattedEsn");
 
-      if (responseData['success'] == true && responseData['data'] != null) {
-        final data = responseData['data'];
+      String? savedToken = await AppPreferences.getToken();
+      final String validateUrl =
+          "${AppEnvironment.baseUrl}${AppURLs.engineNumberCheck}";
 
-        serialNumber.value = formattedEsn;
-        modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
-        variantCode.value = data['variant_code']?.toString() ?? "Unknown Variant";
-        modelValidationId.value = data['id']?.toString() ?? "";
+      final response = await http.post(
+        Uri.parse(validateUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "JWT $savedToken",
+        },
+        body: jsonEncode(requestBody),
+      );
 
-        print("✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
+      print("📡 [RESPONSE] Status: ${response.statusCode}");
+      print("📡 [RESPONSE] Body: ${response.body}");
 
-        await loadSensorsFromRecipe();
-        isValidated.value = true;
+      // ✅ Log to DevScreen
+      Map<String, dynamic> parsedResponse = {};
+      try {
+        parsedResponse = jsonDecode(response.body);
+      } catch (_) {
+        parsedResponse = {"raw": response.body};
+      }
+      parsedResponse['statusCode'] = response.statusCode;
 
-        Get.snackbar("Success", "ESN Validated",
-            backgroundColor: Colors.green, colorText: Colors.white);
+      DevService.instance.insertAPICall(AppAPIsCall(
+        id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+        type: 'POST ${response.statusCode}',
+        path: AppURLs.engineNumberCheck,
+        dateTime: DateTime.now(),
+        data: requestBody,
+        response: parsedResponse,
+      ));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true && responseData['data'] != null) {
+          final data = responseData['data'];
+
+          serialNumber.value = formattedEsn;
+          modelNumber.value = data['model_no']?.toString() ?? "Unknown Model";
+          variantCode.value =
+              data['variant_code']?.toString() ?? "Unknown Variant";
+          modelValidationId.value = data['id']?.toString() ?? "";
+
+          print(
+              "✅ [ESN DATA] Model: ${modelNumber.value}, Variant: ${variantCode.value}");
+
+          await loadSensorsFromRecipe();
+          isValidated.value = true;
+
+          Get.snackbar("Success", "ESN Validated",
+              backgroundColor: Colors.green, colorText: Colors.white);
+        } else {
+          Get.snackbar(
+            "Invalid ESN",
+            responseData['message'] ?? "No data found for this ESN",
+            backgroundColor: Colors.orange,
+          );
+        }
+      } else if (response.statusCode == 401) {
+        print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
+        await AppPreferences.clearToken();
+        Get.snackbar("Session Expired", "Please login again",
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.offAllNamed(Routes.loginScreen);
       } else {
         Get.snackbar(
-          "Invalid ESN",
-          responseData['message'] ?? "No data found for this ESN",
-          backgroundColor: Colors.orange,
+          "Server Error",
+          "Something went wrong (${response.statusCode})",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
         );
       }
-    } else if (response.statusCode == 401) {
-      print("🚨 [UNAUTHORIZED] Token is invalid or expired.");
-      await AppPreferences.clearToken();
-      Get.snackbar("Session Expired", "Please login again",
+    } on SocketException {
+      // ✅ Log network error
+      DevService.instance.insertAPICall(AppAPIsCall(
+        id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+        type: 'POST ERROR',
+        path: AppURLs.engineNumberCheck,
+        dateTime: DateTime.now(),
+        data: requestBody,
+        response: {
+          "error": "SocketException",
+          "message": "No internet connection"
+        },
+      ));
+      Get.snackbar("No Connection", "Check your internet and try again",
           backgroundColor: Colors.redAccent, colorText: Colors.white);
-      Get.offAllNamed(Routes.loginScreen);
-
-    } else {
-      Get.snackbar(
-        "Server Error", "Something went wrong (${response.statusCode})",
-        backgroundColor: Colors.redAccent, colorText: Colors.white,
-      );
+    } on TimeoutException {
+      // ✅ Log timeout
+      DevService.instance.insertAPICall(AppAPIsCall(
+        id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+        type: 'POST TIMEOUT',
+        path: AppURLs.engineNumberCheck,
+        dateTime: DateTime.now(),
+        data: requestBody,
+        response: {"error": "TimeoutException", "message": "Request timed out"},
+      ));
+      Get.snackbar("Timeout", "Server took too long to respond",
+          backgroundColor: Colors.orange, colorText: Colors.white);
+    } catch (e) {
+      // ✅ Log exception
+      DevService.instance.insertAPICall(AppAPIsCall(
+        id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
+        type: 'POST EXCEPTION',
+        path: AppURLs.engineNumberCheck,
+        dateTime: DateTime.now(),
+        data: requestBody,
+        response: {"error": "Exception", "message": e.toString()},
+      ));
+      print("❌ [ESN VALIDATION ERROR] $e");
+      Get.snackbar("Error", "Failed to connect to server");
+    } finally {
+      isLoading.value = false;
     }
-  } on SocketException {
-    // ✅ Log network error
-    DevService.instance.insertAPICall(AppAPIsCall(
-      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-      type: 'POST ERROR',
-      path: AppURLs.engineNumberCheck,
-      dateTime: DateTime.now(),
-      data: requestBody,
-      response: {"error": "SocketException", "message": "No internet connection"},
-    ));
-    Get.snackbar("No Connection", "Check your internet and try again",
-        backgroundColor: Colors.redAccent, colorText: Colors.white);
-
-  } on TimeoutException {
-    // ✅ Log timeout
-    DevService.instance.insertAPICall(AppAPIsCall(
-      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-      type: 'POST TIMEOUT',
-      path: AppURLs.engineNumberCheck,
-      dateTime: DateTime.now(),
-      data: requestBody,
-      response: {"error": "TimeoutException", "message": "Request timed out"},
-    ));
-    Get.snackbar("Timeout", "Server took too long to respond",
-        backgroundColor: Colors.orange, colorText: Colors.white);
-
-  } catch (e) {
-    // ✅ Log exception
-    DevService.instance.insertAPICall(AppAPIsCall(
-      id: "${DateTime.now().millisecondsSinceEpoch} ${DateTime.now().toIso8601String()}",
-      type: 'POST EXCEPTION',
-      path: AppURLs.engineNumberCheck,
-      dateTime: DateTime.now(),
-      data: requestBody,
-      response: {"error": "Exception", "message": e.toString()},
-    ));
-    print("❌ [ESN VALIDATION ERROR] $e");
-    Get.snackbar("Error", "Failed to connect to server");
-
-  } finally {
-    isLoading.value = false;
   }
-}
 
   // --- 1. THE DECODING ENGINE (Pure Dart) ---
   bool _decodeFromBytes(Uint8List bytes) {
@@ -686,7 +691,6 @@ void toggleSensorExpanded(String key) {
   }
 
   var responseMap = <int, bool>{}.obs;
- 
 
   void handlePlcData(int reg, int rawX) {
     int index = sensorResults.indexWhere((s) => s['reg'] == reg);
@@ -740,8 +744,8 @@ void toggleSensorExpanded(String key) {
       print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
     }
 
-     // current  5A
-      else if (typeStr.contains("current5A")) {
+    // current  5A
+    else if (typeStr.contains("current5A")) {
       print("⚡ [MODE] CURRENT SENSOR");
       // Print typeStr
       print("🧩 typeStr = $typeStr");
@@ -771,7 +775,7 @@ void toggleSensorExpanded(String key) {
       print("   -> Result Current: ${actualValue.toStringAsFixed(4)} A");
     }
 
-   // cureent 20A
+    // cureent 20A
     else if (typeStr.contains("current20A")) {
       print("⚡ [MODE] CURRENT SENSOR");
       // Print typeStr
@@ -809,7 +813,7 @@ void toggleSensorExpanded(String key) {
       print("⚙️ [MODE] RESISTANCE");
 
       // Print typeStr
-      print("🧩 typeStr = $typeStr"); 
+      print("🧩 typeStr = $typeStr");
 
       double defaultR1 = 1000.0;
       if (typeStr.contains("resistance(2200)")) {
@@ -837,11 +841,9 @@ void toggleSensorExpanded(String key) {
       double denominator = vin - vout;
       print("🧩 STEP 4: Denominator = $denominator");
 
-
       //actualValue = (r1 * vout) / denominator;
       // STEP 5: Final Resistance Value without decimal
-       actualValue = ((r1 * vout) / denominator).round().toDouble();
-      
+      actualValue = ((r1 * vout) / denominator).round().toDouble();
 
       print("🧩 STEP 5: Resistance Result = $actualValue Ω");
     }
@@ -1098,7 +1100,6 @@ void toggleSensorExpanded(String key) {
 //   }
 // }
 
-
   Future<void> sendResultsToServer() async {
     if (sensorResults.isEmpty) return;
 
@@ -1292,7 +1293,8 @@ void toggleSensorExpanded(String key) {
   Future<bool> _readWithTimeout(int regAddr) async {
     final plcCtrl = Get.find<PLCController>();
 
-    print("📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
+    print(
+        "📤 [READ REQUEST] Reg: $regAddr | PLC Connected: ${plcCtrl.isConnected.value}");
 
     if (!plcCtrl.isConnected.value) {
       print("❌ [READ SKIP] PLC not connected");
@@ -1302,14 +1304,16 @@ void toggleSensorExpanded(String key) {
     sendGeneratorDataRequest(regAddr);
 
     int timeout = 0;
-    while (timeout < 50) { // 5 seconds total
+    while (timeout < 50) {
+      // 5 seconds total
       await Future.delayed(const Duration(milliseconds: 100));
 
       // We look for the sensor that is currently assigned this register
       int index = sensorResults.indexWhere((s) => s['reg'] == regAddr);
 
       if (index != -1 && sensorResults[index]['val'] != "-") {
-        print("✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']}");
+        print(
+            "✅ [READ OK] Reg: $regAddr | Val: ${sensorResults[index]['val']}");
         return true;
       }
 
@@ -1413,7 +1417,7 @@ void toggleSensorExpanded(String key) {
   //       "Complete", "Sequence executed and data saved successfully", false);
   // }
 
-Future<void> startTestingSequence() async {
+  Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
 
     if (!plcCtrl.isConnected.value) {
@@ -1435,7 +1439,8 @@ Future<void> startTestingSequence() async {
       for (int i = 0; i < operations.length; i++) {
         var op = operations[i];
         String operation = op.operation;
-        int currentStepReg = int.tryParse(op.registerAddress) ?? originalPrimaryReg;
+        int currentStepReg =
+            int.tryParse(op.registerAddress) ?? originalPrimaryReg;
         int value = int.tryParse(op.value) ?? 0;
 
         print("▶️ Step ${i + 1}: $operation | Reg: $currentStepReg");
@@ -1447,14 +1452,14 @@ Future<void> startTestingSequence() async {
         if (operation == "WRITE") {
           writeGeneratorDataRequest(currentStepReg, value);
           await Future.delayed(const Duration(milliseconds: 600));
-        } 
-        
+        }
+
         // --- READ OPERATION ---
         else if (operation == "READ") {
           // 🛡️ TRICK: Temporarily set the sensor's main reg to the step's reg
           // This allows 'handlePlcData' to find this sensor in the list.
           sensor['reg'] = currentStepReg;
-          sensor['val'] = "-"; 
+          sensor['val'] = "-";
           sensorResults.refresh();
 
           bool received = await _readWithTimeout(currentStepReg);
@@ -1484,7 +1489,7 @@ Future<void> startTestingSequence() async {
 
       // ✅ CRITICAL: Restore the original primary register after all steps are done
       sensor['reg'] = originalPrimaryReg;
-      
+
       // Final result for this sensor
       sensor['status'] = sensorPassed ? "OK" : "NOT OK";
       sensorResults.refresh();
@@ -1493,122 +1498,382 @@ Future<void> startTestingSequence() async {
 
     isTesting.value = false;
     await sendResultsToServer();
-    _showPopup("Complete", "Sequence executed and data saved successfully", false);
+    _showPopup(
+        "Complete", "Sequence executed and data saved successfully", false);
   }
 
   Future<void> startTestingSequence1() async {
-  final plcCtrl = Get.find<PLCController>();
+    final plcCtrl = Get.find<PLCController>();
 
-  if (!plcCtrl.isConnected.value) {
-    _showPopup("Hardware Offline", "Connect PLC first", true);
-    return;
-  }
+    // ==========================================================
+    // PLC CONNECTION CHECK
+    // ==========================================================
+    if (!plcCtrl.isConnected.value) {
+      _showPopup(
+        "Hardware Offline",
+        "Connect PLC first",
+        true,
+      );
 
-  if (isTesting.value) return;
-  isTesting.value = true;
-
-  for (var sensor in sensorResults) {
-    List operations = sensor['operations'] ?? [];
-
-    print("\n🚀 [SENSOR START] ${sensor['part']}");
-
-    // ✅ Reset sensor state before starting
-    sensor['val']    = "-";
-    sensor['status'] = "TESTING...";
-    sensorResults.refresh();
-
-    bool sensorPassed = true;
-
-    for (int i = 0; i < operations.length; i++) {
-      var op = operations[i];
-
-      String operation = op.operation;
-      int reg   = int.tryParse(op.registerAddress) ?? (sensor['reg'] ?? 0);
-      int value = int.tryParse(op.value) ?? 0;
-
-      print("▶️ Step ${i + 1}: $operation | Reg: $reg | Val: $value");
-
-      sensor['status'] = "TESTING...";
-      sensorResults.refresh();
-
-      // ── WRITE ────────────────────────────────────────────────────────
-      if (operation == "WRITE") {
-        writeGeneratorDataRequest(reg, value);
-        sensor['status'] = "WRITING...";
-        sensorResults.refresh();
-        print("📤 WRITE reg=$reg value=$value");
-        await Future.delayed(const Duration(milliseconds: 500));
-      }
-
-      // ── READ ─────────────────────────────────────────────────────────
-      else if (operation == "READ") {
-        // ✅ Reset val before reading so we get fresh data
-        sensor['val'] = "-";
-        sensorResults.refresh();
-
-        bool received = await _readWithTimeout(reg);
-
-        if (!received) {
-          sensor['status'] = "TIMEOUT";
-          sensor['val']    = "--";
-          sensorResults.refresh();
-          _handleAbort("Timeout at ${sensor['part']}");
-          isTesting.value = false;
-          return;
-        }
-
-        // ✅ handlePlcData already calculated & stored val — just use it
-        String rawVal = sensor['val']?.toString() ?? "-";
-        double? actualValue = double.tryParse(rawVal);
-
-        print("📥 READ reg=$reg | Calculated val=$actualValue");
-
-        // ✅ Compare with min/max from sensor map
-        double? minVal = (sensor['min'] as num?)?.toDouble();
-        double? maxVal = (sensor['max'] as num?)?.toDouble();
-
-        if (actualValue != null && minVal != null && maxVal != null) {
-          bool isInRange = actualValue >= minVal && actualValue <= maxVal;
-
-          if (isInRange) {
-            sensor['status'] = "OK";
-            print("✅ PASS — $actualValue within [$minVal, $maxVal] ${sensor['unit'] ?? ''}");
-          } else {
-            sensor['status'] = "NOT OK";
-            sensorPassed = false;
-            print("❌ FAIL — $actualValue outside [$minVal, $maxVal] ${sensor['unit'] ?? ''}");
-          }
-        } else if (actualValue != null) {
-          // No min/max defined — just store OK
-          sensor['status'] = "OK";
-          print("ℹ️ No min/max defined — val=$actualValue stored as OK");
-        } else {
-          sensor['status'] = "NOT OK";
-          sensorPassed = false;
-          print("❌ Could not parse val: $rawVal");
-        }
-
-        sensorResults.refresh();
-      }
-
-      await Future.delayed(const Duration(milliseconds: 300));
+      return;
     }
 
-    // ✅ Final result for this sensor after all operations
-    sensor['status'] = sensorPassed ? "OK" : "NOT OK";
-    sensorResults.refresh();
+    if (isTesting.value) return;
 
-    print("${sensorPassed ? '✅' : '❌'} [SENSOR DONE] ${sensor['part']} → ${sensor['status']}");
+    try {
+      isTesting.value = true;
+      isLoading.value = true;
+
+      // ==========================================================
+      // STATION ID
+      // ==========================================================
+      String? stationId = await AppPreferences.getStationId();
+
+      // ==========================================================
+      // TOKEN
+      // ==========================================================
+      String? token = await AppPreferences.getToken();
+
+      // ==========================================================
+      // URL
+      // ==========================================================
+      final String url = "${AppEnvironment.baseUrl}${AppURLs.receipeData}";
+
+      // ==========================================================
+      // REQUEST BODY
+      // ==========================================================
+      final Map<String, dynamic> requestBody = {
+        "type": "SENSOR_TEST",
+        "stationID": stationId ?? "SENSOR_1",
+        "requestParameters": {
+          "engineSerialNumber": serialNumber.value,
+        }
+      };
+
+      print("📤 =============================");
+      print("📤 SCHEDULE API REQUEST");
+      print("📤 URL : $url");
+      print("📤 BODY : ${jsonEncode(requestBody)}");
+      print("📤 =============================");
+
+      // ==========================================================
+      // API CALL
+      // ==========================================================
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("📥 =============================");
+      print("📥 STATUS : ${response.statusCode}");
+      print("📥 RESPONSE : ${response.body}");
+      print("📥 =============================");
+
+      // ==========================================================
+      // RESPONSE PARSE
+      // ==========================================================
+      Map<String, dynamic> responseData = {};
+
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print("❌ JSON PARSE ERROR : $e");
+      }
+
+      // ==========================================================
+      // DEV LOG
+      // ==========================================================
+      DevService.instance.insertAPICall(
+        AppAPIsCall(
+          id: "${DateTime.now().millisecondsSinceEpoch}_${DateTime.now()}",
+          type: "POST ${response.statusCode}",
+          path: AppURLs.receipeData,
+          dateTime: DateTime.now(),
+          data: requestBody,
+          response: responseData,
+        ),
+      );
+
+      // ==========================================================
+      // SESSION EXPIRED
+      // ==========================================================
+      if (response.statusCode == 401) {
+        print("🚨 TOKEN EXPIRED");
+
+        await AppPreferences.clearToken();
+
+        Get.snackbar(
+          "Session Expired",
+          "Please login again",
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+
+        Future.delayed(
+          const Duration(seconds: 1),
+          () {
+            Get.offAllNamed(
+              Routes.loginScreen,
+            );
+          },
+        );
+
+        return;
+      }
+
+      // ==========================================================
+      // API FAILED
+      // ==========================================================
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        Get.snackbar(
+          "Error",
+          responseData['messages']?[0]?['message'] ?? "Schedule API Failed",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+
+        return;
+      }
+
+      // ==========================================================
+      // RESPONSE VALIDATION
+      // ==========================================================
+      final responseStatus =
+          responseData['responseStatus']?.toString().toUpperCase();
+
+      if (responseStatus != "SUCCESS") {
+        Get.snackbar(
+          "Error",
+          responseData['responseStatusDetails']?.toString() ??
+              "MES Rejected Request",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        isTesting.value = false;
+
+        return;
+      }
+
+      // ==========================================================
+      // RESPONSE DATA
+      // ==========================================================
+      final data = responseData['data'] ?? {};
+
+      final responseParameter = data['responseParameter'] ?? {};
+
+      testId.value = data['testID']?.toString() ?? "";
+
+      final String recipeId = responseParameter['recipeid']?.toString() ?? "";
+
+      final String modelNo = responseParameter['modelno']?.toString() ?? "";
+
+      final String varientCode =
+          responseParameter['varientCode']?.toString() ?? "";
+
+      print("✅ TEST ID : $");
+      print("✅ RECIPE ID : $recipeId");
+      print("✅ MODEL : $modelNo");
+      print("✅ VARIANT : $varientCode");
+
+      // ==========================================================
+      // UPDATE VALUES
+      // ==========================================================
+      modelNumber.value = modelNo;
+
+      variantCode.value = varientCode;
+
+      selectedRecipe.value?.recipeId = recipeId;
+
+      print("✅ SCHEDULE API SUCCESS");
+
+      // ==========================================================
+      // START SENSOR TESTING
+      // ==========================================================
+      for (var sensor in sensorResults) {
+        List operations = sensor['operations'] ?? [];
+
+        print(
+          "\n🚀 [SENSOR START] ${sensor['part']}",
+        );
+
+        final int originalPrimaryReg = sensor['reg'] ?? 0;
+
+        bool sensorPassed = true;
+
+        for (int i = 0; i < operations.length; i++) {
+          var op = operations[i];
+
+          String operation = op.operation.toString();
+
+          int currentStepReg = int.tryParse(
+                op.registerAddress.toString(),
+              ) ??
+              originalPrimaryReg;
+
+          int value = int.tryParse(
+                op.value.toString(),
+              ) ??
+              0;
+
+          print(
+            "▶️ Step ${i + 1}: "
+            "$operation | "
+            "Reg: $currentStepReg | "
+            "Value: $value",
+          );
+
+          sensor['status'] = "TESTING...";
+
+          sensorResults.refresh();
+
+          // ======================================================
+          // WRITE OPERATION
+          // ======================================================
+          if (operation == "WRITE") {
+            writeGeneratorDataRequest(
+              currentStepReg,
+              value,
+            );
+
+            await Future.delayed(
+              const Duration(
+                milliseconds: 600,
+              ),
+            );
+          }
+
+          // ======================================================
+          // READ OPERATION
+          // ======================================================
+          else if (operation == "READ") {
+            sensor['reg'] = currentStepReg;
+
+            sensor['val'] = "-";
+
+            sensorResults.refresh();
+
+            bool received = await _readWithTimeout(
+              currentStepReg,
+            );
+
+            if (!received) {
+              sensor['reg'] = originalPrimaryReg;
+
+              sensor['status'] = "TIMEOUT";
+
+              sensorResults.refresh();
+
+              _handleAbort(
+                "Timeout at register "
+                "$currentStepReg",
+              );
+
+              return;
+            }
+
+            double? actual = double.tryParse(
+              sensor['val'].toString(),
+            );
+
+            double? min = (sensor['min'] as num?)?.toDouble();
+
+            double? max = (sensor['max'] as num?)?.toDouble();
+
+            if (actual != null && min != null && max != null) {
+              if (actual < min || actual > max) {
+                sensorPassed = false;
+              }
+            }
+          }
+
+          await Future.delayed(
+            const Duration(
+              milliseconds: 300,
+            ),
+          );
+        }
+
+        sensor['reg'] = originalPrimaryReg;
+
+        sensor['status'] = sensorPassed ? "OK" : "NOT OK";
+
+        sensorResults.refresh();
+
+        print(
+          "🏁 [SENSOR DONE] "
+          "${sensor['part']} "
+          "-> ${sensor['status']}",
+        );
+      }
+
+      // ==========================================================
+      // TEST COMPLETE
+      // ==========================================================
+      isTesting.value = false;
+
+      print("📡 AUTO RESULT API CALL");
+
+      await sendTestResultAPI();
+
+      _showPopup(
+        "Complete",
+        "Sequence executed successfully",
+        false,
+      );
+    }
+
+    // ==========================================================
+    // INTERNET ERROR
+    // ==========================================================
+    on SocketException {
+      Get.snackbar(
+        "No Internet",
+        "Check internet connection",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // TIMEOUT
+    // ==========================================================
+    on TimeoutException {
+      Get.snackbar(
+        "Timeout",
+        "Server timeout",
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+    }
+
+    // ==========================================================
+    // EXCEPTION
+    // ==========================================================
+    catch (e) {
+      print(
+        "❌ startTestingSequence ERROR : $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+
+      isTesting.value = false;
+    }
   }
-
-  // ✅ All sensors done
-  isTesting.value = false;
-  print("📡 [AUTO-SAVE] Sequence complete. Sending to server...");
-  await sendResultsToServer();
-  _showPopup("Complete", "Sequence executed and data saved successfully", false);
-
-}
-
 
   // Future<void> startTestingSequence() async {
   //   final plcCtrl = Get.find<PLCController>();
