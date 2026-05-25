@@ -31,12 +31,12 @@ class ESNController extends GetxController {
   var isValidated = false.obs;
   var isTesting = false.obs;
   var isScanning = false.obs;
- var testCount = "-".obs;
+  var testCount = "-".obs;
   var serialNumber = "-".obs;
   var variantCode = "-".obs;
   var modelNumber = "-".obs;
   var recipeId = "-".obs;
-   var testId = "-".obs;
+  var testId = "-".obs;
   var modelValidationId = "-".obs;
   var selectedRecipe = Rxn<Recipe>();
   CameraController? cameraController;
@@ -154,9 +154,7 @@ class ESNController extends GetxController {
     print("🚀 Sensors successfully loaded for model: ${recipe.model}");
   }
 
-  
   RxBool isLoading = false.obs;
-  
 
   Future<void> validateESN() async {
     String esn = esnTextFieldController.text.trim();
@@ -1053,7 +1051,7 @@ class ESNController extends GetxController {
   // }
 
 // Save a failed request to a local file
-  Future<void>saveToSyncQueue(
+  Future<void> saveToSyncQueue(
       String url, List<Map<String, dynamic>> payload) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -1217,7 +1215,10 @@ class ESNController extends GetxController {
         "payload": {
           "date": currentDate,
           "time": currentTime,
-          "testCount": testCount.value,
+          "testCount": int.tryParse(
+                testCount.value.toString(),
+              ) ??
+              0,
           "engineSerialNumber": serialNumber.value,
           "recipeID": recipeId.value,
           "modelNo": modelNumber.value,
@@ -1311,35 +1312,53 @@ class ESNController extends GetxController {
       // ==========================================================
       // SUCCESS / FAILED
       // ==========================================================
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final responseStatus =
-            responseData['responseStatus']?.toString().toUpperCase();
+      if (response.statusCode == 200 ||
+    response.statusCode == 201) {
 
-        if (responseStatus == "SUCCESS") {
-          Get.snackbar(
-            "Success",
-            responseData['messages']?[0]?['message'] ??
-                "Test Result Uploaded Successfully",
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-          );
-        } else {
-          Get.snackbar(
-            "Error",
-            responseData['responseStatusDetails']?.toString() ??
-                "MES Processing Failed",
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-      } else {
-        Get.snackbar(
-          "Error",
-          responseData['messages']?[0]?['message'] ?? "Result Upload Failed",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
+  final responseStatus =
+      responseData['responseStatus']
+          ?.toString()
+          .toUpperCase();
+
+  if (responseStatus == "SUCCESS" ||
+      responseStatus == "200") {
+
+    Get.snackbar(
+      "Success",
+
+      responseData['messages']?[0]?['message'] ??
+          "Test Result Uploaded Successfully",
+
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+
+  } else {
+
+    Get.snackbar(
+      "Error",
+
+      responseData['responseStatusDetails']
+              ?.toString() ??
+          "MES Processing Failed",
+
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+
+} else {
+
+  Get.snackbar(
+    "Error",
+
+    responseData['messages']?[0]?['message'] ??
+        "Result Upload Failed",
+
+    backgroundColor: Colors.red,
+    colorText: Colors.white,
+  );
+}
     }
 
     // ==========================================================
@@ -1573,8 +1592,6 @@ class ESNController extends GetxController {
   //   _showPopup(
   //       "Complete", "Sequence executed and data saved successfully", false);
   // }
-
-
 
   Future<void> startTestingSequence() async {
     final plcCtrl = Get.find<PLCController>();
