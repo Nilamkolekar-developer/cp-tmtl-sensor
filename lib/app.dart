@@ -249,7 +249,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:window_manager/window_manager.dart';
 // ignore: unused_import
-import 'package:cp_tmtl_sensor_zig/services/log_service.dart';
+import 'package:cp_tmtl_sensor_zig/services/log_file.dart';
 
 class App {
   static App instance = App();

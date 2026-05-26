@@ -9,6 +9,7 @@ import 'package:cp_tmtl_sensor_zig/api/dev/dev_service.dart';
 import 'package:cp_tmtl_sensor_zig/logic/controller/dashboard/testRecipeController.dart';
 import 'package:cp_tmtl_sensor_zig/routes/routes_string.dart';
 import 'package:flutter/material.dart';
+import 'package:cp_tmtl_sensor_zig/services/log_file.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,6 +41,7 @@ class LoginController extends GetxController {
       passwordController.text = savedPass;
     }
     print("📖 [LOGIN] Loaded saved credentials for: $savedUser");
+    LogFile.write("📖 [LOGIN] Loaded saved credentials for: $savedUser");
   }
 
   void login() async {
@@ -58,11 +60,17 @@ class LoginController extends GetxController {
 
     try {
       isLoading.value = true;
+
       print("🚀 [LOGIN START] Authenticating: $user");
+      LogFile.write("🚀 [LOGIN START] Authenticating: $user");
+
       print("password: $pass");
+      LogFile.write("password: $pass");
+
       final String baseUrl = AppEnvironment.baseUrl;
       final String loginUrl = "$baseUrl${AppURLs.login}";
       print("🌐 [API] Hitting: $loginUrl");
+      LogFile.write("🌐 [API] Hitting: $loginUrl");
 
       // ✅ Use form encoding — Django REST expects this by default
       final response = await http.post(
@@ -79,6 +87,8 @@ class LoginController extends GetxController {
 
       print("📡 [RESPONSE] Status: ${response.statusCode}");
       print("📡 [RESPONSE] Body: ${response.body}");
+      LogFile.write("📡 [RESPONSE] Status: ${response.statusCode}");
+      LogFile.write("📡 [RESPONSE] Body: ${response.body}");
 
       Map<String, dynamic> parsedResponse = {};
       try {
@@ -101,21 +111,26 @@ class LoginController extends GetxController {
         await AppPreferences.saveUsername(user);
         await AppPreferences.savePassword(pass);
         print("💾 [LOGIN] Credentials saved for: $user");
+        LogFile.write("💾 [LOGIN] Credentials saved for: $user");
         final Map<String, dynamic> data = jsonDecode(response.body);
 
         final String? token = data['data']['accessToken'];
         if (token != null) {
           await AppPreferences.setToken(token);
           print("🔑 [TOKEN] Saved: $token");
+          LogFile.write("🔑 [TOKEN] Saved: $token");
+
         }
 
         await AppPreferences.setActiveUser(user);
         print("👤 [SESSION] Active User set: $user");
+         LogFile.write("👤 [SESSION] Active User set: $user");
 
         if (Get.isRegistered<TestRecipeController>()) {
           final testController = Get.find<TestRecipeController>();
           await testController.loadStoredRecipes();
           print("🔄 [SYNC] Recipes: ${testController.recipeList.length}");
+          LogFile.write("🔄 [SYNC] Recipes: ${testController.recipeList.length}");
         }
 
         isLoading.value = false;
@@ -126,6 +141,7 @@ class LoginController extends GetxController {
         final String errMsg =
             errData['error'] ?? errData['detail'] ?? "Invalid request";
         print("❌ [LOGIN 400] $errMsg");
+        LogFile.write("❌ [LOGIN 400] $errMsg");
         Get.snackbar("Login Failed", errMsg,
             backgroundColor: Colors.redAccent, colorText: Colors.white);
       } else if (response.statusCode == 401) {
@@ -176,6 +192,7 @@ class LoginController extends GetxController {
       ));
       isLoading.value = false;
       print("❌ [LOGIN ERROR] $e");
+      LogFile.write("❌ [LOGIN ERROR] $e");
       Get.snackbar("Login Failed", "An error occurred during login");
     }
   }
@@ -197,9 +214,11 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
       print("🚀 [LOGIN START] Authenticating: $user");
+      LogFile.write("🚀 [LOGIN START] Authenticating: $user");
 
       final String loginUrl = "${AppEnvironment.baseUrl}${AppURLs.login}";
       print("🌐 [API] Hitting: $loginUrl");
+      LogFile.write("🌐 [API] Hitting: $loginUrl");
 
       final response = await http.post(
         Uri.parse(loginUrl),
@@ -214,7 +233,9 @@ class LoginController extends GetxController {
       ).timeout(const Duration(seconds: 30));
 
       print("📡 [RESPONSE] Status: ${response.statusCode}");
+      LogFile.write("📡 [RESPONSE] Status: ${response.statusCode}");
       print("📡 [RESPONSE] Body: ${response.body}");
+      LogFile.write("📡 [RESPONSE] Body: ${response.body}");
       Map<String, dynamic> parsedResponse = {};
       try {
         parsedResponse = jsonDecode(response.body);
@@ -242,6 +263,7 @@ class LoginController extends GetxController {
           final String errMsg =
               body['messages']?[0]?['message'] ?? "Login failed";
           print("❌ [LOGIN] responseStatus: $responseStatus | $errMsg");
+          LogFile.write("❌ [LOGIN] responseStatus: $responseStatus | $errMsg");
           Get.snackbar("Login Failed", errMsg,
               backgroundColor: Colors.redAccent, colorText: Colors.white);
           return;
@@ -257,7 +279,9 @@ class LoginController extends GetxController {
         final String? userName = data['userName'];
 
         print("🔑 [TOKEN] accessToken: $accessToken");
+        LogFile.write("🔑 [TOKEN] accessToken: $accessToken");
         print("👤 [USER] userId: $userId | name: $firstName $lastName");
+        LogFile.write("👤 [USER] userId: $userId | name: $firstName $lastName");
 
         // ✅ Save token
         if (accessToken != null) {
@@ -276,8 +300,9 @@ class LoginController extends GetxController {
         await AppPreferences.setActiveUser(userName ?? user);
 
         print("💾 [PREFS] Credentials saved for: $user");
+        LogFile.write("💾 [PREFS] Credentials saved for: $user");
         print("👤 [SESSION] Active User set: ${userName ?? user}");
-
+        LogFile.write("👤 [SESSION] Active User set: ${userName ?? user}");
         // ✅ Sync recipes if controller exists
         if (Get.isRegistered<TestRecipeController>()) {
           final testController = Get.find<TestRecipeController>();
@@ -340,6 +365,7 @@ class LoginController extends GetxController {
       ));
       isLoading.value = false;
       print("❌ [LOGIN ERROR] $e");
+      LogFile.write("❌ [LOGIN ERROR] $e");
       Get.snackbar("Login Failed", "An error occurred during login",
           backgroundColor: Colors.redAccent, colorText: Colors.white);
     }

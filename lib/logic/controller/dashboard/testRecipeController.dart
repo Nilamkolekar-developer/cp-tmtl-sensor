@@ -103,14 +103,13 @@ import 'dart:io';
 import 'package:cp_tmtl_sensor_zig/AppPreferences/app_areferences.dart';
 import 'package:cp_tmtl_sensor_zig/common_widgets/popup.dart';
 import 'package:cp_tmtl_sensor_zig/models/receipe_model.dart';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 class TestRecipeController extends GetxController {
   // 1. Remove the hardcoded List and initialize as an empty observable list
   var recipeList = <Recipe>[].obs;
- var selectedRecipe = Rxn<Recipe>();
+  var selectedRecipe = Rxn<Recipe>();
   @override
   void onInit() {
     super.onInit();
@@ -118,20 +117,19 @@ class TestRecipeController extends GetxController {
     loadStoredRecipes();
   }
 
-
 //   /// Fetches recipes from the SharedPreferences Map
 //  Future<void> loadStoredRecipes() async {
 //   try {
 //     // 1. Fetch data specifically for the LOGGED-IN user
 //     // This uses the "active_user_id" to find the right key
 //     List<Recipe> storedRecipes = await AppPreferences.getRecipesForCurrentUser();
-    
+
 //     // 2. Clear the old memory list and assign the fresh data
 //     recipeList.assignAll(storedRecipes);
-    
+
 //     // 3. Trigger Obx listeners
-//     recipeList.refresh(); 
-    
+//     recipeList.refresh();
+
 //     print("✅ Successfully synced ${recipeList.length} recipes for the current user.");
 //   } catch (e) {
 //     print("❌ Error loading stored recipes: $e");
@@ -139,29 +137,33 @@ class TestRecipeController extends GetxController {
 //     recipeList.clear();
 //   }
 // }
-Future<void> loadStoredRecipes() async {
-  try {
-    List<Recipe> storedRecipes = await AppPreferences.getRecipesForCurrentUser();
-    
-    // ✅ ADD THIS — check if operations survive deserialization
-    for (var recipe in storedRecipes) {
-      print("📦 [RECIPE] ${recipe.model} | Sensors: ${recipe.sensors.length}");
-      for (var sensor in recipe.sensors) {
-        print("  📡 ${sensor.sensorName} | Ops: ${sensor.operations.length}");
-        for (var op in sensor.operations) {
-          print("    ▶️ ${op.operation} | Reg: ${op.registerAddress} | Val: ${op.value}");
+  Future<void> loadStoredRecipes() async {
+    try {
+      List<Recipe> storedRecipes =
+          await AppPreferences.getRecipesForCurrentUser();
+
+      // ✅ ADD THIS — check if operations survive deserialization
+      for (var recipe in storedRecipes) {
+        print(
+            "📦 [RECIPE] ${recipe.model} | Sensors: ${recipe.sensors.length}");
+        for (var sensor in recipe.sensors) {
+          print("  📡 ${sensor.sensorName} | Ops: ${sensor.operations.length}");
+          for (var op in sensor.operations) {
+            print(
+                "    ▶️ ${op.operation} | Reg: ${op.registerAddress} | Val: ${op.value}");
+          }
         }
       }
-    }
 
-    recipeList.assignAll(storedRecipes);
-    recipeList.refresh();
-    print("✅ Successfully synced ${recipeList.length} recipes for the current user.");
-  } catch (e) {
-    print("❌ Error loading stored recipes: $e");
-    recipeList.clear();
+      recipeList.assignAll(storedRecipes);
+      recipeList.refresh();
+      print(
+          "✅ Successfully synced ${recipeList.length} recipes for the current user.");
+    } catch (e) {
+      print("❌ Error loading stored recipes: $e");
+      recipeList.clear();
+    }
   }
-}
 
   // --- Export Logic ---
   Future<void> exportSingleRecipe(Recipe recipe) async {
@@ -196,22 +198,22 @@ Future<void> loadStoredRecipes() async {
       );
     }
   }
+
 // ==========================================
 // DELETE RECIPE
 // ==========================================
-Future<void> deleteRecipe(
+  Future<void> deleteRecipe(
   Recipe recipe,
 ) async {
-
   try {
-
-    // REMOVE FROM LIST
+    // REMOVE FROM UI
     recipeList.remove(recipe);
 
-    // SAVE UPDATED LIST
-    // await AppPreferences.saveRecipesForCurrentUser(
-    //   recipeList,
-    // );
+    // REMOVE FROM STORAGE
+    await AppPreferences
+        .deleteRecipeForCurrentUser(
+      recipe.model!,
+    );
 
     // REFRESH UI
     recipeList.refresh();
@@ -227,13 +229,8 @@ Future<void> deleteRecipe(
             "Recipe deleted successfully.",
       ),
     );
-  }
-
-  catch (e) {
-
-    print(
-      "❌ DELETE ERROR : $e",
-    );
+  } catch (e) {
+    print("❌ DELETE ERROR : $e");
 
     Get.dialog(
       CustomPopup(
@@ -244,6 +241,5 @@ Future<void> deleteRecipe(
     );
   }
 }
-
-
 }
+

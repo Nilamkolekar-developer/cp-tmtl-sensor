@@ -94,6 +94,50 @@ class AppPreferences {
     }
   }
 
+static Future<void> deleteRecipeForCurrentUser(
+  String recipeModel,
+) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final String? userId =
+      prefs.getString(_currentUserIdKey);
+
+  print("🗑️ PREFS-DELETE: Active User [$userId]");
+
+  if (userId == null) {
+    print("❌ PREFS-DELETE ERROR: No Active User");
+    return;
+  }
+
+  String storageKey =
+      "$_userRecipePrefix$userId";
+
+  final String? rawData =
+      prefs.getString(storageKey);
+
+  if (rawData == null || rawData.isEmpty) {
+    print("⚠️ No recipes found");
+    return;
+  }
+
+  Map<String, dynamic> recipeMap =
+      jsonDecode(rawData);
+
+  // REMOVE RECIPE
+  recipeMap.remove(recipeModel);
+
+  // SAVE UPDATED MAP
+  bool success = await prefs.setString(
+    storageKey,
+    jsonEncode(recipeMap),
+  );
+
+  print(
+    "✅ Recipe Deleted [$recipeModel] Success: $success",
+  );
+}
+
+
 // --- TOKEN MANAGEMENT ---
   static Future<void> setToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
