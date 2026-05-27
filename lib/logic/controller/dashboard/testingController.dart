@@ -1847,9 +1847,9 @@ class ESNController extends GetxController {
 
       int timeout = 0;
 
-      while (timeout < 5) {
+      while (timeout < 8) {
         await Future.delayed(
-          const Duration(milliseconds: 50),
+          const Duration(milliseconds: 80),
         );
 
         int index = sensorResults.indexWhere(
